@@ -12,7 +12,7 @@ abstract class BasePage extends StatelessWidget {
     );
   }
 
-  PreferredSize? buildAppBar(BuildContext context) => null;
+  PreferredSizeWidget? buildAppBar(BuildContext context) => null;
 
   Widget buildBody(BuildContext context);
 }
