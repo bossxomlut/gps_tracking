@@ -35,6 +35,12 @@ dependencies:
   #localization:
   easy_localization: 3.0.3
 
+  #compare object
+  equatable: 2.0.5
+
+  #pick file from device
+  file_picker: 6.1.1
+
 
 dev_dependencies:
   flutter_test:

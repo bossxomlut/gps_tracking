@@ -1,7 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:mp3_convert/base_presentation/theme/theme.dart';
-import 'package:mp3_convert/feature/home/home.dart';
+import 'package:mp3_convert/feature/home/page/home.dart';
 
 import 'main_setting/app_setting.dart';
 
