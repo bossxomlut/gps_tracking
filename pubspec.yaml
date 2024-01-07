@@ -41,6 +41,8 @@ dependencies:
   #pick file from device
   file_picker: 6.1.1
 
+  #http request
+  dio: 5.4.0
 
 dev_dependencies:
   flutter_test:
