@@ -17,9 +17,16 @@ class EmptyHome extends StatelessWidget {
     );
   }
 
-  void _openPickerDialog(BuildContext context) {
+  void _openPickerDialog(BuildContext context) async {
     //todo: implement this
-    setFiles(["test"], context);
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.media,
+      allowMultiple: true,
+    );
+
+    if (result != null) {
+      setFiles(result.files.map((e) => e.path!).toList(), context);
+    }
   }
 
   void setFiles(List<String> filePaths, BuildContext context) {
