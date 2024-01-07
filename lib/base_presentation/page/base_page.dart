@@ -7,14 +7,14 @@ abstract class BasePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: buildAppBar(),
-      body: buildBody(),
+      appBar: buildAppBar(context),
+      body: buildBody(context),
     );
   }
 
-  PreferredSize? buildAppBar();
+  PreferredSize? buildAppBar(BuildContext context) => null;
 
-  Widget buildBody();
+  Widget buildBody(BuildContext context);
 }
 
 abstract class SingleProviderBasePage<C extends Cubit> extends BasePage {
