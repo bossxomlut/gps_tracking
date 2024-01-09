@@ -14,7 +14,7 @@ Future main() async {
     EasyLocalization(
       supportedLocales: [Locale('en', 'US'), Locale('vi', 'VN')],
       path: 'assets/translations',
-      startLocale: Locale('vi', 'VN'),
+      startLocale: Locale('en', 'US'),
       fallbackLocale: Locale('en', 'US'),
       child: const MyApp(),
     ),

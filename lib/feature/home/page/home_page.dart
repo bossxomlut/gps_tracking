@@ -36,7 +36,7 @@ class _HomePage extends SingleProviderBasePage<HomeCubit> {
       switch (state) {
         case PickedFileState():
           return PickedFileHome(
-            paths: state.files!,
+            files: state.files!,
           );
         case HomeEmptyState():
           return const EmptyHome();
