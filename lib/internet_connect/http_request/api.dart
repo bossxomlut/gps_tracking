@@ -2,25 +2,56 @@ import 'package:dio/dio.dart';
 
 import 'api_response.dart';
 
-class ApiWrapper extends _Request {}
+abstract class ApiRequestWrapper extends Request {
+  String get domainName;
 
-abstract class _Request {
-  Dio dio = Dio();
-
-  Future<ApiResponse> get(String path, Map<String, dynamic> queryParameters) async {
-    final dioResponse = await dio.get(path, queryParameters: queryParameters);
-
-    return SuccessApiResponse(message: "message", data: "data");
+  @override
+  Future<ApiResponse> get(String path, {Map<String, dynamic>? queryParameters}) {
+    return super.get(domainName + path, queryParameters: queryParameters);
   }
 
-  Future<ApiResponse> post(String path, Map<String, dynamic> queryParameters, Map<String, dynamic> data) async {
+  @override
+  Future<ApiResponse> post(String path, {required Map<String, dynamic> data, Map<String, dynamic>? queryParameters}) {
+    return super.post(domainName + path, data: data, queryParameters: queryParameters);
+  }
+
+  @override
+  Future<ApiResponse> download(String path, savePath, Map<String, dynamic> queryParameters, Map<String, dynamic> data) {
+    return super.download(domainName + path, savePath, queryParameters, data);
+  }
+}
+
+abstract class Request {
+  Dio dio = Dio();
+
+  ApiResponse getDataResponse(Response dioResponse) {
+    if (dioResponse.statusCode == 200) {
+      return SuccessApiResponse(message: dioResponse.statusMessage ?? "", data: dioResponse.data);
+    }
+
+    //todo: something else status must implement if necessary
+
+    return FailureApiResponse(message: dioResponse.statusMessage ?? "", data: dioResponse.data);
+  }
+
+  Future<ApiResponse> get(String path, {Map<String, dynamic>? queryParameters}) async {
+    final dioResponse = await dio.get(path, queryParameters: queryParameters);
+
+    return getDataResponse(dioResponse);
+  }
+
+  Future<ApiResponse> post(
+    String path, {
+    required Map<String, dynamic> data,
+    Map<String, dynamic>? queryParameters,
+  }) async {
     final dioResponse = await dio.post(
       path,
       queryParameters: queryParameters,
       data: data,
     );
 
-    return SuccessApiResponse(message: "message", data: "data");
+    return getDataResponse(dioResponse);
   }
 
   Future<ApiResponse> download(
@@ -32,36 +63,11 @@ abstract class _Request {
       data: data,
     );
 
-    return SuccessApiResponse(message: "message", data: "data");
+    return getDataResponse(dioResponse);
   }
 }
 
-// abstract class PostRequest {
-//   Future<ApiResponse> post(String path, Map<String, dynamic> queryParameters, Map<String, dynamic> data) async {
-//     Dio dio = Dio();
-//
-//     final dioResponse = await dio.post(
-//       path,
-//       queryParameters: queryParameters,
-//       data: data,
-//     );
-//
-//     return SuccessApiResponse(message: "message", data: "data");
-//   }
-// }
-//
-// abstract class DownloadRequest {
-//   Future<ApiResponse> post(
-//       String path, dynamic savePath, Map<String, dynamic> queryParameters, Map<String, dynamic> data) async {
-//     Dio dio = Dio();
-//
-//     final dioResponse = await dio.download(
-//       path,
-//       savePath,
-//       queryParameters: queryParameters,
-//       data: data,
-//     );
-//
-//     return SuccessApiResponse(message: "message", data: "data");
-//   }
-// }
+class Mp3ApiRequest extends ApiRequestWrapper {
+  @override
+  String get domainName => "https://cdndl.xyz";
+}
