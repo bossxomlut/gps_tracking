@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mp3_convert/feature/home/cubit/home_cubit.dart';
 import 'package:mp3_convert/feature/home/data/entity/feature_entity.dart';
+import 'package:mp3_convert/feature/home/widget/file_type_widget.dart';
 import 'package:mp3_convert/resource/string.dart';
 import 'package:mp3_convert/widget/show_bottom_sheet.dart';
 
@@ -28,7 +29,12 @@ class MenuWidget extends StatelessWidget {
                       }
                       switch (featureType) {
                         case FeatureType.convert:
-                          context.read<HomeCubit>().getMappingType();
+                          context.read<HomeCubit>().getMappingType(
+                            (typeList) {
+                              ListMediaTypeWidget(typeList: typeList).showBottomSheet(context);
+                            },
+                            (failureEntity) {},
+                          );
                         case FeatureType.split:
                         // TODO: Handle this case.
                         case FeatureType.merge:

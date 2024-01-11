@@ -7,7 +7,7 @@ mixin ShowBottomSheet<T> on Widget {
       builder: (context) => SafeArea(child: this),
       isScrollControlled: true,
       useSafeArea: true,
-      enableDrag: !true,
+      enableDrag: true,
       backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(),
     );

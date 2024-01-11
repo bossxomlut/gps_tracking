@@ -47,13 +47,26 @@ class HomeCubit extends Cubit<HomeState> with SafeEmit implements PickMultipleFi
   @override
   bool get canPickMultipleFile => state.canPickMultipleFile;
 
-  void getMappingType() {
+  ListMediaType? l;
+
+  void getMappingType(
+    Function(ListMediaType typeList) onSuccess,
+    Function(FailureEntity failureEntity) onFailure,
+  ) {
+    if (l != null) {
+      onSuccess(l!);
+      return;
+    }
+
     pickingFileRepository.mappingType(state.files!.first.type).then((result) {
       switch (result) {
         case SuccessDataResult<FailureEntity, ListMediaType>():
           print('${result.data.types.toString()}');
+          onSuccess(result.data);
+          l = result.data;
         case FailureDataResult<FailureEntity, ListMediaType>():
           print('${result.data.toString()}');
+          onFailure(result.data);
       }
     });
   }
