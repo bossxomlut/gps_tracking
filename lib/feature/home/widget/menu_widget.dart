@@ -1,5 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:mp3_convert/feature/home/cubit/home_cubit.dart';
 import 'package:mp3_convert/feature/home/data/entity/feature_entity.dart';
 import 'package:mp3_convert/resource/string.dart';
 import 'package:mp3_convert/widget/show_bottom_sheet.dart';
@@ -26,7 +28,7 @@ class MenuWidget extends StatelessWidget {
                       }
                       switch (featureType) {
                         case FeatureType.convert:
-                        // TODO: Handle this case.
+                          context.read<HomeCubit>().getMappingType();
                         case FeatureType.split:
                         // TODO: Handle this case.
                         case FeatureType.merge:
