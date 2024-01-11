@@ -1,4 +1,6 @@
+import 'package:curl_logger_dio_interceptor/curl_logger_dio_interceptor.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 
 import 'api_response.dart';
 
@@ -22,6 +24,12 @@ abstract class ApiRequestWrapper extends Request {
 }
 
 abstract class Request {
+  Request() {
+    if (!kReleaseMode) {
+      dio.interceptors.add(CurlLoggerDioInterceptor(printOnSuccess: true));
+    }
+  }
+
   Dio dio = Dio();
 
   ApiResponse getDataResponse(Response dioResponse) {
