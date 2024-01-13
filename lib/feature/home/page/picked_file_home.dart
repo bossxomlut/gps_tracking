@@ -21,7 +21,7 @@ class PickedFileHome extends StatelessWidget {
             ),
           ),
         ),
-        _MenuWidget(),
+        MenuWidget(),
       ],
     );
   }
@@ -62,60 +62,6 @@ class _AppFileCardState extends BaseStatefulWidgetState<AppFileCard> {
             icon: const Icon(Icons.close),
           )
         ],
-      ),
-    );
-  }
-}
-
-class _MenuWidget extends StatelessWidget {
-  const _MenuWidget({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return ColoredBox(
-      color: Colors.white,
-      child: SafeArea(
-        child: Container(
-          width: double.maxFinite,
-          child: Row(
-            children: [
-              Expanded(
-                child: _CustomMenuButton(
-                  title: MenuLocalization.tool.tr(),
-                  onTap: () {},
-                ),
-              ),
-              Expanded(
-                child: _CustomMenuButton(
-                  title: MenuLocalization.export.tr(),
-                  onTap: () {},
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _CustomMenuButton extends StatelessWidget {
-  const _CustomMenuButton({super.key, required this.title, this.onTap});
-
-  final String title;
-  final VoidCallback? onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return TextButton(
-      onPressed: onTap,
-      style: TextButton.styleFrom(
-        shape: const RoundedRectangleBorder(),
-      ),
-      child: Container(
-        padding: const EdgeInsets.all(20),
-        alignment: Alignment.center,
-        child: Text(title.toUpperCase()),
       ),
     );
   }

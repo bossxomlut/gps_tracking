@@ -2,12 +2,18 @@ import 'dart:developer';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mp3_convert/base_presentation/cubit/base_cubit.dart';
+import 'package:mp3_convert/data/data_result.dart';
+import 'package:mp3_convert/data/entity/failure_entity.dart';
 import 'package:mp3_convert/feature/home/cubit/home_state.dart';
+import 'package:mp3_convert/feature/home/data/entity/media_type.dart';
+import 'package:mp3_convert/feature/home/data/repository/picking_file_repository.dart';
 import 'package:mp3_convert/feature/home/interface/pick_multiple_file.dart';
 import 'package:mp3_convert/widget/file_picker.dart';
 
 class HomeCubit extends Cubit<HomeState> with SafeEmit implements PickMultipleFile {
   HomeCubit() : super(const HomeEmptyState());
+
+  final PickingFileRepository pickingFileRepository = PickingFileRepositoryImpl();
 
   void setPickedFiles(List<AppFile> files) {
     final newFiles = validateFiles(files);
@@ -40,6 +46,30 @@ class HomeCubit extends Cubit<HomeState> with SafeEmit implements PickMultipleFi
 
   @override
   bool get canPickMultipleFile => state.canPickMultipleFile;
+
+  ListMediaType? l;
+
+  void getMappingType(
+    Function(ListMediaType typeList) onSuccess,
+    Function(FailureEntity failureEntity) onFailure,
+  ) {
+    if (l != null) {
+      onSuccess(l!);
+      return;
+    }
+
+    pickingFileRepository.mappingType(state.files!.first.type).then((result) {
+      switch (result) {
+        case SuccessDataResult<FailureEntity, ListMediaType>():
+          print('${result.data.types.toString()}');
+          onSuccess(result.data);
+          l = result.data;
+        case FailureDataResult<FailureEntity, ListMediaType>():
+          print('${result.data.toString()}');
+          onFailure(result.data);
+      }
+    });
+  }
 }
 
 extension FileManager on HomeCubit {

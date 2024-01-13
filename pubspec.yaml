@@ -41,6 +41,11 @@ dependencies:
   #pick file from device
   file_picker: 6.1.1
 
+  #http request
+  dio: 5.4.0
+
+  #curl log http request
+  curl_logger_dio_interceptor: 1.0.0
 
 dev_dependencies:
   flutter_test:
