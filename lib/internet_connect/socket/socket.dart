@@ -23,6 +23,10 @@ class SocketChannel {
     _socket.onConnect((data) {
       print("onConnect: " + data.toString());
     });
+
+    _socket.on("converting", (data) {
+      print("converting: " + data.toString());
+    });
   }
 
   void reconnect() {
@@ -34,6 +38,8 @@ class SocketChannel {
     _streamSubscription?.pause();
     _streamSubscription = null;
   }
+
+  String get socketId => _socket.id!;
 }
 //
 // socket.onConnect((data) {

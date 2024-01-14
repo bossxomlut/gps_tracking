@@ -27,7 +27,12 @@ class PickedFileHome extends StatelessWidget {
             ),
           ),
         ),
-        SafeArea(child: ElevatedButton(onPressed: () {}, child: Text("Start Convert"))),
+        SafeArea(
+            child: ElevatedButton(
+                onPressed: () {
+                  context.read<HomeCubit>().onConvertAll();
+                },
+                child: Text("Start Convert"))),
       ],
     );
   }
