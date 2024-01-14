@@ -1,7 +1,8 @@
+import 'package:equatable/equatable.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
-class AppFile {
+class AppFile extends Equatable {
   final String name;
   final String path;
 
@@ -17,6 +18,12 @@ class AppFile {
 
     throw UnknownFileTypeException();
   }
+
+  @override
+  List<Object?> get props => [
+        name,
+        path,
+      ];
 }
 
 class UnknownFileTypeException implements Exception {}

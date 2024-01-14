@@ -3,9 +3,10 @@ import 'package:mp3_convert/feature/home/data/entity/media_type.dart';
 import 'package:mp3_convert/widget/show_bottom_sheet.dart';
 
 class ListMediaTypeWidget extends StatefulWidget with ShowBottomSheet<List<MediaType>> {
-  const ListMediaTypeWidget({Key? key, required this.typeList}) : super(key: key);
+  const ListMediaTypeWidget({Key? key, required this.typeList, this.initList}) : super(key: key);
 
   final ListMediaType typeList;
+  final List<MediaType>? initList;
 
   @override
   State<ListMediaTypeWidget> createState() => _ListMediaTypeWidgetState();
@@ -16,32 +17,40 @@ class _ListMediaTypeWidgetState extends State<ListMediaTypeWidget> {
   final Set<MediaType> selected = {};
 
   @override
+  void initState() {
+    super.initState();
+    if (widget.initList != null) {
+      selected.addAll(widget.initList!);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final l = widget.typeList.types..sort();
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
         children: [
-          Row(
-            children: [
-              Checkbox(
-                value: isMultipleChoice,
-                onChanged: (value) {
-                  isMultipleChoice = value!;
-                  selected.clear();
-                  setState(() {});
-                },
-              ),
-              Text("Multiple selection"),
-              const Spacer(),
-              if (isMultipleChoice)
-                TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop(selected.toList());
-                    },
-                    child: Text("Select"))
-            ],
-          ),
+          // Row(
+          //   children: [
+          //     Checkbox(
+          //       value: isMultipleChoice,
+          //       onChanged: (value) {
+          //         isMultipleChoice = value!;
+          //         selected.clear();
+          //         setState(() {});
+          //       },
+          //     ),
+          //     Text("Multiple selection"),
+          //     const Spacer(),
+          //     if (isMultipleChoice)
+          //       TextButton(
+          //           onPressed: () {
+          //             Navigator.of(context).pop(selected.toList());
+          //           },
+          //           child: Text("Select"))
+          //   ],
+          // ),
           Wrap(
             spacing: 8,
             children: [

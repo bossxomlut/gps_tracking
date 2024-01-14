@@ -6,6 +6,7 @@ import 'package:mp3_convert/data/data_result.dart';
 import 'package:mp3_convert/data/entity/failure_entity.dart';
 import 'package:mp3_convert/feature/home/cubit/home_state.dart';
 import 'package:mp3_convert/feature/home/data/entity/media_type.dart';
+import 'package:mp3_convert/feature/home/data/entity/setting_file.dart';
 import 'package:mp3_convert/feature/home/data/repository/picking_file_repository.dart';
 import 'package:mp3_convert/feature/home/interface/pick_multiple_file.dart';
 import 'package:mp3_convert/widget/file_picker.dart';
@@ -15,7 +16,7 @@ class HomeCubit extends Cubit<HomeState> with SafeEmit implements PickMultipleFi
 
   final PickingFileRepository pickingFileRepository = PickingFileRepositoryImpl();
 
-  void setPickedFiles(List<AppFile> files) {
+  void setPickedFiles(List<SettingFile> files) {
     final newFiles = validateFiles(files);
 
     if (newFiles.isEmpty) {
@@ -25,8 +26,8 @@ class HomeCubit extends Cubit<HomeState> with SafeEmit implements PickMultipleFi
     emit(PickedFileState(files: newFiles, maxFiles: state.maxFiles));
   }
 
-  List<AppFile> validateFiles(List<AppFile> files) {
-    List<AppFile> newFiles = [];
+  List<SettingFile> validateFiles(List<SettingFile> files) {
+    List<SettingFile> newFiles = [];
 
     for (var file in files) {
       try {
@@ -47,28 +48,24 @@ class HomeCubit extends Cubit<HomeState> with SafeEmit implements PickMultipleFi
   @override
   bool get canPickMultipleFile => state.canPickMultipleFile;
 
-  ListMediaType? l;
-
-  void getMappingType(
-    Function(ListMediaType typeList) onSuccess,
-    Function(FailureEntity failureEntity) onFailure,
-  ) {
-    if (l != null) {
-      onSuccess(l!);
-      return;
-    }
-
-    pickingFileRepository.mappingType(state.files!.first.type).then((result) {
+  Future<ListMediaType?> getMappingType(String sourceType) {
+    return pickingFileRepository.mappingType(state.files!.first.type).then((result) {
       switch (result) {
         case SuccessDataResult<FailureEntity, ListMediaType>():
-          print('${result.data.types.toString()}');
-          onSuccess(result.data);
-          l = result.data;
+          return result.data;
         case FailureDataResult<FailureEntity, ListMediaType>():
-          print('${result.data.toString()}');
-          onFailure(result.data);
+          return null;
       }
     });
+  }
+
+  void updateDestinationType(
+    int index,
+    SettingFile current,
+    String type,
+  ) {
+    state.files?[index] = SettingFile(name: current.name, path: current.path, destinationType: type);
+    emit(PickedFileState(files: [...?state.files], maxFiles: state.maxFiles));
   }
 }
 

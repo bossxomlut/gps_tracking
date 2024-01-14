@@ -1,11 +1,39 @@
 part of 'home.dart';
 
+class MenuPage extends BasePage {
+  const MenuPage({super.key});
+
+  @override
+  PreferredSizeWidget? buildAppBar(BuildContext context) {
+    return AppBar(
+      title: Text("MP3-Convert"),
+    );
+  }
+
+  @override
+  Widget buildBody(BuildContext context) {
+    return Column(
+      children: [
+        ToolButton(
+          title: 'Convert',
+          onTap: () {
+            Navigator.of(context).push(MaterialPageRoute(
+              builder: (context) => _HomePage(),
+            ));
+          },
+          icon: "icon_convert",
+        ),
+      ],
+    );
+  }
+}
+
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return _HomePage();
+    return MenuPage();
   }
 }
 
