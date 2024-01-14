@@ -1,14 +1,27 @@
+import 'dart:async';
+
+import 'package:dio/dio.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:mp3_convert/base_presentation/theme/theme.dart';
 import 'package:mp3_convert/feature/home/page/home.dart';
+import 'package:mp3_convert/internet_connect/socket/socket.dart';
+import 'package:socket_io_client/socket_io_client.dart';
 
 import 'main_setting/app_setting.dart';
+import 'package:socket_io_client/socket_io_client.dart' as IO;
+
+final ConvertChannel socketChannel = ConvertChannel("https://syt.cdndl.xyz");
 
 Future main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await AppSetting().initApp();
+  await FlutterDownloader.initialize(
+      debug: true, // optional: set to false to disable printing logs to console (default: true)
+      ignoreSsl: true // option: set to false to disable working with http links (default: false)
+      );
 
   runApp(
     EasyLocalization(
@@ -44,6 +57,55 @@ class MyApp extends StatelessWidget {
           home: const HomePage(),
         );
       },
+    );
+  }
+}
+
+class WebSocketWidget extends StatefulWidget {
+  const WebSocketWidget({super.key});
+
+  @override
+  State<WebSocketWidget> createState() => _WebSocketWidgetState();
+}
+
+class _WebSocketWidgetState extends State<WebSocketWidget> {
+  SocketChannel socketChannel = SocketChannel("https://syt.cdndl.xyz")..startConnection();
+  StreamSubscription? streamSubscription;
+
+  @override
+  void initState() {
+    super.initState();
+    streamSubscription = socketChannel.stream.listen((event) {
+      print(event.toString());
+    });
+  }
+
+  @override
+  void dispose() {
+    streamSubscription?.cancel();
+    streamSubscription = null;
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(),
+      floatingActionButton: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          FloatingActionButton(
+            onPressed: () {
+              socketChannel.close();
+              streamSubscription?.cancel();
+              streamSubscription = null;
+            },
+          ),
+          FloatingActionButton(
+            onPressed: () {},
+          ),
+        ],
+      ),
     );
   }
 }

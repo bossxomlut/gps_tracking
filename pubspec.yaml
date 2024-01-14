@@ -47,6 +47,21 @@ dependencies:
   #curl log http request
   curl_logger_dio_interceptor: 1.0.0
 
+  #socket
+  socket_io_client: 2.0.3+1
+
+  #uuid
+  uuid: 4.3.3
+
+  #stream extension
+  rxdart: 0.27.7
+
+  #file location
+  path_provider: 2.1.2
+
+  #downloader
+  flutter_downloader: 1.11.6
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

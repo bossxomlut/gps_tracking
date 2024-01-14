@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:mp3_convert/feature/home/data/entity/setting_file.dart';
 import 'package:mp3_convert/feature/home/interface/pick_multiple_file.dart';
 import 'package:mp3_convert/widget/file_picker.dart';
 
@@ -6,7 +7,7 @@ const minFiles = 1;
 
 sealed class HomeState extends Equatable implements PickMultipleFile {
   final int maxFiles;
-  final List<AppFile>? files;
+  final List<SettingFile>? files;
 
   const HomeState({
     this.maxFiles = minFiles,
@@ -43,7 +44,7 @@ class PickedFileState extends HomeState {
 
   PickedFileState copyWith({
     int? maxFiles,
-    List<AppFile>? files,
+    List<SettingFile>? files,
   }) {
     return PickedFileState(
       files: files ?? this.files,

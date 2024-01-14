@@ -11,15 +11,22 @@ abstract class PickingFileRepository {
 
 class PickingFileRepositoryImpl extends PickingFileRepository {
   final FileTypeMappingSource fileTypeMappingSource = FileTypeMappingSourceImpl(Mp3ApiRequest());
+  final _MappingTypeStorage _mappingTypeStorage = _MappingTypeStorage();
 
   @override
   Future<DataResult<FailureEntity, ListMediaType>> mappingType(String sourceType) async {
+    if (_mappingTypeStorage.checkContains(sourceType)) {
+      return SuccessDataResult(_mappingTypeStorage.getValue(sourceType)!);
+    }
+
     return fileTypeMappingSource.getMappingType(MappingTypeDto(type: sourceType)).then((response) {
       switch (response) {
         case SuccessApiResponse():
           final responseData = response.data;
           if (responseData is Map) {
-            return SuccessDataResult(ListMediaType.fromJson(responseData));
+            final value = ListMediaType.fromJson(responseData);
+            _mappingTypeStorage.setValue(sourceType, value);
+            return SuccessDataResult(value);
           }
         case FailureApiResponse():
           return FailureDataResult(FailureEntity(message: response.message));
@@ -27,6 +34,53 @@ class PickingFileRepositoryImpl extends PickingFileRepository {
 
       return FailureDataResult(FailureEntity(message: response.message));
     });
+  }
+}
+
+abstract class MappingStorage<K, V> {
+  final Map<String, V> _mapping = {};
+  void setValue(K key, V value) {
+    _mapping[getKey(key)] = value;
+  }
+
+  bool checkContains(K key) {
+    return _mapping.containsKey(key);
+  }
+
+  String getKey(K key);
+
+  V? getValue(K key) {
+    return _mapping[getKey(key)];
+  }
+}
+
+class _MappingTypeStorage extends MappingStorage<String, ListMediaType> {
+  @override
+  String getKey(String key) {
+    return key;
+  }
+}
+
+class _SettingConvertFileStorage {
+  static const String underscore = "_";
+
+  //todo: need update later
+  Map<String, ListMediaType> _mapping = {};
+
+  void setFileType(String source, String destination, ListMediaType mediaType) {
+    _mapping[getKey(source, destination)] = mediaType;
+  }
+
+  bool check(String source, String destination) {
+    return _mapping.containsKey(getKey(source, destination));
+  }
+
+  String getKey(String source, String destination) {
+    return "$source$underscore$destination";
+  }
+
+  ListMediaType? getMediaType(String source, String destination) {
+    return _mapping[getKey(source, destination)];
   }
 }
 

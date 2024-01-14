@@ -1,6 +1,7 @@
 import 'package:curl_logger_dio_interceptor/curl_logger_dio_interceptor.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:mp3_convert/internet_connect/http_request/api_interceptor.dart';
 
 import 'api_response.dart';
 
@@ -13,13 +14,15 @@ abstract class ApiRequestWrapper extends Request {
   }
 
   @override
-  Future<ApiResponse> post(String path, {required Map<String, dynamic> data, Map<String, dynamic>? queryParameters}) {
-    return super.post(domainName + path, data: data, queryParameters: queryParameters);
+  Future<ApiResponse> post(String path,
+      {required Object? data, Map<String, dynamic>? queryParameters, Map<String, dynamic>? headers}) {
+    return super.post(domainName + path, data: data, queryParameters: queryParameters, headers: headers);
   }
 
   @override
-  Future<ApiResponse> download(String path, savePath, Map<String, dynamic> queryParameters, Map<String, dynamic> data) {
-    return super.download(domainName + path, savePath, queryParameters, data);
+  Future<ApiResponse> download(String path, savePath,
+      {Map<String, dynamic>? queryParameters, Map<String, dynamic>? data}) {
+    return super.download(domainName + path, savePath);
   }
 }
 
@@ -27,6 +30,7 @@ abstract class Request {
   Request() {
     if (!kReleaseMode) {
       dio.interceptors.add(CurlLoggerDioInterceptor(printOnSuccess: true));
+      dio.interceptors.add(LogResponseInterceptor());
     }
   }
 
@@ -50,20 +54,22 @@ abstract class Request {
 
   Future<ApiResponse> post(
     String path, {
-    required Map<String, dynamic> data,
+    required Object? data,
     Map<String, dynamic>? queryParameters,
+    Map<String, dynamic>? headers,
   }) async {
     final dioResponse = await dio.post(
       path,
       queryParameters: queryParameters,
       data: data,
+      options: Options(headers: headers),
     );
 
     return getDataResponse(dioResponse);
   }
 
-  Future<ApiResponse> download(
-      String path, dynamic savePath, Map<String, dynamic> queryParameters, Map<String, dynamic> data) async {
+  Future<ApiResponse> download(String path, dynamic savePath,
+      {Map<String, dynamic>? queryParameters, Map<String, dynamic>? data}) async {
     final dioResponse = await dio.download(
       path,
       savePath,
@@ -78,4 +84,9 @@ abstract class Request {
 class Mp3ApiRequest extends ApiRequestWrapper {
   @override
   String get domainName => "https://cdndl.xyz";
+}
+
+class UploadApiRequest extends ApiRequestWrapper {
+  @override
+  String get domainName => "https://cdndl.xyz/media/sv1";
 }

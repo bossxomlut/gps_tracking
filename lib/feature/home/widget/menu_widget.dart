@@ -29,12 +29,6 @@ class MenuWidget extends StatelessWidget {
                       }
                       switch (featureType) {
                         case FeatureType.convert:
-                          context.read<HomeCubit>().getMappingType(
-                            (typeList) {
-                              ListMediaTypeWidget(typeList: typeList).showBottomSheet(context);
-                            },
-                            (failureEntity) {},
-                          );
                         case FeatureType.split:
                         // TODO: Handle this case.
                         case FeatureType.merge:
