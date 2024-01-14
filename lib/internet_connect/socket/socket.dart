@@ -19,14 +19,6 @@ class SocketChannel {
 
   void startConnection() {
     _socket.connect();
-
-    _socket.onConnect((data) {
-      print("onConnect: " + data.toString());
-    });
-
-    _socket.on("converting", (data) {
-      print("converting: " + data.toString());
-    });
   }
 
   void reconnect() {
@@ -40,6 +32,14 @@ class SocketChannel {
   }
 
   String get socketId => _socket.id!;
+}
+
+class ConvertChannel extends SocketChannel {
+  ConvertChannel(super.url);
+
+  void onConverting(Function(dynamic data) onListen) {
+    _socket.on("converting", onListen);
+  }
 }
 //
 // socket.onConnect((data) {

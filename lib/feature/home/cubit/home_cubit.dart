@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 
@@ -14,11 +15,56 @@ import 'package:mp3_convert/feature/home/data/repository/picking_file_repository
 import 'package:mp3_convert/feature/home/interface/pick_multiple_file.dart';
 import 'package:mp3_convert/main.dart';
 import 'package:mp3_convert/util/generate_string.dart';
+import 'package:mp3_convert/util/parse_util.dart';
 import 'package:mp3_convert/widget/file_picker.dart';
 import 'package:path_provider/path_provider.dart';
 
+class ConvertData {
+  final String uploadId;
+  final double progress;
+  final String? downloadId;
+
+  ConvertData({
+    required this.uploadId,
+    required this.progress,
+    this.downloadId,
+  });
+
+  factory ConvertData.fromMap(Map map) {
+    return ConvertData(
+      uploadId: map["uploadId"].toString(),
+      progress: map["percent"].toString().parseDouble() ?? 0.0,
+      downloadId: map["downloadId"]?.toString(),
+    );
+  }
+}
+
 class HomeCubit extends Cubit<HomeState> with SafeEmit implements PickMultipleFile {
-  HomeCubit() : super(const HomeEmptyState());
+  HomeCubit() : super(const HomeEmptyState()) {
+    socketChannel.onConverting((data) {
+      log("onConvert: ${data}");
+      if (data is Map) {
+        final convertData = ConvertData.fromMap(data as Map);
+        int index = state.files?.indexWhere((f) => f.uploadId == convertData.uploadId) ?? -1;
+        if (index > -1) {
+          if (convertData.progress < 100) {
+            //todo: update progress
+            state.files?[index] = (state.files?[index] as ConvertFile).copyWith(status: ConvertStatus.converting);
+            emit(PickedFileState(files: [...?state.files], maxFiles: state.maxFiles));
+          } else {
+            state.files?[index] = (state.files?[index] as ConvertFile).copyWith(
+              status: ConvertStatus.converted,
+              downloadId: convertData.downloadId,
+            );
+            emit(PickedFileState(files: [...?state.files], maxFiles: state.maxFiles));
+          }
+        }
+      } else if (data is String) {
+        log("is String ");
+        final convertData = ConvertData.fromMap(jsonDecode(data));
+      }
+    });
+  }
 
   final PickingFileRepository pickingFileRepository = PickingFileRepositoryImpl();
   final ConvertFileRepository convertFileRepository = ConvertFileRepositoryImpl();
@@ -80,6 +126,26 @@ class HomeCubit extends Cubit<HomeState> with SafeEmit implements PickMultipleFi
     );
     emit(PickedFileState(files: [...?state.files], maxFiles: state.maxFiles));
   }
+
+  void downloadConvertedFile(String downloadId) async {
+    final Directory downloadsDir = await getApplicationDocumentsDirectory();
+    log("${downloadsDir.absolute.path}");
+
+    final savedDir = Directory(downloadsDir.absolute.path);
+    if (!savedDir.existsSync()) {
+      await savedDir.create();
+    }
+
+    final key = FlutterDownloader.enqueue(
+      url: "https://cdndl.xyz/media/sv1/api/upload/downloadFile/${downloadId}",
+      savedDir: downloadsDir.absolute.path,
+      saveInPublicStorage: true,
+      fileName: "myfileName.mp3",
+    );
+    // FlutterDownloader.registerCallback((id, status, progress) {
+    //   print("FlutterDownloader callback: ${status}");
+    // });
+  }
 }
 
 extension FileManager on HomeCubit {
@@ -99,26 +165,21 @@ extension FileManager on HomeCubit {
 
 extension UploadFile on HomeCubit {
   Future onConvertAll() async {
-    final Directory downloadsDir = await getApplicationDocumentsDirectory();
-    log("${downloadsDir.absolute.path}");
+    onConvert(0, state.files![0]);
+  }
 
-    final savedDir = Directory(downloadsDir.absolute.path);
-    if (!savedDir.existsSync()) {
-      await savedDir.create();
-    }
-    // convertFileRepository.download(DownloadRequestData(
-    //     downloadId: "12a35320-ab76-1e57-85ac-dbf438797fe8", savePath: "${downloadsDir.absolute.path}/test.jpg"));
-
-    final key = await FlutterDownloader.enqueue(
-      url: "https://download.samplelib.com/mp3/sample-3s.mp3",
-      savedDir: downloadsDir.absolute.path,
-      saveInPublicStorage: true,
-      fileName: "test.mp3",
+  Future onConvert(int index, SettingFile file) async {
+    var settingFile = file;
+    state.files?[index] = ConvertFile(
+      name: settingFile.name,
+      path: settingFile.path,
+      destinationType: settingFile.destinationType,
+      uploadId: settingFile.uploadId,
+      status: ConvertStatus.uploading,
     );
-    print("Key: ${key}");
+    emit(PickedFileState(files: [...?state.files], maxFiles: state.maxFiles));
 
-    return;
-    final settingFile = state.files!.first;
+    settingFile = state.files![index];
     final addRowResult = await convertFileRepository.addRow(
       AddRowRequestData(
         fileName: settingFile.name,
@@ -131,17 +192,32 @@ extension UploadFile on HomeCubit {
       ),
     );
 
-    final uploadResult = await convertFileRepository.uploadFile(
-      UploadRequestData(
-        fileName: settingFile.name,
-        uploadId: settingFile.uploadId!,
-        filePath: settingFile.path,
-        fileType: settingFile.type,
-      ),
-    );
-  }
+    switch (addRowResult) {
+      case FailureDataResult<FailureEntity, dynamic>():
+        // TODO: Handle this case.
+        return;
+      case SuccessDataResult<FailureEntity, dynamic>():
+        final uploadResult = await convertFileRepository.uploadFile(
+          UploadRequestData(
+            fileName: settingFile.name,
+            uploadId: settingFile.uploadId!,
+            filePath: settingFile.path,
+            fileType: settingFile.type,
+          ),
+        );
+        state.files?[index] = (state.files?[index] as ConvertFile).copyWith(
+          status: ConvertStatus.converting,
+        );
+        emit(PickedFileState(files: [...?state.files], maxFiles: state.maxFiles));
 
-  Future onConvert(int index, SettingFile file) async {}
+        switch (uploadResult) {
+          case SuccessDataResult<FailureEntity, dynamic>():
+            return;
+          case FailureDataResult<FailureEntity, dynamic>():
+            return;
+        }
+    }
+  }
 
   String get socketId => socketChannel.socketId;
 }

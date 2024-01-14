@@ -12,7 +12,7 @@ import 'package:socket_io_client/socket_io_client.dart';
 import 'main_setting/app_setting.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
-final SocketChannel socketChannel = SocketChannel("https://syt.cdndl.xyz");
+final ConvertChannel socketChannel = ConvertChannel("https://syt.cdndl.xyz");
 
 Future main() async {
   WidgetsFlutterBinding.ensureInitialized();

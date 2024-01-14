@@ -109,6 +109,14 @@ class _AppFileCardState extends BaseStatefulWidgetState<AppFileCard> {
               // )
             ],
           ),
+          if (file is ConvertFile) Text("${file.status.name}"),
+          if (file is ConvertFile)
+            if (file.status == ConvertStatus.converted)
+              TextButton(
+                  onPressed: () {
+                    context.read<HomeCubit>().downloadConvertedFile(file.downloadId!);
+                  },
+                  child: Text("Download")),
         ],
       ),
     );
