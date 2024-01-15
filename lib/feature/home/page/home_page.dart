@@ -40,6 +40,9 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     socketChannel.startConnection();
+
+    PermissionHelper.requestStoragePermission();
+    PermissionHelper.requestNotificationPermission();
   }
 
   @override
