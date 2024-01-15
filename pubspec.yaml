@@ -68,6 +68,9 @@ dependencies:
   #device info
   device_info_plus: 9.1.1
 
+  #svg
+  flutter_svg: 2.0.9
+
 
 dev_dependencies:
   flutter_test:
@@ -82,3 +85,5 @@ flutter:
     - assets/translations/
     - assets/translations/en-US.json
     - assets/translations/vi-VN.json
+
+    - assets/icons/

@@ -15,12 +15,15 @@ import 'package:mp3_convert/feature/home/data/entity/setting_file.dart';
 import 'package:mp3_convert/feature/home/interface/pick_multiple_file.dart';
 import 'package:mp3_convert/feature/home/widget/file_type_widget.dart';
 import 'package:mp3_convert/feature/home/widget/menu_widget.dart';
+import 'package:mp3_convert/feature/home/widget/uploading_progress_bar.dart';
 import 'package:mp3_convert/main.dart';
+import 'package:mp3_convert/resource/icon_path.dart';
 import 'package:mp3_convert/resource/string.dart';
 import 'package:mp3_convert/util/permission/permission_helper.dart';
 import 'package:mp3_convert/widget/button/button.dart';
 import 'package:mp3_convert/widget/file_picker.dart';
 import 'package:collection/collection.dart';
+import 'package:mp3_convert/widget/image.dart';
 
 part 'home_page.dart';
 part 'empty_home.dart';
