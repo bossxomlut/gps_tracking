@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
@@ -82,11 +83,11 @@ class HomeCubit extends Cubit<HomeState> with SafeEmit implements PickMultipleFi
     });
 
     IsolateNameServer.registerPortWithName(_port.sendPort, 'downloader_send_port');
-    _port.listen((dynamic data) {
+
+    streamSubscription = _port.listen((dynamic data) {
       String id = data[0];
       int status = data[1];
       int progress = data[2];
-
       int index = state.files?.indexWhere((f) => f is ConvertFile && f.downloaderId == id) ?? -1;
 
       if (index < 0) {
@@ -109,13 +110,16 @@ class HomeCubit extends Cubit<HomeState> with SafeEmit implements PickMultipleFi
     });
   }
 
+  late StreamSubscription streamSubscription;
+  final ReceivePort _port = ReceivePort();
+
   @override
   Future<void> close() {
+    streamSubscription.cancel();
     _port.close();
+    IsolateNameServer.removePortNameMapping('downloader_send_port');
     return super.close();
   }
-
-  final ReceivePort _port = ReceivePort();
 
   final PickingFileRepository pickingFileRepository = PickingFileRepositoryImpl();
   final ConvertFileRepository convertFileRepository = ConvertFileRepositoryImpl();
@@ -205,6 +209,8 @@ class HomeCubit extends Cubit<HomeState> with SafeEmit implements PickMultipleFi
       saveInPublicStorage: true,
       fileName: state.files?[index].getConvertFileName(),
     );
+
+    log("added ${id} to FlutterDownloader.enqueue");
 
     if (id != null) {
       state.files?[index] = (state.files?[index] as ConvertFile).copyWith(
