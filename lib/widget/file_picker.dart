@@ -29,12 +29,13 @@ class AppFile extends Equatable {
 class UnknownFileTypeException implements Exception {}
 
 class AppFilePicker extends StatelessWidget {
-  const AppFilePicker({Key? key, required this.allowMultiple}) : super(key: key);
+  const AppFilePicker({Key? key, required this.allowMultiple, required this.fileType}) : super(key: key);
 
   final bool allowMultiple;
+  final FileType fileType;
 
   Future<List<AppFile>?> opeFilePicker() {
-    return FilePicker.platform.pickFiles(type: FileType.media, allowMultiple: allowMultiple).then((filePickerResult) {
+    return FilePicker.platform.pickFiles(type: fileType, allowMultiple: allowMultiple).then((filePickerResult) {
       return filePickerResult?.files
           .map(
             (file) => AppFile(name: file.name, path: file.path ?? ""),
@@ -47,4 +48,18 @@ class AppFilePicker extends StatelessWidget {
   Widget build(BuildContext context) {
     return const SizedBox();
   }
+}
+
+class VideoFilePicker extends AppFilePicker {
+  const VideoFilePicker({
+    super.key,
+    required super.allowMultiple,
+  }) : super(fileType: FileType.video);
+}
+
+class AudioFilePicker extends AppFilePicker {
+  const AudioFilePicker({
+    super.key,
+    required super.allowMultiple,
+  }) : super(fileType: FileType.audio);
 }

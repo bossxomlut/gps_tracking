@@ -1,6 +1,9 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
+import 'dart:isolate';
+import 'dart:ui';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
@@ -39,6 +42,16 @@ class ConvertData {
   }
 }
 
+@pragma('vm:entry-point')
+void downloadCallback(String id, int status, int progress) {
+  print(
+    'Callback on background isolate: '
+    'task ($id) is in status ($status) and process ($progress)',
+  );
+
+  IsolateNameServer.lookupPortByName('downloader_send_port')?.send([id, status, progress]);
+}
+
 class HomeCubit extends Cubit<HomeState> with SafeEmit implements PickMultipleFile {
   HomeCubit() : super(const HomeEmptyState()) {
     socketChannel.onConverting((data) {
@@ -49,12 +62,16 @@ class HomeCubit extends Cubit<HomeState> with SafeEmit implements PickMultipleFi
         if (index > -1) {
           if (convertData.progress < 100) {
             //todo: update progress
-            state.files?[index] = (state.files?[index] as ConvertFile).copyWith(status: ConvertStatus.converting);
+            state.files?[index] = (state.files?[index] as ConvertFile).copyWith(
+              status: ConvertStatus.converting,
+              convertProgress: convertData.progress / 100,
+            );
             emit(PickedFileState(files: [...?state.files], maxFiles: state.maxFiles));
           } else {
             state.files?[index] = (state.files?[index] as ConvertFile).copyWith(
               status: ConvertStatus.converted,
               downloadId: convertData.downloadId,
+              convertProgress: 1.0,
             );
             emit(PickedFileState(files: [...?state.files], maxFiles: state.maxFiles));
           }
@@ -64,6 +81,44 @@ class HomeCubit extends Cubit<HomeState> with SafeEmit implements PickMultipleFi
         final convertData = ConvertData.fromMap(jsonDecode(data));
       }
     });
+
+    IsolateNameServer.registerPortWithName(_port.sendPort, 'downloader_send_port');
+
+    streamSubscription = _port.listen((dynamic data) {
+      String id = data[0];
+      int status = data[1];
+      int progress = data[2];
+      int index = state.files?.indexWhere((f) => f is ConvertFile && f.downloaderId == id) ?? -1;
+
+      if (index < 0) {
+        return;
+      }
+
+      if (progress < 100) {
+        state.files?[index] = (state.files?[index] as ConvertFile).copyWith(
+          status: ConvertStatus.downloading,
+          downloadProgress: progress / 100,
+        );
+      } else {
+        state.files?[index] = (state.files?[index] as ConvertFile).copyWith(
+          status: ConvertStatus.downloaded,
+          downloadProgress: 100,
+        );
+      }
+
+      emit(PickedFileState(files: [...?state.files], maxFiles: state.maxFiles));
+    });
+  }
+
+  late StreamSubscription streamSubscription;
+  final ReceivePort _port = ReceivePort();
+
+  @override
+  Future<void> close() {
+    streamSubscription.cancel();
+    _port.close();
+    IsolateNameServer.removePortNameMapping('downloader_send_port');
+    return super.close();
   }
 
   final PickingFileRepository pickingFileRepository = PickingFileRepositoryImpl();
@@ -128,6 +183,18 @@ class HomeCubit extends Cubit<HomeState> with SafeEmit implements PickMultipleFi
   }
 
   void downloadConvertedFile(String downloadId) async {
+    int index = state.files?.indexWhere((f) => f is ConvertFile && f.downloadId == downloadId) ?? -1;
+
+    if (index < 0) {
+      return;
+    }
+
+    state.files?[index] = (state.files?[index] as ConvertFile).copyWith(
+      status: ConvertStatus.downloading,
+      downloadProgress: 0,
+    );
+    emit(PickedFileState(files: [...?state.files], maxFiles: state.maxFiles));
+
     final Directory downloadsDir = await getApplicationDocumentsDirectory();
     log("${downloadsDir.absolute.path}");
 
@@ -136,15 +203,23 @@ class HomeCubit extends Cubit<HomeState> with SafeEmit implements PickMultipleFi
       await savedDir.create();
     }
 
-    final key = FlutterDownloader.enqueue(
+    final id = await FlutterDownloader.enqueue(
       url: "https://cdndl.xyz/media/sv1/api/upload/downloadFile/${downloadId}",
       savedDir: downloadsDir.absolute.path,
       saveInPublicStorage: true,
-      fileName: "myfileName.mp3",
+      fileName: state.files?[index].getConvertFileName(),
     );
-    // FlutterDownloader.registerCallback((id, status, progress) {
-    //   print("FlutterDownloader callback: ${status}");
-    // });
+
+    log("added ${id} to FlutterDownloader.enqueue");
+
+    if (id != null) {
+      state.files?[index] = (state.files?[index] as ConvertFile).copyWith(
+        downloaderId: id,
+        downloadPath: '${downloadsDir.absolute.path}/${state.files?[index].getConvertFileName()}',
+      );
+
+      emit(PickedFileState(files: [...?state.files], maxFiles: state.maxFiles));
+    }
   }
 }
 

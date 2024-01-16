@@ -62,6 +62,18 @@ dependencies:
   #downloader
   flutter_downloader: 1.11.6
 
+  #permission
+  permission_handler: 11.1.0
+
+  #device info
+  device_info_plus: 9.1.1
+
+  #svg
+  flutter_svg: 2.0.9
+
+  #open file
+  open_file: ^3.3.2
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -75,3 +87,5 @@ flutter:
     - assets/translations/
     - assets/translations/en-US.json
     - assets/translations/vi-VN.json
+
+    - assets/icons/

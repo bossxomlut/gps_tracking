@@ -49,11 +49,19 @@ class SettingFile extends AppFile {
         destinationType,
         uploadId,
       ];
+
+  String getConvertFileName() {
+    return name.substring(0, name.length - type.length) + destinationType!;
+  }
 }
 
 class ConvertFile extends SettingFile {
   final ConvertStatus status;
   final String? downloadId;
+  final double? convertProgress;
+  final double? downloadProgress;
+  final String? downloaderId;
+  final String? downloadPath;
 
   ConvertFile({
     required super.name,
@@ -62,6 +70,10 @@ class ConvertFile extends SettingFile {
     super.uploadId,
     required this.status,
     this.downloadId,
+    this.convertProgress,
+    this.downloadProgress,
+    this.downloaderId,
+    this.downloadPath,
   });
 
   @override
@@ -72,6 +84,10 @@ class ConvertFile extends SettingFile {
     String? destinationType,
     String? uploadId,
     String? downloadId,
+    String? downloaderId,
+    double? convertProgress,
+    double? downloadProgress,
+    String? downloadPath,
   }) {
     return ConvertFile(
       name: name ?? this.name,
@@ -80,6 +96,10 @@ class ConvertFile extends SettingFile {
       uploadId: uploadId ?? this.uploadId,
       status: status ?? this.status,
       downloadId: downloadId ?? this.downloadId,
+      downloaderId: downloaderId ?? this.downloaderId,
+      convertProgress: convertProgress ?? this.convertProgress,
+      downloadProgress: downloadProgress ?? this.downloadProgress,
+      downloadPath: downloadPath ?? this.downloadPath,
     );
   }
 
@@ -88,5 +108,9 @@ class ConvertFile extends SettingFile {
         ...super.props,
         status,
         downloadId,
+        downloaderId,
+        convertProgress,
+        downloadProgress,
+        downloadPath,
       ];
 }

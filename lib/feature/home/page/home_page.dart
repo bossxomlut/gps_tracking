@@ -7,6 +7,17 @@ class MenuPage extends BasePage {
   PreferredSizeWidget? buildAppBar(BuildContext context) {
     return AppBar(
       title: Text("MP3-Convert"),
+      actions: [
+        PopupMenuButton(
+          itemBuilder: (context) {
+            return [
+              PopupMenuItem<int>(value: 0, child: LText(SettingLocalization.setting)),
+              PopupMenuItem<int>(value: 1, child: LText(SettingLocalization.instruction)),
+              PopupMenuItem<int>(value: 2, child: LText(SettingLocalization.helpAndFeedback)),
+            ];
+          },
+        )
+      ],
     );
   }
 
@@ -14,14 +25,30 @@ class MenuPage extends BasePage {
   Widget buildBody(BuildContext context) {
     return Column(
       children: [
-        ToolButton(
-          title: 'Convert',
-          onTap: () {
-            Navigator.of(context).push(MaterialPageRoute(
-              builder: (context) => _HomePage(),
-            ));
-          },
-          icon: "icon_convert",
+        Card(
+          margin: const EdgeInsets.all(16),
+          child: InkWell(
+            onTap: () {
+              Navigator.of(context).push(MaterialPageRoute(
+                builder: (context) => _HomePage(),
+              ));
+            },
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+              child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Row(
+                    children: [
+                      AppImage.svg(IconPath.exchange),
+                      const SizedBox(width: 16),
+                      Text(
+                        'Convert',
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
+                    ],
+                  )),
+            ),
+          ),
         ),
       ],
     );
@@ -40,6 +67,9 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     socketChannel.startConnection();
+
+    PermissionHelper.requestStoragePermission();
+    PermissionHelper.requestNotificationPermission();
   }
 
   @override
