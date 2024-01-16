@@ -107,8 +107,12 @@ class HomeCubit extends Cubit<HomeState> with SafeEmit implements PickMultipleFi
 
       emit(PickedFileState(files: [...?state.files], maxFiles: state.maxFiles));
     });
+  }
 
-    FlutterDownloader.registerCallback(downloadCallback);
+  @override
+  Future<void> close() {
+    _port.close();
+    return super.close();
   }
 
   final ReceivePort _port = ReceivePort();
@@ -205,14 +209,11 @@ class HomeCubit extends Cubit<HomeState> with SafeEmit implements PickMultipleFi
     if (id != null) {
       state.files?[index] = (state.files?[index] as ConvertFile).copyWith(
         downloaderId: id,
+        downloadPath: '${downloadsDir.absolute.path}/${state.files?[index].getConvertFileName()}',
       );
 
       emit(PickedFileState(files: [...?state.files], maxFiles: state.maxFiles));
     }
-
-    // FlutterDownloader.registerCallback((id, status, progress) {
-    //   print("FlutterDownloader callback: ${status}");
-    // });
   }
 }
 

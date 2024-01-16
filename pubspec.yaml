@@ -71,6 +71,8 @@ dependencies:
   #svg
   flutter_svg: 2.0.9
 
+  #open file
+  open_file: ^3.3.2
 
 dev_dependencies:
   flutter_test:

@@ -61,6 +61,7 @@ class ConvertFile extends SettingFile {
   final double? convertProgress;
   final double? downloadProgress;
   final String? downloaderId;
+  final String? downloadPath;
 
   ConvertFile({
     required super.name,
@@ -72,6 +73,7 @@ class ConvertFile extends SettingFile {
     this.convertProgress,
     this.downloadProgress,
     this.downloaderId,
+    this.downloadPath,
   });
 
   @override
@@ -85,6 +87,7 @@ class ConvertFile extends SettingFile {
     String? downloaderId,
     double? convertProgress,
     double? downloadProgress,
+    String? downloadPath,
   }) {
     return ConvertFile(
       name: name ?? this.name,
@@ -96,6 +99,7 @@ class ConvertFile extends SettingFile {
       downloaderId: downloaderId ?? this.downloaderId,
       convertProgress: convertProgress ?? this.convertProgress,
       downloadProgress: downloadProgress ?? this.downloadProgress,
+      downloadPath: downloadPath ?? this.downloadPath,
     );
   }
 
@@ -107,5 +111,6 @@ class ConvertFile extends SettingFile {
         downloaderId,
         convertProgress,
         downloadProgress,
+        downloadPath,
       ];
 }

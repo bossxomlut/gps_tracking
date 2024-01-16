@@ -20,10 +20,12 @@ import 'package:mp3_convert/main.dart';
 import 'package:mp3_convert/resource/icon_path.dart';
 import 'package:mp3_convert/resource/string.dart';
 import 'package:mp3_convert/util/permission/permission_helper.dart';
+import 'package:mp3_convert/util/reduce_text.dart';
 import 'package:mp3_convert/widget/button/button.dart';
 import 'package:mp3_convert/widget/file_picker.dart';
 import 'package:collection/collection.dart';
 import 'package:mp3_convert/widget/image.dart';
+import 'package:open_file/open_file.dart';
 
 part 'home_page.dart';
 part 'empty_home.dart';

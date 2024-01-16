@@ -30,12 +30,12 @@ class PickedFileHome extends StatelessWidget {
             ),
           ),
         ),
-        SafeArea(
-            child: ElevatedButton(
-                onPressed: () {
-                  context.read<HomeCubit>().onConvertAll();
-                },
-                child: Text("Start Convert"))),
+        // SafeArea(
+        //     child: ElevatedButton(
+        //         onPressed: () {
+        //           context.read<HomeCubit>().onConvertAll();
+        //         },
+        //         child: Text("Start Convert"))),
       ],
     );
   }
@@ -67,9 +67,8 @@ class _AppFileCardState extends BaseStatefulWidgetState<AppFileCard> {
             children: [
               Expanded(
                 child: Text(
-                  file.name,
+                  reduceText(file.name),
                   style: textTheme.titleMedium,
-                  maxLines: 1,
                 ),
               ),
               const SizedBox(width: 12),
@@ -98,52 +97,13 @@ class _AppFileCardState extends BaseStatefulWidgetState<AppFileCard> {
               )
             ],
           ),
-          Divider(),
-          // Row(
-          //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          //   children: [
-          //     Text(
-          //       file.type,
-          //       style: textTheme.titleMedium,
-          //     ),
-          //     Icon(Icons.arrow_forward),
-          //     Row(
-          //       children: [
-          //         LoadingButton(
-          //           child: Text(file.destinationType ?? "Chọn"),
-          //           onTap: () async {
-          //             final listMediaType = await context.read<HomeCubit>().getMappingType(file.type);
-          //             ListMediaTypeWidget(
-          //               typeList: listMediaType ?? ListMediaType(types: []),
-          //               initList: file.destinationType != null ? [MediaType(name: file.destinationType!)] : null,
-          //             ).showBottomSheet(context).then((destinationType) {
-          //               if (destinationType != null) {
-          //                 if (destinationType.isNotEmpty) {
-          //                   widget.onSelectDestinationType(destinationType.first.name);
-          //                 }
-          //               }
-          //             });
-          //           },
-          //         ),
-          //         // IconButton(onPressed: () {}, icon: Icon(Icons.settings))
-          //       ],
-          //     )
-          //     // const SizedBox(width: 16),
-          //     // Text(file.type),
-          //     // IconButton(
-          //     //   onPressed: () {
-          //     //     context.read<HomeCubit>().removeFile(file);
-          //     //   },
-          //     //   icon: const Icon(Icons.close),
-          //     // )
-          //   ],
-          // ),
           if (file.destinationType != null)
             if (file is ConvertFile)
               const SizedBox()
             else
               Column(
                 children: [
+                  Divider(),
                   Align(
                     alignment: Alignment.center,
                     child: ElevatedButton(
@@ -167,11 +127,13 @@ class _AppFileCardState extends BaseStatefulWidgetState<AppFileCard> {
                 ],
               ),
           if (file is ConvertFile)
-            ConvertStatsWidget(
-              status: file.status,
-              progress: file.convertProgress,
-              downloadProgress: file.downloadProgress,
-              downloadId: file.downloadId,
+            Column(
+              children: [
+                Divider(),
+                ConvertStatsWidget(
+                  convertFile: file,
+                ),
+              ],
             ),
         ],
       ),
@@ -182,19 +144,17 @@ class _AppFileCardState extends BaseStatefulWidgetState<AppFileCard> {
 class ConvertStatsWidget extends StatelessWidget {
   const ConvertStatsWidget({
     super.key,
-    required this.status,
-    this.progress,
-    this.downloadProgress,
-    this.downloadId,
+    required this.convertFile,
   });
 
-  final ConvertStatus status;
-  final double? progress;
-  final double? downloadProgress;
-  final String? downloadId;
+  final ConvertFile convertFile;
 
   @override
   Widget build(BuildContext context) {
+    final ConvertStatus status = convertFile.status;
+    final double? progress = convertFile.convertProgress;
+    final double? downloadProgress = convertFile.downloadProgress;
+    final String? downloadId = convertFile.downloadId;
     switch (status) {
       case ConvertStatus.uploading:
         return const UploadingProgressBar();
@@ -238,10 +198,12 @@ class ConvertStatsWidget extends StatelessWidget {
         return DownloadingProgressBar(progress: downloadProgress);
       case ConvertStatus.downloaded:
         return ElevatedButton(
-          onPressed: () {},
+          onPressed: () {
+            OpenFile.open(convertFile.downloadPath);
+          },
           child: Center(
             child: Text(
-              "Downloaded",
+              "Open File",
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     color: Colors.white,
                   ),
