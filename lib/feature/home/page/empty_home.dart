@@ -40,7 +40,7 @@ class _EmptyHomeState extends State<EmptyHome> implements PickMultipleFile {
   }
 
   void _openPickerDialog() async {
-    AppFilePicker(allowMultiple: canPickMultipleFile).opeFilePicker().then((appFiles) {
+    VideoFilePicker(allowMultiple: canPickMultipleFile).opeFilePicker().then((appFiles) {
       setFiles(appFiles ?? []);
     }).catchError((error) {
       //todo: handle error if necessary
