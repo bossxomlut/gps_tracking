@@ -74,6 +74,10 @@ dependencies:
   #open file
   open_file: ^3.3.2
 
+  #internet connection checker
+  internet_connection_checker: 1.0.0+1
+
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

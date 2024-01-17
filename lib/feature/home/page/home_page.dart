@@ -63,6 +63,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  late final ShowLostConnectInternetHelper _connectInternetHelper = ShowLostConnectInternetHelper(context);
   @override
   void initState() {
     super.initState();
@@ -70,6 +71,14 @@ class _HomePageState extends State<HomePage> {
 
     PermissionHelper.requestStoragePermission();
     PermissionHelper.requestNotificationPermission();
+
+    _connectInternetHelper.startListen();
+  }
+
+  @override
+  void dispose() {
+    _connectInternetHelper.dispose();
+    super.dispose();
   }
 
   @override

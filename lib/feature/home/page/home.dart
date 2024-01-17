@@ -1,9 +1,11 @@
+import 'dart:async';
 import 'dart:developer';
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:mp3_convert/base_presentation/page/base_page.dart';
 import 'package:mp3_convert/base_presentation/theme/theme.dart';
 import 'package:mp3_convert/base_presentation/view/base_view.dart';
@@ -25,7 +27,10 @@ import 'package:mp3_convert/widget/button/button.dart';
 import 'package:mp3_convert/widget/file_picker.dart';
 import 'package:collection/collection.dart';
 import 'package:mp3_convert/widget/image.dart';
+import 'package:mp3_convert/widget/lost_connect_internet_widget.dart';
 import 'package:open_file/open_file.dart';
+
+import '../../../util/show_lost_connect_internet_helper.dart';
 
 part 'home_page.dart';
 part 'empty_home.dart';
