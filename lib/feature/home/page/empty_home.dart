@@ -48,6 +48,6 @@ class _EmptyHomeState extends State<EmptyHome> implements PickMultipleFile {
   }
 
   void setFiles(List<AppFile> filePaths) {
-    homeCubit.setPickedFiles(filePaths.map((e) => SettingFile(path: e.path, name: e.name)).toList());
+    homeCubit.setPickedFiles(filePaths.map((e) => ConfigConvertFile(path: e.path, name: e.name)).toList());
   }
 }

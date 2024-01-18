@@ -36,13 +36,10 @@ class ConvertFileRepositoryImpl extends ConvertFileRepository {
       switch (response) {
         case SuccessApiResponse():
           final responseData = response.data;
-          if (responseData is Map) {
-            return SuccessDataResult(responseData);
-          }
+          return SuccessDataResult(responseData);
         case FailureApiResponse():
           return FailureDataResult(FailureEntity(message: response.message));
       }
-      return FailureDataResult(FailureEntity(message: response.message));
     });
   }
 

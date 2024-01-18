@@ -2,8 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
-import 'dart:isolate';
-import 'dart:ui';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
@@ -11,121 +9,128 @@ import 'package:mp3_convert/base_presentation/cubit/base_cubit.dart';
 import 'package:mp3_convert/data/data_result.dart';
 import 'package:mp3_convert/data/entity/failure_entity.dart';
 import 'package:mp3_convert/feature/home/cubit/home_state.dart';
+import 'package:mp3_convert/feature/home/data/entity/convert_data.dart';
+import 'package:mp3_convert/feature/home/data/entity/get_mapping_type.dart';
+import 'package:mp3_convert/feature/home/data/entity/mapping_type.dart';
 import 'package:mp3_convert/feature/home/data/entity/media_type.dart';
 import 'package:mp3_convert/feature/home/data/entity/setting_file.dart';
 import 'package:mp3_convert/feature/home/data/repository/convert_file_repository.dart';
 import 'package:mp3_convert/feature/home/data/repository/picking_file_repository.dart';
-import 'package:mp3_convert/feature/home/interface/pick_multiple_file.dart';
+import 'package:mp3_convert/feature/home/data/entity/pick_multiple_file.dart';
 import 'package:mp3_convert/main.dart';
+import 'package:mp3_convert/util/downloader_util.dart';
 import 'package:mp3_convert/util/generate_string.dart';
 import 'package:mp3_convert/util/parse_util.dart';
 import 'package:mp3_convert/widget/file_picker.dart';
 import 'package:path_provider/path_provider.dart';
 
-class ConvertData {
-  final String uploadId;
-  final double progress;
-  final String? downloadId;
+class HomeCubit extends Cubit<HomeState> with SafeEmit implements PickMultipleFile, MappingType {
+  final GetMappingType _getMappingType = GetMappingType();
 
-  ConvertData({
-    required this.uploadId,
-    required this.progress,
-    this.downloadId,
-  });
+  final ConvertFileRepository convertFileRepository = ConvertFileRepositoryImpl();
 
-  factory ConvertData.fromMap(Map map) {
-    return ConvertData(
-      uploadId: map["uploadId"].toString(),
-      progress: map["percent"].toString().parseDouble() ?? 0.0,
-      downloadId: map["downloadId"]?.toString(),
-    );
-  }
-}
+  final DownloaderHelper _downloaderHelper = DownloaderHelper();
 
-@pragma('vm:entry-point')
-void downloadCallback(String id, int status, int progress) {
-  print(
-    'Callback on background isolate: '
-    'task ($id) is in status ($status) and process ($progress)',
-  );
+  final GenerateString generateString = UUIDGenerateString();
 
-  IsolateNameServer.lookupPortByName('downloader_send_port')?.send([id, status, progress]);
-}
-
-class HomeCubit extends Cubit<HomeState> with SafeEmit implements PickMultipleFile {
   HomeCubit() : super(const HomeEmptyState()) {
-    socketChannel.onConverting((data) {
-      log("onConvert: ${data}");
-      if (data is Map) {
-        final convertData = ConvertData.fromMap(data as Map);
-        int index = state.files?.indexWhere((f) => f.uploadId == convertData.uploadId) ?? -1;
-        if (index > -1) {
-          if (convertData.progress < 100) {
-            //todo: update progress
-            state.files?[index] = (state.files?[index] as ConvertFile).copyWith(
-              status: ConvertStatus.converting,
-              convertProgress: convertData.progress / 100,
-            );
-            emit(PickedFileState(files: [...?state.files], maxFiles: state.maxFiles));
-          } else {
-            state.files?[index] = (state.files?[index] as ConvertFile).copyWith(
-              status: ConvertStatus.converted,
-              downloadId: convertData.downloadId,
-              convertProgress: 1.0,
-            );
-            emit(PickedFileState(files: [...?state.files], maxFiles: state.maxFiles));
-          }
+    socketChannel.onConverting(_convertListener);
+
+    _downloaderHelper.startListen(_downloadListener);
+  }
+
+  void _convertListener(dynamic data) {
+    log("onConvert listener: ${data}");
+    if (data is Map) {
+      _updateConvertingProgress(data);
+    } else if (data is String) {
+      try {
+        final decodeData = jsonDecode(data);
+        if (decodeData is Map) {
+          _updateConvertingProgress(decodeData);
         }
-      } else if (data is String) {
-        log("is String ");
-        final convertData = ConvertData.fromMap(jsonDecode(data));
+      } catch (e) {
+        log("onConvert decode string error: $e");
       }
-    });
+    }
+  }
 
-    IsolateNameServer.registerPortWithName(_port.sendPort, 'downloader_send_port');
-
-    streamSubscription = _port.listen((dynamic data) {
-      String id = data[0];
-      int status = data[1];
-      int progress = data[2];
-      int index = state.files?.indexWhere((f) => f is ConvertFile && f.downloaderId == id) ?? -1;
-
-      if (index < 0) {
-        return;
-      }
-
-      if (progress < 100) {
-        state.files?[index] = (state.files?[index] as ConvertFile).copyWith(
-          status: ConvertStatus.downloading,
-          downloadProgress: progress / 100,
+  void _updateConvertingProgress(Map data) {
+    final convertData = ConvertData.fromMap(data);
+    int index = state.files?.indexWhere((f) => f is ConvertingFile && f.uploadId == convertData.uploadId) ?? -1;
+    if (index > -1) {
+      final file = state.files![index];
+      if (convertData.progress < 100) {
+        state.files?[index] = (file as ConvertingFile).copyWith(
+          convertProgress: convertData.progress / 100,
         );
       } else {
-        state.files?[index] = (state.files?[index] as ConvertFile).copyWith(
-          status: ConvertStatus.downloaded,
-          downloadProgress: 100,
+        state.files?[index] = ConvertedFile(
+          downloadId: convertData.downloadId,
+          name: file.name,
+          path: file.path,
+          destinationType: file.destinationType,
         );
       }
-
-      emit(PickedFileState(files: [...?state.files], maxFiles: state.maxFiles));
-    });
+      _refreshPickedFileState();
+    }
   }
 
-  late StreamSubscription streamSubscription;
-  final ReceivePort _port = ReceivePort();
+  void _downloadListener(dynamic data) {
+    String id = data[0];
+    int status = data[1];
+    int progress = data[2];
+    int index = state.files?.indexWhere((f) => f is DownloadingFile && f.downloaderId == id) ?? -1;
+
+    if (index < 0) {
+      return;
+    }
+
+    final DownloadingFile file = state.files![index] as DownloadingFile;
+
+    if (progress < 100) {
+      state.files?[index] = file.copyWith(
+        downloadProgress: progress / 100,
+      );
+    } else {
+      state.files?[index] = DownloadedFile(
+        destinationType: file.destinationType,
+        path: file.path,
+        name: file.name,
+        downloadPath: file.downloadPath,
+      );
+    }
+
+    emit(PickedFileState(files: [...?state.files], maxFiles: state.maxFiles));
+  }
 
   @override
   Future<void> close() {
-    streamSubscription.cancel();
-    _port.close();
-    IsolateNameServer.removePortNameMapping('downloader_send_port');
+    _downloaderHelper.dispose();
     return super.close();
   }
 
-  final PickingFileRepository pickingFileRepository = PickingFileRepositoryImpl();
-  final ConvertFileRepository convertFileRepository = ConvertFileRepositoryImpl();
+  @override
+  bool get canPickMultipleFile => state.canPickMultipleFile;
 
-  final GenerateString generateString = UUIDGenerateString();
-  void setPickedFiles(List<SettingFile> files) {
+  @override
+  Future<ListMediaType?> getMappingType(String sourceType) {
+    return _getMappingType.getMappingType(sourceType);
+  }
+
+  void _refreshPickedFileState() {
+    emit(PickedFileState(files: [...?state.files], maxFiles: state.maxFiles));
+  }
+
+  void _setFileAtIndex(int index, ConfigConvertFile file) {
+    state.files?[index] = file;
+
+    _refreshPickedFileState();
+  }
+}
+
+extension FileManager on HomeCubit {
+  void setPickedFiles(List<ConfigConvertFile> files) {
     final newFiles = validateFiles(files);
 
     if (newFiles.isEmpty) {
@@ -135,8 +140,23 @@ class HomeCubit extends Cubit<HomeState> with SafeEmit implements PickMultipleFi
     emit(PickedFileState(files: newFiles, maxFiles: state.maxFiles));
   }
 
-  List<SettingFile> validateFiles(List<SettingFile> files) {
-    List<SettingFile> newFiles = [];
+  void updateDestinationType(
+    int index,
+    ConfigConvertFile current,
+    String type,
+  ) {
+    _setFileAtIndex(
+      index,
+      ConfigConvertFile(
+        name: current.name,
+        path: current.path,
+        destinationType: type,
+      ),
+    );
+  }
+
+  List<ConfigConvertFile> validateFiles(List<ConfigConvertFile> files) {
+    List<ConfigConvertFile> newFiles = [];
 
     for (var file in files) {
       try {
@@ -154,76 +174,6 @@ class HomeCubit extends Cubit<HomeState> with SafeEmit implements PickMultipleFi
     return newFiles;
   }
 
-  @override
-  bool get canPickMultipleFile => state.canPickMultipleFile;
-
-  Future<ListMediaType?> getMappingType(String sourceType) {
-    return pickingFileRepository.mappingType(state.files!.first.type).then((result) {
-      switch (result) {
-        case SuccessDataResult<FailureEntity, ListMediaType>():
-          return result.data;
-        case FailureDataResult<FailureEntity, ListMediaType>():
-          return null;
-      }
-    });
-  }
-
-  void updateDestinationType(
-    int index,
-    SettingFile current,
-    String type,
-  ) {
-    state.files?[index] = SettingFile(
-      name: current.name,
-      path: current.path,
-      destinationType: type,
-      uploadId: generateString.getString(),
-    );
-    emit(PickedFileState(files: [...?state.files], maxFiles: state.maxFiles));
-  }
-
-  void downloadConvertedFile(String downloadId) async {
-    int index = state.files?.indexWhere((f) => f is ConvertFile && f.downloadId == downloadId) ?? -1;
-
-    if (index < 0) {
-      return;
-    }
-
-    state.files?[index] = (state.files?[index] as ConvertFile).copyWith(
-      status: ConvertStatus.downloading,
-      downloadProgress: 0,
-    );
-    emit(PickedFileState(files: [...?state.files], maxFiles: state.maxFiles));
-
-    final Directory downloadsDir = await getApplicationDocumentsDirectory();
-    log("${downloadsDir.absolute.path}");
-
-    final savedDir = Directory(downloadsDir.absolute.path);
-    if (!savedDir.existsSync()) {
-      await savedDir.create();
-    }
-
-    final id = await FlutterDownloader.enqueue(
-      url: "https://cdndl.xyz/media/sv1/api/upload/downloadFile/${downloadId}",
-      savedDir: downloadsDir.absolute.path,
-      saveInPublicStorage: true,
-      fileName: state.files?[index].getConvertFileName(),
-    );
-
-    log("added ${id} to FlutterDownloader.enqueue");
-
-    if (id != null) {
-      state.files?[index] = (state.files?[index] as ConvertFile).copyWith(
-        downloaderId: id,
-        downloadPath: '${downloadsDir.absolute.path}/${state.files?[index].getConvertFileName()}',
-      );
-
-      emit(PickedFileState(files: [...?state.files], maxFiles: state.maxFiles));
-    }
-  }
-}
-
-extension FileManager on HomeCubit {
   void removeFile(AppFile file) {
     final cloneFiles = [...?state.files];
     cloneFiles.remove(file);
@@ -238,61 +188,140 @@ extension FileManager on HomeCubit {
   }
 }
 
-extension UploadFile on HomeCubit {
+extension ConvertingFileProcess on HomeCubit {
+  String get socketId => socketChannel.socketId;
+
   Future onConvertAll() async {
     onConvert(0, state.files![0]);
   }
 
-  Future onConvert(int index, SettingFile file) async {
-    var settingFile = file;
-    state.files?[index] = ConvertFile(
-      name: settingFile.name,
-      path: settingFile.path,
-      destinationType: settingFile.destinationType,
-      uploadId: settingFile.uploadId,
-      status: ConvertStatus.uploading,
+  //add row
+  Future onAddRow(int index, ConfigConvertFile file) async {
+    final uploadingFile = UploadingFile(
+      name: file.name,
+      path: file.path,
+      destinationType: file.destinationType,
+      uploadId: generateString.getString(),
     );
-    emit(PickedFileState(files: [...?state.files], maxFiles: state.maxFiles));
 
-    settingFile = state.files![index];
+    _setFileAtIndex(index, uploadingFile);
+
     final addRowResult = await convertFileRepository.addRow(
       AddRowRequestData(
-        fileName: settingFile.name,
         socketId: socketId,
-        uploadId: settingFile.uploadId!,
-        sessionId: "sessionId",
-        target: settingFile.destinationType!,
-        ext: settingFile.type,
-        fileType: "audio",
+        sessionId: "sessionId", //todo: sessionId cần thông tin nó làm cái gì
+        fileName: uploadingFile.name,
+        uploadId: uploadingFile.uploadId,
+        target: uploadingFile.destinationType!,
+        ext: uploadingFile.type,
+        fileType: "audio", //todo: cần điều chỉnh lại cái chổ này theo API
       ),
     );
 
     switch (addRowResult) {
+      case SuccessDataResult<FailureEntity, dynamic>():
+        onUploadFile(index, uploadingFile);
+        return;
       case FailureDataResult<FailureEntity, dynamic>():
         // TODO: Handle this case.
         return;
-      case SuccessDataResult<FailureEntity, dynamic>():
-        final uploadResult = await convertFileRepository.uploadFile(
-          UploadRequestData(
-            fileName: settingFile.name,
-            uploadId: settingFile.uploadId!,
-            filePath: settingFile.path,
-            fileType: settingFile.type,
-          ),
-        );
-        state.files?[index] = (state.files?[index] as ConvertFile).copyWith(
-          status: ConvertStatus.converting,
-        );
-        emit(PickedFileState(files: [...?state.files], maxFiles: state.maxFiles));
-
-        switch (uploadResult) {
-          case SuccessDataResult<FailureEntity, dynamic>():
-            return;
-          case FailureDataResult<FailureEntity, dynamic>():
-            return;
-        }
     }
   }
 
-  String get socketId => socketChannel.socketId;
+  //upload file
+
+  Future onUploadFile(int index, UploadingFile file) async {
+    final uploadResult = await convertFileRepository.uploadFile(
+      UploadRequestData(
+        fileName: file.name,
+        uploadId: file.uploadId,
+        filePath: file.path,
+        fileType: file.type,
+      ),
+    );
+
+    switch (uploadResult) {
+      case SuccessDataResult<FailureEntity, dynamic>():
+        _setFileAtIndex(
+          index,
+          UploadedFile(
+            name: file.name,
+            path: file.path,
+            destinationType: file.destinationType,
+            uploadId: file.uploadId,
+          ),
+        );
+
+        _setFileAtIndex(
+          index,
+          ConvertingFile(
+            name: file.name,
+            path: file.path,
+            destinationType: file.destinationType,
+            uploadId: file.uploadId,
+            convertProgress: .0,
+          ),
+        );
+
+        return;
+      case FailureDataResult<FailureEntity, dynamic>():
+        return;
+    }
+  }
+
+  //convert file
+  Future onConvert(int index, ConfigConvertFile file) async {
+    onAddRow(index, file);
+  }
+
+  //download file
+
+  void downloadConvertedFile(String downloadId) async {
+    int index = state.files?.indexWhere((f) => f is ConvertedFile && f.downloadId == downloadId) ?? -1;
+
+    if (index < 0) {
+      return;
+    }
+
+    final String path = await _getPath();
+
+    final ConvertedFile file = state.files![index] as ConvertedFile;
+
+    final downloadingFile = DownloadingFile(
+      name: file.name,
+      path: file.path,
+      destinationType: file.destinationType,
+      downloadProgress: .0,
+      downloadPath: '$path/${file.getConvertFileName()}',
+      downloaderId: null,
+    );
+
+    _setFileAtIndex(index, downloadingFile);
+
+    final id = await FlutterDownloader.enqueue(
+      url: "https://cdndl.xyz/media/sv1/api/upload/downloadFile/$downloadId",
+      savedDir: path,
+      saveInPublicStorage: true,
+      fileName: downloadingFile.getConvertFileName(),
+    );
+
+    log("added ${id} to FlutterDownloader.enqueue");
+
+    if (id != null) {
+      _setFileAtIndex(index, downloadingFile.copyWith(downloaderId: id));
+    } else {
+      //todo: handle when cannot get downloader id
+    }
+  }
+
+  Future<String> _getPath() async {
+    final Directory downloadsDir = await getApplicationDocumentsDirectory();
+
+    final savedDir = Directory(downloadsDir.absolute.path);
+
+    if (!savedDir.existsSync()) {
+      await savedDir.create();
+    }
+    return downloadsDir.absolute.path;
+  }
 }

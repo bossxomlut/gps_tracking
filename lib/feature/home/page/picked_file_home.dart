@@ -3,7 +3,7 @@ part of 'home.dart';
 class PickedFileHome extends StatelessWidget {
   const PickedFileHome({Key? key, required this.files}) : super(key: key);
 
-  final List<SettingFile> files;
+  final List<ConfigConvertFile> files;
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +44,7 @@ class PickedFileHome extends StatelessWidget {
 class AppFileCard extends StatefulWidget {
   const AppFileCard({super.key, required this.file, required this.onSelectDestinationType, required this.onConvert});
 
-  final SettingFile file;
+  final ConfigConvertFile file;
   final ValueChanged<String> onSelectDestinationType;
   final VoidCallback onConvert;
 
@@ -98,7 +98,7 @@ class _AppFileCardState extends BaseStatefulWidgetState<AppFileCard> {
             ],
           ),
           if (file.destinationType != null)
-            if (file is ConvertFile)
+            if (file is ConvertStatusFile)
               const SizedBox()
             else
               Column(
@@ -126,7 +126,7 @@ class _AppFileCardState extends BaseStatefulWidgetState<AppFileCard> {
                   ),
                 ],
               ),
-          if (file is ConvertFile)
+          if (file is ConvertStatusFile)
             Column(
               children: [
                 Divider(),
@@ -147,24 +147,25 @@ class ConvertStatsWidget extends StatelessWidget {
     required this.convertFile,
   });
 
-  final ConvertFile convertFile;
+  final ConvertStatusFile convertFile;
 
   @override
   Widget build(BuildContext context) {
     final ConvertStatus status = convertFile.status;
-    final double? progress = convertFile.convertProgress;
-    final double? downloadProgress = convertFile.downloadProgress;
-    final String? downloadId = convertFile.downloadId;
+
     switch (status) {
       case ConvertStatus.uploading:
         return const UploadingProgressBar();
       case ConvertStatus.uploaded:
         return const UploadingProgressBar(progress: 1);
       case ConvertStatus.converting:
+        final double? progress = (convertFile as ConvertingFile).convertProgress;
+
         return ConvertingProgressBar(progress: progress);
       case ConvertStatus.converted:
         return ElevatedButton(
           onPressed: () {
+            final String? downloadId = (convertFile as ConvertedFile).downloadId;
             context.read<HomeCubit>().downloadConvertedFile(downloadId!);
           },
           child: Center(
@@ -195,11 +196,14 @@ class ConvertStatsWidget extends StatelessWidget {
           ),
         );
       case ConvertStatus.downloading:
+        final double? downloadProgress = (convertFile as DownloadingFile).downloadProgress;
         return DownloadingProgressBar(progress: downloadProgress);
       case ConvertStatus.downloaded:
         return ElevatedButton(
           onPressed: () {
-            OpenFile.open(convertFile.downloadPath);
+            if (convertFile is DownloadedFile) {
+              OpenFile.open((convertFile as DownloadedFile).downloadPath);
+            }
           },
           child: Center(
             child: Text(
