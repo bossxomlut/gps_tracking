@@ -10,32 +10,32 @@ class PickedFileHome extends StatelessWidget {
     return Column(
       children: [
         Expanded(
-          child: Center(
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  ...files.mapIndexed((index, file) => AppFileCard(
-                        key: ValueKey(file.path),
-                        file: file,
-                        onSelectDestinationType: (type) {
-                          context.read<HomeCubit>().updateDestinationType(index, file, type);
-                        },
-                        onConvert: () {
-                          context.read<HomeCubit>().onConvert(index, file);
-                        },
-                      )),
-                ],
-              ),
-            ),
+          child: ListView.separated(
+            itemBuilder: (context, index) {
+              final file = files[index];
+              return AppFileCard(
+                file: file,
+                onSelectDestinationType: (type) {
+                  context.read<HomeCubit>().updateDestinationType(index, file, type);
+                },
+                onConvert: () {
+                  context.read<HomeCubit>().onConvert(index, file);
+                },
+              );
+            },
+            separatorBuilder: (context, index) => const SizedBox(height: 16),
+            itemCount: files.length,
           ),
         ),
-        // SafeArea(
-        //     child: ElevatedButton(
-        //         onPressed: () {
-        //           context.read<HomeCubit>().onConvertAll();
-        //         },
-        //         child: Text("Start Convert"))),
+        if (files.length > 1)
+          SafeArea(
+            child: ElevatedButton(
+              onPressed: () {
+                context.read<HomeCubit>().onConvertAll();
+              },
+              child: Text("Start Convert All"),
+            ),
+          ),
       ],
     );
   }
@@ -57,9 +57,14 @@ class _AppFileCardState extends BaseStatefulWidgetState<AppFileCard> {
   Widget build(BuildContext context) {
     final file = widget.file;
     return Container(
+      margin: EdgeInsets.symmetric(horizontal: 16),
       padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
+        boxShadow: [
+          BoxShadow(offset: const Offset(0, -2), blurRadius: 4.0, color: Colors.black.withOpacity(0.04)),
+          BoxShadow(offset: const Offset(0, 4), blurRadius: 8.0, color: Colors.black.withOpacity(0.12)),
+        ],
       ),
       child: Column(
         children: [
@@ -78,6 +83,7 @@ class _AppFileCardState extends BaseStatefulWidgetState<AppFileCard> {
                 children: [
                   LoadingButton(
                     child: Text(file.destinationType ?? "Chọn"),
+                    isError: file is UnValidConfigConvertFile,
                     onTap: () async {
                       final listMediaType = await context.read<HomeCubit>().getMappingType(file.type);
                       ListMediaTypeWidget(

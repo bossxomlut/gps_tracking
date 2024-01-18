@@ -1,4 +1,4 @@
-String reduceText(String text, {int maxLength = 10}) {
+String reduceText(String text, {int maxLength = 8}) {
   if (text.length <= maxLength * 2) {
     return text;
   } else {

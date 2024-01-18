@@ -2,12 +2,15 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
+import 'package:collection/collection.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:mp3_convert/base_presentation/cubit/base_cubit.dart';
+import 'package:mp3_convert/base_presentation/cubit/event_mixin.dart';
 import 'package:mp3_convert/data/data_result.dart';
 import 'package:mp3_convert/data/entity/failure_entity.dart';
+import 'package:mp3_convert/feature/home/cubit/home_event.dart';
 import 'package:mp3_convert/feature/home/cubit/home_state.dart';
 import 'package:mp3_convert/feature/home/data/entity/convert_data.dart';
 import 'package:mp3_convert/feature/home/data/entity/get_mapping_type.dart';
@@ -24,7 +27,7 @@ import 'package:mp3_convert/util/parse_util.dart';
 import 'package:mp3_convert/widget/file_picker.dart';
 import 'package:path_provider/path_provider.dart';
 
-class HomeCubit extends Cubit<HomeState> with SafeEmit implements PickMultipleFile, MappingType {
+class HomeCubit extends Cubit<HomeState> with SafeEmit, EventMixin<HomeEvent> implements PickMultipleFile, MappingType {
   final GetMappingType _getMappingType = GetMappingType();
 
   final ConvertFileRepository convertFileRepository = ConvertFileRepositoryImpl();
@@ -33,7 +36,9 @@ class HomeCubit extends Cubit<HomeState> with SafeEmit implements PickMultipleFi
 
   final GenerateString generateString = UUIDGenerateString();
 
-  HomeCubit() : super(const HomeEmptyState()) {
+  List<ConfigConvertFile> get _files => state.files ?? [];
+
+  HomeCubit() : super(const HomeEmptyState(maxFiles: 2)) {
     socketChannel.onConverting(_convertListener);
 
     _downloaderHelper.startListen(_downloadListener);
@@ -140,6 +145,16 @@ extension FileManager on HomeCubit {
     emit(PickedFileState(files: newFiles, maxFiles: state.maxFiles));
   }
 
+  void addPickedFiles(List<ConfigConvertFile> files) {
+    final newFiles = validateFiles(files);
+
+    if (newFiles.isEmpty) {
+      return;
+    }
+
+    emit(PickedFileState(files: [...?state.files, ...newFiles], maxFiles: state.maxFiles));
+  }
+
   void updateDestinationType(
     int index,
     ConfigConvertFile current,
@@ -186,13 +201,59 @@ extension FileManager on HomeCubit {
       ));
     }
   }
+
+  void _validateConvertAll() {
+    ////note: duyệt theo cách này sẽ đi tuần tự hết list
+    if ([for (int i = 0; i < _files.length; i++) _validateFileIndex(i)].contains(false)) {
+      throw UnknownFileTypeException();
+    }
+
+    ////note: duyệt theo cách này mapping song song
+    // if (_files.mapIndexed((index, _) => _validateFileIndex(index)).contains(false)) {
+    //   throw UnknownFileTypeException();
+    // }
+  }
+
+  bool _validateFileIndex(int index) {
+    final file = _files[index];
+
+    if (file.destinationType == null) {
+      _setFileAtIndex(
+        index,
+        UnValidConfigConvertFile(
+          name: file.name,
+          path: file.path,
+          destinationType: file.destinationType,
+        ),
+      );
+      return false;
+    }
+    return true;
+  }
 }
+
+class UnknownDestinationFileType implements Exception {}
 
 extension ConvertingFileProcess on HomeCubit {
   String get socketId => socketChannel.socketId;
 
   Future onConvertAll() async {
-    onConvert(0, state.files![0]);
+    if (state.files?.isEmpty ?? true) {
+      return;
+    }
+
+    try {
+      _validateConvertAll();
+
+      _files.forEachIndexed((index, file) {
+        onConvert(index, file);
+      });
+    } catch (e, st) {
+      if (e is UnknownFileTypeException) {
+        addEvent(UnknownDestinationEvent());
+      }
+      return;
+    }
   }
 
   //add row
@@ -271,6 +332,7 @@ extension ConvertingFileProcess on HomeCubit {
 
   //convert file
   Future onConvert(int index, ConfigConvertFile file) async {
+    //validate: kiểm tra có destination type chưa
     onAddRow(index, file);
   }
 

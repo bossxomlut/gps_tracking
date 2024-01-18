@@ -50,6 +50,14 @@ class ConfigConvertFile extends AppFile {
   }
 }
 
+class UnValidConfigConvertFile extends ConfigConvertFile {
+  UnValidConfigConvertFile({
+    required super.name,
+    required super.path,
+    required super.destinationType,
+  });
+}
+
 abstract class ConvertStatusFile extends ConfigConvertFile {
   final ConvertStatus status;
 
