@@ -16,10 +16,10 @@ class PickedFileHome extends StatelessWidget {
               return AppFileCard(
                 file: file,
                 onSelectDestinationType: (type) {
-                  context.read<HomeCubit>().updateDestinationType(index, file, type);
+                  context.read<ConvertCubit>().updateDestinationType(index, file, type);
                 },
                 onConvert: () {
-                  context.read<HomeCubit>().onConvert(index, file);
+                  context.read<ConvertCubit>().onConvert(index, file);
                 },
               );
             },
@@ -31,7 +31,7 @@ class PickedFileHome extends StatelessWidget {
           SafeArea(
             child: ElevatedButton(
               onPressed: () {
-                context.read<HomeCubit>().onConvertAll();
+                context.read<ConvertCubit>().onConvertAll();
               },
               child: Text("Start Convert All"),
             ),
@@ -85,7 +85,7 @@ class _AppFileCardState extends BaseStatefulWidgetState<AppFileCard> {
                     child: Text(file.destinationType ?? "Chọn"),
                     isError: file is UnValidConfigConvertFile,
                     onTap: () async {
-                      final listMediaType = await context.read<HomeCubit>().getMappingType(file.type);
+                      final listMediaType = await context.read<ConvertCubit>().getMappingType(file.type);
                       ListMediaTypeWidget(
                         typeList: listMediaType ?? ListMediaType(types: []),
                         initList: file.destinationType != null ? [MediaType(name: file.destinationType!)] : null,
@@ -172,7 +172,7 @@ class ConvertStatsWidget extends StatelessWidget {
         return ElevatedButton(
           onPressed: () {
             final String? downloadId = (convertFile as ConvertedFile).downloadId;
-            context.read<HomeCubit>().downloadConvertedFile(downloadId!);
+            context.read<ConvertCubit>().downloadConvertedFile(downloadId!);
           },
           child: Center(
             child: Row(

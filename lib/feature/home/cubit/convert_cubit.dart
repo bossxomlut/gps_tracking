@@ -10,8 +10,8 @@ import 'package:mp3_convert/base_presentation/cubit/base_cubit.dart';
 import 'package:mp3_convert/base_presentation/cubit/event_mixin.dart';
 import 'package:mp3_convert/data/data_result.dart';
 import 'package:mp3_convert/data/entity/failure_entity.dart';
-import 'package:mp3_convert/feature/home/cubit/home_event.dart';
-import 'package:mp3_convert/feature/home/cubit/home_state.dart';
+import 'package:mp3_convert/feature/home/cubit/convert_event.dart';
+import 'package:mp3_convert/feature/home/cubit/convert_state.dart';
 import 'package:mp3_convert/feature/home/data/entity/convert_data.dart';
 import 'package:mp3_convert/feature/home/data/entity/get_mapping_type.dart';
 import 'package:mp3_convert/feature/home/data/entity/mapping_type.dart';
@@ -27,7 +27,9 @@ import 'package:mp3_convert/util/parse_util.dart';
 import 'package:mp3_convert/widget/file_picker.dart';
 import 'package:path_provider/path_provider.dart';
 
-class HomeCubit extends Cubit<HomeState> with SafeEmit, EventMixin<HomeEvent> implements PickMultipleFile, MappingType {
+class ConvertCubit extends Cubit<ConvertState>
+    with SafeEmit, EventMixin<HomeEvent>
+    implements PickMultipleFile, MappingType {
   final GetMappingType _getMappingType = GetMappingType();
 
   final ConvertFileRepository convertFileRepository = ConvertFileRepositoryImpl();
@@ -38,7 +40,7 @@ class HomeCubit extends Cubit<HomeState> with SafeEmit, EventMixin<HomeEvent> im
 
   List<ConfigConvertFile> get _files => state.files ?? [];
 
-  HomeCubit() : super(const HomeEmptyState(maxFiles: 2)) {
+  ConvertCubit() : super(const ConvertEmptyState(maxFiles: 2)) {
     socketChannel.onConverting(_convertListener);
 
     _downloaderHelper.startListen(_downloadListener);
@@ -134,7 +136,7 @@ class HomeCubit extends Cubit<HomeState> with SafeEmit, EventMixin<HomeEvent> im
   }
 }
 
-extension FileManager on HomeCubit {
+extension FileManager on ConvertCubit {
   void setPickedFiles(List<ConfigConvertFile> files) {
     final newFiles = validateFiles(files);
 
@@ -193,7 +195,7 @@ extension FileManager on HomeCubit {
     final cloneFiles = [...?state.files];
     cloneFiles.remove(file);
     if (cloneFiles.isEmpty) {
-      emit(HomeEmptyState(maxFiles: state.maxFiles));
+      emit(ConvertEmptyState(maxFiles: state.maxFiles));
     } else {
       emit(PickedFileState(
         maxFiles: state.maxFiles,
@@ -234,7 +236,7 @@ extension FileManager on HomeCubit {
 
 class UnknownDestinationFileType implements Exception {}
 
-extension ConvertingFileProcess on HomeCubit {
+extension ConvertingFileProcess on ConvertCubit {
   String get socketId => socketChannel.socketId;
 
   Future onConvertAll() async {
