@@ -134,6 +134,22 @@ class ConvertCubit extends Cubit<ConvertState>
 
     _refreshPickedFileState();
   }
+
+  void onRetry(int index, ConvertErrorFile file) {
+    switch (file.convertStatusFile.status) {
+      case ConvertStatus.uploading:
+      case ConvertStatus.uploaded:
+      case ConvertStatus.converting:
+        onConvert(index, file);
+        return;
+      case ConvertStatus.converted:
+      case ConvertStatus.downloading:
+        downloadConvertedFile((file as HaveDownloadIdFile).downloadId ?? '');
+        return;
+      case ConvertStatus.downloaded:
+        return;
+    }
+  }
 }
 
 extension FileManager on ConvertCubit {
@@ -286,7 +302,7 @@ extension ConvertingFileProcess on ConvertCubit {
         onUploadFile(index, uploadingFile);
         return;
       case FailureDataResult<FailureEntity, dynamic>():
-        // TODO: Handle this case.
+        _setFileAtIndex(index, ConvertErrorFile(convertStatusFile: uploadingFile));
         return;
     }
   }
@@ -328,6 +344,7 @@ extension ConvertingFileProcess on ConvertCubit {
 
         return;
       case FailureDataResult<FailureEntity, dynamic>():
+        _setFileAtIndex(index, ConvertErrorFile(convertStatusFile: file));
         return;
     }
   }
@@ -355,6 +372,7 @@ extension ConvertingFileProcess on ConvertCubit {
       name: file.name,
       path: file.path,
       destinationType: file.destinationType,
+      downloadId: file.downloadId,
       downloadProgress: .0,
       downloadPath: '$path/${file.getConvertFileName()}',
       downloaderId: null,

@@ -18,6 +18,7 @@ import 'package:mp3_convert/feature/home/data/entity/media_type.dart';
 import 'package:mp3_convert/feature/home/data/entity/setting_file.dart';
 import 'package:mp3_convert/feature/home/data/entity/pick_multiple_file.dart';
 import 'package:mp3_convert/feature/home/page/convert_page.dart';
+import 'package:mp3_convert/feature/home/widget/app_file_card.dart';
 import 'package:mp3_convert/feature/home/widget/file_type_widget.dart';
 import 'package:mp3_convert/feature/home/widget/menu_widget.dart';
 import 'package:mp3_convert/feature/home/widget/uploading_progress_bar.dart';

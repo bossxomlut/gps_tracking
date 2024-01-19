@@ -85,6 +85,12 @@ class UploadFile extends ConvertStatusFile {
     required super.destinationType,
     required this.uploadId,
   });
+
+  @override
+  List<Object?> get props => [
+        ...super.props,
+        uploadId,
+      ];
 }
 
 class UploadingFile extends UploadFile {
@@ -140,14 +146,30 @@ class ConvertingFile extends UploadFile {
   }
 }
 
-class ConvertedFile extends ConvertStatusFile {
+class HaveDownloadIdFile extends ConvertStatusFile {
   final String? downloadId;
 
+  HaveDownloadIdFile({
+    required super.name,
+    required super.path,
+    required super.destinationType,
+    required super.status,
+    required this.downloadId,
+  });
+
+  @override
+  List<Object?> get props => [
+        ...super.props,
+        downloadId,
+      ];
+}
+
+class ConvertedFile extends HaveDownloadIdFile {
   ConvertedFile({
     required super.name,
     required super.path,
     required super.destinationType,
-    required this.downloadId,
+    required super.downloadId,
   }) : super(status: ConvertStatus.converted);
 
   @override
@@ -157,7 +179,7 @@ class ConvertedFile extends ConvertStatusFile {
       ];
 }
 
-class DownloadingFile extends ConvertStatusFile {
+class DownloadingFile extends HaveDownloadIdFile {
   final String? downloaderId;
   final String downloadPath;
   final double? downloadProgress;
@@ -169,6 +191,7 @@ class DownloadingFile extends ConvertStatusFile {
     required this.downloaderId,
     required this.downloadPath,
     required this.downloadProgress,
+    required super.downloadId,
   }) : super(status: ConvertStatus.downloading);
 
   @override
@@ -180,6 +203,7 @@ class DownloadingFile extends ConvertStatusFile {
     String? downloaderId,
     double? downloadProgress,
     String? downloadPath,
+    String? downloadId,
   }) {
     return DownloadingFile(
       name: name ?? this.name,
@@ -188,6 +212,7 @@ class DownloadingFile extends ConvertStatusFile {
       downloaderId: downloaderId ?? this.downloaderId,
       downloadProgress: downloadProgress ?? this.downloadProgress,
       downloadPath: downloadPath ?? this.downloadPath,
+      downloadId: downloadId ?? this.downloadId,
     );
   }
 
@@ -209,4 +234,28 @@ class DownloadedFile extends ConvertStatusFile {
   }) : super(status: ConvertStatus.downloaded);
 
   final String downloadPath;
+
+  @override
+  List<Object?> get props => [
+        ...super.props,
+        downloadPath,
+      ];
+}
+
+class ConvertErrorFile extends ConfigConvertFile {
+  final ConvertStatusFile convertStatusFile;
+
+  ConvertErrorFile({
+    required this.convertStatusFile,
+  }) : super(
+          name: convertStatusFile.name,
+          path: convertStatusFile.path,
+          destinationType: convertStatusFile.destinationType,
+        );
+
+  @override
+  List<Object?> get props => [
+        ...super.props,
+        convertStatusFile,
+      ];
 }
