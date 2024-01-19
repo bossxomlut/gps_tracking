@@ -25,6 +25,8 @@ class ConvertFileRepositoryImpl extends ConvertFileRepository {
           }
         case FailureApiResponse():
           return FailureDataResult(FailureEntity(message: response.message));
+        case InternetErrorResponse():
+        // TODO: Handle this case.
       }
       return FailureDataResult(FailureEntity(message: response.message));
     });
@@ -38,6 +40,8 @@ class ConvertFileRepositoryImpl extends ConvertFileRepository {
           final responseData = response.data;
           return SuccessDataResult(responseData);
         case FailureApiResponse():
+          return FailureDataResult(FailureEntity(message: response.message));
+        case InternetErrorResponse():
           return FailureDataResult(FailureEntity(message: response.message));
       }
     });
@@ -54,6 +58,8 @@ class ConvertFileRepositoryImpl extends ConvertFileRepository {
           }
         case FailureApiResponse():
           return FailureDataResult(FailureEntity(message: response.message));
+        case InternetErrorResponse():
+        // TODO: Handle this case.
       }
       return FailureDataResult(FailureEntity(message: response.message));
     });
