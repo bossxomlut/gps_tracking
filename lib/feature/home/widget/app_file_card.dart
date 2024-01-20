@@ -62,8 +62,17 @@ class _AppFileCardState extends BaseStatefulWidgetState<AppFileCard> {
                     isError: file is UnValidConfigConvertFile,
                     onTap: () async {
                       final listMediaType = await context.read<ConvertCubit>().getMappingType(file.type);
+
+                      if (listMediaType == null) {
+                        const snackBar = SnackBar(
+                          content: Text('Please select convert file type!'),
+                        );
+
+                        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                      }
+
                       ListMediaTypeWidget(
-                        typeList: listMediaType ?? ListMediaType(types: []),
+                        typeList: listMediaType!,
                         initList: file.destinationType != null ? [MediaType(name: file.destinationType!)] : null,
                       ).showBottomSheet(context).then((destinationType) {
                         if (destinationType != null) {
