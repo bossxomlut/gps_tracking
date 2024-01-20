@@ -6,6 +6,7 @@ import 'package:mp3_convert/feature/home/data/entity/media_type.dart';
 import 'package:mp3_convert/feature/home/data/entity/setting_file.dart';
 import 'package:mp3_convert/feature/home/widget/convert_status_widget.dart';
 import 'package:mp3_convert/feature/home/widget/file_type_widget.dart';
+import 'package:mp3_convert/feature/home/widget/uploading_progress_bar.dart';
 import 'package:mp3_convert/util/reduce_text.dart';
 import 'package:mp3_convert/widget/button/loading_button.dart';
 
@@ -79,14 +80,7 @@ class _AppFileCardState extends BaseStatefulWidgetState<AppFileCard> {
             ],
           ),
           if (file is ConvertErrorFile)
-            Column(
-              children: [
-                const Divider(),
-                ConvertErrorWidget(
-                  onRetry: widget.onRetry,
-                ),
-              ],
-            )
+            _getErrorWidget(file)
           else if (file.destinationType != null)
             if (file is ConvertStatusFile)
               const SizedBox()
@@ -128,5 +122,33 @@ class _AppFileCardState extends BaseStatefulWidgetState<AppFileCard> {
         ],
       ),
     );
+  }
+
+  Widget _getErrorWidget(ConvertErrorFile file) {
+    switch (file.convertStatusFile.status) {
+      case ConvertStatus.uploading:
+      case ConvertStatus.uploaded:
+      case ConvertStatus.converting:
+      case ConvertStatus.converted:
+      case ConvertStatus.downloaded:
+        return Column(
+          children: [
+            const Divider(),
+            ConvertErrorWidget(
+              onRetry: widget.onRetry,
+            ),
+          ],
+        );
+      case ConvertStatus.downloading:
+        return Column(
+          children: [
+            const Divider(),
+            DownloadingProgressBar(
+              isError: true,
+              progress: (file.convertStatusFile as DownloadingFile).downloadProgress,
+            ),
+          ],
+        );
+    }
   }
 }

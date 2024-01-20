@@ -8,7 +8,10 @@ class SocketChannel {
   final String url;
   late final Socket _socket;
   SocketChannel(this.url) {
-    _socket = io(url, OptionBuilder().setTransports(['websocket']).disableAutoConnect().build());
+    _socket = io(
+      url,
+      OptionBuilder().setTransports(['websocket']).disableAutoConnect().setTimeout(3000).build(),
+    );
   }
 
   final _outerStreamSubject = BehaviorSubject<dynamic>();
@@ -31,7 +34,21 @@ class SocketChannel {
     _streamSubscription = null;
   }
 
-  String get socketId => _socket.id!;
+  String? get socketId => _getSocketId();
+
+  String? _getSocketId() {
+    if (_socket.disconnected) {
+      return null;
+    }
+    return _socket.id;
+  }
+
+  void onDisconnected(Function(dynamic data) callBack) {
+    _socket.onDisconnect((data) {
+      log("socket io.onDisconnect: ${data}");
+      callBack(data);
+    });
+  }
 }
 
 class ConvertChannel extends SocketChannel {

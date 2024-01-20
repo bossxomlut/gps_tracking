@@ -41,74 +41,13 @@ class ConvertCubit extends Cubit<ConvertState>
   List<ConfigConvertFile> get _files => state.files ?? [];
 
   ConvertCubit() : super(const ConvertEmptyState(maxFiles: 2)) {
-    socketChannel.onConverting(_convertListener);
+    //use socket to listen convert progress from server
+    socketChannel
+      ..onConverting(_convertListener)
+      ..onDisconnected(_onConvertingError);
 
+    //use downloader to listen download progress from internet
     _downloaderHelper.startListen(_downloadListener);
-  }
-
-  void _convertListener(dynamic data) {
-    log("onConvert listener: ${data}");
-    if (data is Map) {
-      _updateConvertingProgress(data);
-    } else if (data is String) {
-      try {
-        final decodeData = jsonDecode(data);
-        if (decodeData is Map) {
-          _updateConvertingProgress(decodeData);
-        }
-      } catch (e) {
-        log("onConvert decode string error: $e");
-      }
-    }
-  }
-
-  void _updateConvertingProgress(Map data) {
-    final convertData = ConvertData.fromMap(data);
-    int index = state.files?.indexWhere((f) => f is ConvertingFile && f.uploadId == convertData.uploadId) ?? -1;
-    if (index > -1) {
-      final file = state.files![index];
-      if (convertData.progress < 100) {
-        state.files?[index] = (file as ConvertingFile).copyWith(
-          convertProgress: convertData.progress / 100,
-        );
-      } else {
-        state.files?[index] = ConvertedFile(
-          downloadId: convertData.downloadId,
-          name: file.name,
-          path: file.path,
-          destinationType: file.destinationType,
-        );
-      }
-      _refreshPickedFileState();
-    }
-  }
-
-  void _downloadListener(dynamic data) {
-    String id = data[0];
-    int status = data[1];
-    int progress = data[2];
-    int index = state.files?.indexWhere((f) => f is DownloadingFile && f.downloaderId == id) ?? -1;
-
-    if (index < 0) {
-      return;
-    }
-
-    final DownloadingFile file = state.files![index] as DownloadingFile;
-
-    if (progress < 100) {
-      state.files?[index] = file.copyWith(
-        downloadProgress: progress / 100,
-      );
-    } else {
-      state.files?[index] = DownloadedFile(
-        destinationType: file.destinationType,
-        path: file.path,
-        name: file.name,
-        downloadPath: file.downloadPath,
-      );
-    }
-
-    emit(PickedFileState(files: [...?state.files], maxFiles: state.maxFiles));
   }
 
   @override
@@ -149,6 +88,112 @@ class ConvertCubit extends Cubit<ConvertState>
       case ConvertStatus.downloaded:
         return;
     }
+  }
+}
+
+extension ConvertListener on ConvertCubit {
+  void _convertListener(dynamic data) {
+    log("onConvert listener: ${data}");
+    if (data is Map) {
+      _updateConvertingProgress(data);
+    } else if (data is String) {
+      try {
+        final decodeData = jsonDecode(data);
+        if (decodeData is Map) {
+          _updateConvertingProgress(decodeData);
+        }
+      } catch (e) {
+        log("onConvert decode string error: $e");
+      }
+    }
+  }
+
+  void _updateConvertingProgress(Map data) {
+    final convertData = ConvertData.fromMap(data);
+    int index = state.files?.indexWhere((f) => f is ConvertingFile && f.uploadId == convertData.uploadId) ?? -1;
+    if (index > -1) {
+      final file = state.files![index];
+      if (convertData.progress < 100) {
+        state.files?[index] = (file as ConvertingFile).copyWith(
+          convertProgress: convertData.progress / 100,
+        );
+      } else {
+        state.files?[index] = ConvertedFile(
+          downloadId: convertData.downloadId,
+          name: file.name,
+          path: file.path,
+          destinationType: file.destinationType,
+        );
+      }
+      _refreshPickedFileState();
+    }
+  }
+
+  void _onConvertingError(_) {
+    _files.forEachIndexed((index, file) {
+      if (file is ConvertingFile) {
+        _setFileAtIndex(index, ConvertErrorFile(convertStatusFile: file));
+      }
+    });
+  }
+}
+
+extension DownloadListener on ConvertCubit {
+  void _downloadListener(dynamic data) {
+    String id = data[0];
+
+    ///1: _
+    ///2: running
+    ///3: complete
+    ///4: error
+    int status = data[1];
+    int progress = data[2];
+    int index = state.files?.indexWhere((f) {
+          return _checkIsDownloadingFile(f, id) || _checkIsDownloadingFileFromError(f, id);
+        }) ??
+        -1;
+
+    if (index < 0) {
+      return;
+    }
+
+    final DownloadingFile file = _getDownloadingFile(state.files![index]);
+
+    if (status == 4) {
+      _setFileAtIndex(index, ConvertErrorFile(convertStatusFile: file));
+      return;
+    }
+
+    if (progress < 100) {
+      _setFileAtIndex(index, file.copyWith(downloadProgress: progress / 100));
+    } else {
+      _setFileAtIndex(
+        index,
+        DownloadedFile(
+          destinationType: file.destinationType,
+          path: file.path,
+          name: file.name,
+          downloadPath: file.downloadPath,
+        ),
+      );
+    }
+  }
+
+  bool _checkIsDownloadingFile(ConfigConvertFile f, String id) {
+    return f is DownloadingFile && f.downloaderId == id;
+  }
+
+  bool _checkIsDownloadingFileFromError(ConfigConvertFile f, String id) {
+    return f is ConvertErrorFile && _checkIsDownloadingFile(f.convertStatusFile, id);
+  }
+
+  DownloadingFile _getDownloadingFile(ConfigConvertFile f) {
+    if (f is DownloadingFile) {
+      return f;
+    } else if (f is ConvertErrorFile) {
+      return _getDownloadingFile(f.convertStatusFile);
+    }
+    throw Exception("Can not get DownloadingFile");
   }
 }
 
@@ -253,7 +298,7 @@ extension FileManager on ConvertCubit {
 class UnknownDestinationFileType implements Exception {}
 
 extension ConvertingFileProcess on ConvertCubit {
-  String get socketId => socketChannel.socketId;
+  String? get socketId => socketChannel.socketId;
 
   Future onConvertAll() async {
     if (state.files?.isEmpty ?? true) {
@@ -285,9 +330,14 @@ extension ConvertingFileProcess on ConvertCubit {
 
     _setFileAtIndex(index, uploadingFile);
 
+    if (socketId == null) {
+      _setFileAtIndex(index, ConvertErrorFile(convertStatusFile: uploadingFile));
+      return;
+    }
+
     final addRowResult = await convertFileRepository.addRow(
       AddRowRequestData(
-        socketId: socketId,
+        socketId: socketId!,
         sessionId: "sessionId", //todo: sessionId cần thông tin nó làm cái gì
         fileName: uploadingFile.name,
         uploadId: uploadingFile.uploadId,
