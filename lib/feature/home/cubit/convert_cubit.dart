@@ -414,7 +414,12 @@ extension ConvertingFileProcess on ConvertCubit {
 
   //convert file
   Future onConvert(int index, ConfigConvertFile file) async {
-    //validate: kiểm tra có destination type chưa
+    ///Check if this file is in converting progress
+    ///Ignore it
+    if (file is ConvertStatusFile) {
+      return;
+    }
+
     onAddRow(index, file);
   }
 
