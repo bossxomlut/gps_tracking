@@ -9,6 +9,7 @@ import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:mp3_convert/base_presentation/cubit/base_cubit.dart';
 import 'package:mp3_convert/base_presentation/cubit/event_mixin.dart';
 import 'package:mp3_convert/data/data_result.dart';
+import 'package:mp3_convert/data/entity/app_file.dart';
 import 'package:mp3_convert/data/entity/failure_entity.dart';
 import 'package:mp3_convert/feature/home/cubit/convert_event.dart';
 import 'package:mp3_convert/feature/home/cubit/convert_state.dart';
@@ -465,13 +466,17 @@ extension ConvertingFileProcess on ConvertCubit {
   }
 
   Future<String> _getPath() async {
-    final Directory downloadsDir = await getApplicationDocumentsDirectory();
-
-    final savedDir = Directory(downloadsDir.absolute.path);
-
-    if (!savedDir.existsSync()) {
-      await savedDir.create();
-    }
-    return downloadsDir.absolute.path;
+    return getPath();
   }
+}
+
+Future<String> getPath() async {
+  final Directory downloadsDir = await getApplicationDocumentsDirectory();
+
+  final savedDir = Directory("${downloadsDir.absolute.path}/mp3-convert");
+
+  if (!savedDir.existsSync()) {
+    await savedDir.create();
+  }
+  return savedDir.absolute.path;
 }

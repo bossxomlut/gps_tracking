@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mp3_convert/base_presentation/cubit/event_mixin.dart';
 import 'package:mp3_convert/base_presentation/view/view.dart';
+import 'package:mp3_convert/data/entity/app_file.dart';
 import 'package:mp3_convert/feature/home/cubit/convert_cubit.dart';
 import 'package:mp3_convert/feature/home/cubit/convert_event.dart';
 import 'package:mp3_convert/feature/home/cubit/convert_state.dart';

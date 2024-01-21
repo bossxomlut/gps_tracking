@@ -1,32 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-
-class AppFile extends Equatable {
-  final String name;
-  final String path;
-
-  AppFile({required this.name, required this.path});
-
-  String get type => _getFileType();
-
-  String _getFileType() {
-    final l = path.split(".");
-    if (l.length > 1) {
-      return l.last;
-    }
-
-    throw UnknownFileTypeException();
-  }
-
-  @override
-  List<Object?> get props => [
-        name,
-        path,
-      ];
-}
-
-class UnknownFileTypeException implements Exception {}
+import 'package:mp3_convert/data/entity/app_file.dart';
 
 class AppFilePicker extends StatelessWidget {
   const AppFilePicker({Key? key, required this.allowMultiple, required this.fileType}) : super(key: key);

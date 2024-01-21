@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:file_picker/file_picker.dart';
@@ -11,6 +12,7 @@ import 'package:mp3_convert/base_presentation/page/base_page.dart';
 import 'package:mp3_convert/base_presentation/theme/theme.dart';
 import 'package:mp3_convert/base_presentation/view/base_view.dart';
 import 'package:mp3_convert/base_presentation/view/view.dart';
+import 'package:mp3_convert/data/entity/app_file.dart';
 import 'package:mp3_convert/feature/home/cubit/convert_cubit.dart';
 import 'package:mp3_convert/feature/home/cubit/convert_event.dart';
 import 'package:mp3_convert/feature/home/cubit/convert_state.dart';
@@ -33,6 +35,7 @@ import 'package:collection/collection.dart';
 import 'package:mp3_convert/widget/image.dart';
 import 'package:mp3_convert/widget/lost_connect_internet_widget.dart';
 import 'package:open_file/open_file.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../../../util/show_lost_connect_internet_helper.dart';
 
