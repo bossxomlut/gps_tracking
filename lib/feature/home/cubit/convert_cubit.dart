@@ -265,6 +265,19 @@ extension FileManager on ConvertCubit {
     }
   }
 
+  void removeFileByIndex(int index) {
+    final cloneFiles = [...?state.files];
+    cloneFiles.removeAt(index);
+    if (cloneFiles.isEmpty) {
+      emit(ConvertEmptyState(maxFiles: state.maxFiles));
+    } else {
+      emit(PickedFileState(
+        maxFiles: state.maxFiles,
+        files: cloneFiles,
+      ));
+    }
+  }
+
   void _validateConvertAll() {
     ////note: duyệt theo cách này sẽ đi tuần tự hết list
     if ([for (int i = 0; i < _files.length; i++) _validateFileIndex(i)].contains(false)) {
