@@ -100,15 +100,32 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   late final ShowLostConnectInternetHelper _connectInternetHelper = ShowLostConnectInternetHelper(context);
+
+  final List<Function> _permissions = [
+    PermissionHelper.requestNotificationPermission,
+    PermissionHelper.requestAudioPermission,
+    PermissionHelper.requestVideoPermission,
+    PermissionHelper.requestStoragePermission,
+  ];
+
+  void _callPermissions() async {
+    for (int i = 0; i < _permissions.length; i++) {
+      await _permissions[i]();
+    }
+
+    setState(() {});
+  }
+
   @override
   void initState() {
     super.initState();
     socketChannel.startConnection();
 
-    PermissionHelper.requestStoragePermission();
-    PermissionHelper.requestNotificationPermission();
-
     _connectInternetHelper.startListen();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _callPermissions();
+    });
   }
 
   @override
@@ -119,6 +136,6 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return MenuPage();
+    return const MenuPage();
   }
 }
