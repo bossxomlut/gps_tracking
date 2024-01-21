@@ -109,13 +109,18 @@ class HistoryDownloadWidget extends StatefulWidget {
   State<HistoryDownloadWidget> createState() => _HistoryDownloadWidgetState();
 }
 
-class _HistoryDownloadWidgetState extends State<HistoryDownloadWidget> {
+class _HistoryDownloadWidgetState extends AppLifeCycleMixin<HistoryDownloadWidget> {
+  @override
+  void onResume() {
+    super.onResume();
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<AppFile>>(
       future: (() async {
         final path = await getPath();
-        print("path: ${path}");
         Directory dir = Directory(path);
 
         return dir
@@ -131,7 +136,27 @@ class _HistoryDownloadWidgetState extends State<HistoryDownloadWidget> {
         if (snapshot.hasData && snapshot.data != null) {
           final files = snapshot.data!;
           if (files.isEmpty) {
-            return Text("Empty list");
+            return Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  AppImage.asset(
+                    ImagePath.empty,
+                    width: 60,
+                    height: 60,
+                    color: Theme.of(context).hintColor,
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    "Empty list",
+                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                          color: Theme.of(context).hintColor,
+                        ),
+                  ),
+                ],
+              ),
+            );
           }
           return Column(
             children: [...snapshot.data!.map((f) => FileInfoCard(file: f))],
