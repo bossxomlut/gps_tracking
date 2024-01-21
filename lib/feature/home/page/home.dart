@@ -34,7 +34,6 @@ import 'package:mp3_convert/widget/file_picker.dart';
 import 'package:collection/collection.dart';
 import 'package:mp3_convert/widget/image.dart';
 import 'package:mp3_convert/widget/lost_connect_internet_widget.dart';
-import 'package:open_file/open_file.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../../util/show_lost_connect_internet_helper.dart';
