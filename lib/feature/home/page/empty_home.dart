@@ -8,10 +8,10 @@ class EmptyHome extends StatefulWidget {
 }
 
 class _EmptyHomeState extends State<EmptyHome> implements PickMultipleFile {
-  HomeCubit get homeCubit => context.read<HomeCubit>();
+  ConvertCubit get homeCubit => context.read<ConvertCubit>();
 
   @override
-  bool get canPickMultipleFile => context.read<HomeCubit>().canPickMultipleFile;
+  bool get canPickMultipleFile => context.read<ConvertCubit>().canPickMultipleFile;
 
   @override
   Widget build(BuildContext context) {
@@ -48,6 +48,6 @@ class _EmptyHomeState extends State<EmptyHome> implements PickMultipleFile {
   }
 
   void setFiles(List<AppFile> filePaths) {
-    homeCubit.setPickedFiles(filePaths.map((e) => SettingFile(path: e.path, name: e.name)).toList());
+    homeCubit.setPickedFiles(filePaths.map((e) => ConfigConvertFile(path: e.path, name: e.name)).toList());
   }
 }

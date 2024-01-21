@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:developer';
+
 import 'package:curl_logger_dio_interceptor/curl_logger_dio_interceptor.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
@@ -46,10 +49,36 @@ abstract class Request {
     return FailureApiResponse(message: dioResponse.statusMessage ?? "", data: dioResponse.data);
   }
 
-  Future<ApiResponse> get(String path, {Map<String, dynamic>? queryParameters}) async {
-    final dioResponse = await dio.get(path, queryParameters: queryParameters);
+  FutureOr<ApiResponse> handleError(Object? error, StackTrace stackTrace) {
+    if (error is DioException) {
+      log("dio exception: ${error.message}--${error.type}");
+      switch (error.type) {
+        case DioExceptionType.connectionTimeout:
+        // TODO: Handle this case.
+        case DioExceptionType.sendTimeout:
+        // TODO: Handle this case.
+        case DioExceptionType.receiveTimeout:
+        // TODO: Handle this case.
+        case DioExceptionType.badCertificate:
+        // TODO: Handle this case.
+        case DioExceptionType.badResponse:
+        // TODO: Handle this case.
+        case DioExceptionType.cancel:
+        // TODO: Handle this case.
+        case DioExceptionType.connectionError:
+        // TODO: Handle this case.
+        case DioExceptionType.unknown:
+        // TODO: Handle this case.
+      }
 
-    return getDataResponse(dioResponse);
+      return InternetErrorResponse(message: error.message ?? "Internet Error!", data: null);
+    }
+
+    return FailureApiResponse(message: error.toString(), data: null);
+  }
+
+  Future<ApiResponse> get(String path, {Map<String, dynamic>? queryParameters}) async {
+    return dio.get(path, queryParameters: queryParameters).then(getDataResponse).onError(handleError);
   }
 
   Future<ApiResponse> post(
@@ -58,26 +87,18 @@ abstract class Request {
     Map<String, dynamic>? queryParameters,
     Map<String, dynamic>? headers,
   }) async {
-    final dioResponse = await dio.post(
-      path,
-      queryParameters: queryParameters,
-      data: data,
-      options: Options(headers: headers),
-    );
-
-    return getDataResponse(dioResponse);
+    return dio
+        .post(path, queryParameters: queryParameters, data: data, options: Options(headers: headers))
+        .then(getDataResponse)
+        .onError(handleError);
   }
 
   Future<ApiResponse> download(String path, dynamic savePath,
       {Map<String, dynamic>? queryParameters, Map<String, dynamic>? data}) async {
-    final dioResponse = await dio.download(
-      path,
-      savePath,
-      queryParameters: queryParameters,
-      data: data,
-    );
-
-    return getDataResponse(dioResponse);
+    return dio
+        .download(path, savePath, queryParameters: queryParameters, data: data)
+        .then(getDataResponse)
+        .onError(handleError);
   }
 }
 

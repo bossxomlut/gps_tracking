@@ -4,9 +4,10 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:mp3_convert/base_presentation/theme/theme.dart';
-import 'package:mp3_convert/feature/home/cubit/home_cubit.dart';
+import 'package:mp3_convert/feature/home/cubit/convert_cubit.dart';
 import 'package:mp3_convert/feature/home/page/home.dart';
 import 'package:mp3_convert/internet_connect/socket/socket.dart';
+import 'package:mp3_convert/util/downloader_util.dart';
 
 import 'main_setting/app_setting.dart';
 
@@ -16,12 +17,6 @@ Future main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await AppSetting().initApp();
-  await FlutterDownloader.initialize(
-      debug: true, // optional: set to false to disable printing logs to console (default: true)
-      ignoreSsl: true // option: set to false to disable working with http links (default: false)
-      );
-
-  FlutterDownloader.registerCallback(downloadCallback);
 
   runApp(
     EasyLocalization(

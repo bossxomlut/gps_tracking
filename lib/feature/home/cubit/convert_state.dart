@@ -1,15 +1,14 @@
 import 'package:equatable/equatable.dart';
 import 'package:mp3_convert/feature/home/data/entity/setting_file.dart';
-import 'package:mp3_convert/feature/home/interface/pick_multiple_file.dart';
-import 'package:mp3_convert/widget/file_picker.dart';
+import 'package:mp3_convert/feature/home/data/entity/pick_multiple_file.dart';
 
 const minFiles = 1;
 
-sealed class HomeState extends Equatable implements PickMultipleFile {
+sealed class ConvertState extends Equatable implements PickMultipleFile {
   final int maxFiles;
-  final List<SettingFile>? files;
+  final List<ConfigConvertFile>? files;
 
-  const HomeState({
+  const ConvertState({
     this.maxFiles = minFiles,
     this.files,
   }) : assert(maxFiles >= minFiles, "maxFiles must be a positive number");
@@ -24,19 +23,19 @@ sealed class HomeState extends Equatable implements PickMultipleFile {
   bool get canPickMultipleFile => maxFiles > 1;
 }
 
-class HomeEmptyState extends HomeState {
-  const HomeEmptyState({super.maxFiles});
+class ConvertEmptyState extends ConvertState {
+  const ConvertEmptyState({super.maxFiles});
 
-  HomeEmptyState copyWith({
+  ConvertEmptyState copyWith({
     int? maxFiles,
   }) {
-    return HomeEmptyState(
+    return ConvertEmptyState(
       maxFiles: maxFiles ?? this.maxFiles,
     );
   }
 }
 
-class PickedFileState extends HomeState {
+class PickedFileState extends ConvertState {
   const PickedFileState({
     required super.files,
     required super.maxFiles,
@@ -44,7 +43,7 @@ class PickedFileState extends HomeState {
 
   PickedFileState copyWith({
     int? maxFiles,
-    List<SettingFile>? files,
+    List<ConfigConvertFile>? files,
   }) {
     return PickedFileState(
       files: files ?? this.files,

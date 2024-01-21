@@ -12,6 +12,13 @@ class PermissionHelper {
     if (Platform.isAndroid) {
       final info = await DeviceInfoPlugin().androidInfo;
       if (info.version.sdkInt > 28) {
+        var permission = await Permission.manageExternalStorage.status;
+
+        if (permission != PermissionStatus.granted) {
+          await Permission.manageExternalStorage.request();
+          permission = await Permission.manageExternalStorage.status;
+        }
+        return permission == PermissionStatus.granted;
         return true;
       }
 

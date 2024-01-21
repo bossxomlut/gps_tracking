@@ -30,6 +30,8 @@ class PickingFileRepositoryImpl extends PickingFileRepository {
           }
         case FailureApiResponse():
           return FailureDataResult(FailureEntity(message: response.message));
+        case InternetErrorResponse():
+        // TODO: Handle this case.
       }
 
       return FailureDataResult(FailureEntity(message: response.message));

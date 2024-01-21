@@ -10,6 +10,10 @@ class FailureApiResponse<T> extends ApiResponse {
   FailureApiResponse({required super.message, required super.data});
 }
 
+class InternetErrorResponse extends ApiResponse {
+  InternetErrorResponse({required super.message, required super.data});
+}
+
 abstract class ResponseData<T> {
   final String message;
   final dynamic data;

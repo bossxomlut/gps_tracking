@@ -9,37 +9,33 @@ enum ConvertStatus {
   downloaded,
 }
 
-abstract class Progress {
-  final int progress;
+// abstract class Progress {
+//   final int progress;
+//
+//   Progress(this.progress) {
+//     assert(progress >= 0);
+//     assert(progress <= 100);
+//   }
+// }
 
-  Progress(this.progress) {
-    assert(progress >= 0);
-    assert(progress <= 100);
-  }
-}
-
-class SettingFile extends AppFile {
-  SettingFile({
+class ConfigConvertFile extends AppFile {
+  ConfigConvertFile({
     required super.name,
     required super.path,
     this.destinationType,
-    this.uploadId,
   });
 
   final String? destinationType;
-  final String? uploadId;
 
-  SettingFile copyWith({
+  ConfigConvertFile copyWith({
     String? name,
     String? path,
     String? destinationType,
-    String? uploadId,
   }) {
-    return SettingFile(
+    return ConfigConvertFile(
       name: name ?? this.name,
       path: path ?? this.path,
       destinationType: destinationType ?? this.destinationType,
-      uploadId: uploadId ?? this.uploadId,
     );
   }
 
@@ -47,7 +43,6 @@ class SettingFile extends AppFile {
   List<Object?> get props => [
         ...super.props,
         destinationType,
-        uploadId,
       ];
 
   String getConvertFileName() {
@@ -55,62 +50,212 @@ class SettingFile extends AppFile {
   }
 }
 
-class ConvertFile extends SettingFile {
-  final ConvertStatus status;
-  final String? downloadId;
-  final double? convertProgress;
-  final double? downloadProgress;
-  final String? downloaderId;
-  final String? downloadPath;
+class UnValidConfigConvertFile extends ConfigConvertFile {
+  UnValidConfigConvertFile({
+    required super.name,
+    required super.path,
+    required super.destinationType,
+  });
+}
 
-  ConvertFile({
+abstract class ConvertStatusFile extends ConfigConvertFile {
+  final ConvertStatus status;
+
+  ConvertStatusFile({
     required super.name,
     required super.path,
     super.destinationType,
-    super.uploadId,
     required this.status,
-    this.downloadId,
-    this.convertProgress,
-    this.downloadProgress,
-    this.downloaderId,
-    this.downloadPath,
   });
 
   @override
-  ConvertFile copyWith({
-    ConvertStatus? status,
+  List<Object?> get props => [
+        ...super.props,
+        status,
+      ];
+}
+
+class UploadFile extends ConvertStatusFile {
+  final String uploadId;
+
+  UploadFile({
+    required super.status,
+    required super.name,
+    required super.path,
+    required super.destinationType,
+    required this.uploadId,
+  });
+
+  @override
+  List<Object?> get props => [
+        ...super.props,
+        uploadId,
+      ];
+}
+
+class UploadingFile extends UploadFile {
+  UploadingFile({
+    required super.name,
+    required super.path,
+    required super.destinationType,
+    required super.uploadId,
+  }) : super(status: ConvertStatus.uploading);
+}
+
+class UploadedFile extends UploadFile {
+  UploadedFile({
+    required super.name,
+    required super.path,
+    required super.destinationType,
+    required super.uploadId,
+  }) : super(status: ConvertStatus.uploaded);
+}
+
+class ConvertingFile extends UploadFile {
+  final double? convertProgress;
+
+  ConvertingFile({
+    required super.name,
+    required super.path,
+    required super.destinationType,
+    required super.uploadId,
+    required this.convertProgress,
+  }) : super(status: ConvertStatus.converting);
+
+  @override
+  List<Object?> get props => [
+        ...super.props,
+        convertProgress,
+      ];
+
+  @override
+  ConvertingFile copyWith({
     String? name,
     String? path,
     String? destinationType,
     String? uploadId,
-    String? downloadId,
-    String? downloaderId,
     double? convertProgress,
-    double? downloadProgress,
-    String? downloadPath,
   }) {
-    return ConvertFile(
+    return ConvertingFile(
       name: name ?? this.name,
       path: path ?? this.path,
       destinationType: destinationType ?? this.destinationType,
       uploadId: uploadId ?? this.uploadId,
-      status: status ?? this.status,
-      downloadId: downloadId ?? this.downloadId,
-      downloaderId: downloaderId ?? this.downloaderId,
       convertProgress: convertProgress ?? this.convertProgress,
+    );
+  }
+}
+
+class HaveDownloadIdFile extends ConvertStatusFile {
+  final String? downloadId;
+
+  HaveDownloadIdFile({
+    required super.name,
+    required super.path,
+    required super.destinationType,
+    required super.status,
+    required this.downloadId,
+  });
+
+  @override
+  List<Object?> get props => [
+        ...super.props,
+        downloadId,
+      ];
+}
+
+class ConvertedFile extends HaveDownloadIdFile {
+  ConvertedFile({
+    required super.name,
+    required super.path,
+    required super.destinationType,
+    required super.downloadId,
+  }) : super(status: ConvertStatus.converted);
+
+  @override
+  List<Object?> get props => [
+        ...super.props,
+        downloadId,
+      ];
+}
+
+class DownloadingFile extends HaveDownloadIdFile {
+  final String? downloaderId;
+  final String downloadPath;
+  final double? downloadProgress;
+
+  DownloadingFile({
+    required super.name,
+    required super.path,
+    required super.destinationType,
+    required this.downloaderId,
+    required this.downloadPath,
+    required this.downloadProgress,
+    required super.downloadId,
+  }) : super(status: ConvertStatus.downloading);
+
+  @override
+  ConfigConvertFile copyWith({
+    String? name,
+    String? path,
+    String? destinationType,
+    String? uploadId,
+    String? downloaderId,
+    double? downloadProgress,
+    String? downloadPath,
+    String? downloadId,
+  }) {
+    return DownloadingFile(
+      name: name ?? this.name,
+      path: path ?? this.path,
+      destinationType: destinationType ?? this.destinationType,
+      downloaderId: downloaderId ?? this.downloaderId,
       downloadProgress: downloadProgress ?? this.downloadProgress,
       downloadPath: downloadPath ?? this.downloadPath,
+      downloadId: downloadId ?? this.downloadId,
     );
   }
 
   @override
   List<Object?> get props => [
         ...super.props,
-        status,
-        downloadId,
         downloaderId,
-        convertProgress,
-        downloadProgress,
         downloadPath,
+        downloadProgress,
+      ];
+}
+
+class DownloadedFile extends ConvertStatusFile {
+  DownloadedFile({
+    required super.name,
+    required super.path,
+    required super.destinationType,
+    required this.downloadPath,
+  }) : super(status: ConvertStatus.downloaded);
+
+  final String downloadPath;
+
+  @override
+  List<Object?> get props => [
+        ...super.props,
+        downloadPath,
+      ];
+}
+
+class ConvertErrorFile extends ConfigConvertFile {
+  final ConvertStatusFile convertStatusFile;
+
+  ConvertErrorFile({
+    required this.convertStatusFile,
+  }) : super(
+          name: convertStatusFile.name,
+          path: convertStatusFile.path,
+          destinationType: convertStatusFile.destinationType,
+        );
+
+  @override
+  List<Object?> get props => [
+        ...super.props,
+        convertStatusFile,
       ];
 }
