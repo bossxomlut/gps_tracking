@@ -13,19 +13,25 @@ class PickedFileHome extends StatelessWidget {
           child: ListView.separated(
             itemBuilder: (context, index) {
               final file = files[index];
-              return AppFileCard(
-                file: file,
-                onSelectDestinationType: (type) {
-                  context.read<ConvertCubit>().updateDestinationType(index, file, type);
-                },
-                onConvert: () {
-                  context.read<ConvertCubit>().onConvert(index, file);
-                },
-                onRetry: () {
-                  if (file is ConvertErrorFile) {
-                    context.read<ConvertCubit>().onRetry(index, file);
-                  }
-                },
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: AppFileCard(
+                  file: file,
+                  onSelectDestinationType: (type) {
+                    context.read<ConvertCubit>().updateDestinationType(index, file, type.toLowerCase());
+                  },
+                  onConvert: () {
+                    context.read<ConvertCubit>().onConvert(index, file);
+                  },
+                  onRetry: () {
+                    if (file is ConvertErrorFile) {
+                      context.read<ConvertCubit>().onRetry(index, file);
+                    }
+                  },
+                  onDelete: () {
+                    context.read<ConvertCubit>().removeFileByIndex(index);
+                  },
+                ),
               );
             },
             separatorBuilder: (context, index) => const SizedBox(height: 16),
@@ -33,14 +39,26 @@ class PickedFileHome extends StatelessWidget {
           ),
         ),
         if (files.length > 1)
-          SafeArea(
-            child: ElevatedButton(
-              onPressed: () {
-                context.read<ConvertCubit>().onConvertAll();
-              },
-              child: Text("Start Convert All"),
-            ),
-          ),
+          FutureBuilder<bool>(future: (() async {
+            return files.any((f) {
+              return f.runtimeType == ConfigConvertFile;
+            });
+          })(), builder: (context, snapshot) {
+            if (snapshot.hasData && snapshot.data == true) {
+              return SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      context.read<ConvertCubit>().onConvertAll();
+                    },
+                    child: Text("Start Convert All"),
+                  ),
+                ),
+              );
+            }
+            return const SizedBox();
+          }),
       ],
     );
   }

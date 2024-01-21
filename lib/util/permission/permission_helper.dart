@@ -12,14 +12,13 @@ class PermissionHelper {
     if (Platform.isAndroid) {
       final info = await DeviceInfoPlugin().androidInfo;
       if (info.version.sdkInt > 28) {
-        var permission = await Permission.manageExternalStorage.status;
+        var permission = await Permission.mediaLibrary.status;
 
         if (permission != PermissionStatus.granted) {
-          await Permission.manageExternalStorage.request();
-          permission = await Permission.manageExternalStorage.status;
+          await Permission.mediaLibrary.request();
+          permission = await Permission.mediaLibrary.status;
         }
         return permission == PermissionStatus.granted;
-        return true;
       }
 
       final status = await Permission.storage.status;
@@ -36,6 +35,25 @@ class PermissionHelper {
 
   static Future<bool> requestNotificationPermission() async {
     final status = await Permission.notification.status;
-    return status == PermissionStatus.granted;
+    if (status != PermissionStatus.granted) {
+      await Permission.notification.request();
+    }
+    return (await Permission.notification.status) == PermissionStatus.granted;
+  }
+
+  static Future<bool> requestAudioPermission() async {
+    final status = await Permission.audio.status;
+    if (status != PermissionStatus.granted) {
+      await Permission.audio.request();
+    }
+    return (await Permission.audio.status) == PermissionStatus.granted;
+  }
+
+  static Future<bool> requestVideoPermission() async {
+    final status = await Permission.videos.status;
+    if (status != PermissionStatus.granted) {
+      await Permission.videos.request();
+    }
+    return (await Permission.videos.status) == PermissionStatus.granted;
   }
 }

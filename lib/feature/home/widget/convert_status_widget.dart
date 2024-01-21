@@ -5,7 +5,7 @@ import 'package:mp3_convert/feature/home/data/entity/setting_file.dart';
 import 'package:mp3_convert/feature/home/widget/uploading_progress_bar.dart';
 import 'package:mp3_convert/resource/icon_path.dart';
 import 'package:mp3_convert/widget/image.dart';
-import 'package:open_file/open_file.dart';
+import 'package:open_file_plus/open_file_plus.dart';
 
 class ConvertStatusWidget extends StatelessWidget {
   const ConvertStatusWidget({

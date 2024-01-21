@@ -23,34 +23,70 @@ class MenuPage extends BasePage {
 
   @override
   Widget buildBody(BuildContext context) {
-    return Column(
-      children: [
-        Card(
-          margin: const EdgeInsets.all(16),
-          child: InkWell(
-            onTap: () {
-              Navigator.of(context).push(MaterialPageRoute(
-                builder: (context) => ConvertPage(),
-              ));
-            },
+    return NestedScrollView(
+      headerSliverBuilder: (context, innerBoxIsScrolled) {
+        return [
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Features",
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  const SizedBox(height: 4),
+                  Card(
+                    child: InkWell(
+                      onTap: () {
+                        Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) => ConvertPage(),
+                        ));
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+                        child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: Row(
+                              children: [
+                                AppImage.svg(IconPath.exchange),
+                                const SizedBox(width: 16),
+                                Text(
+                                  'Convert',
+                                  style: Theme.of(context).textTheme.titleLarge,
+                                ),
+                              ],
+                            )),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          )
+        ];
+      },
+      body: CustomScrollView(
+        slivers: [
+          SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-              child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Row(
-                    children: [
-                      AppImage.svg(IconPath.exchange),
-                      const SizedBox(width: 16),
-                      Text(
-                        'Convert',
-                        style: Theme.of(context).textTheme.titleLarge,
-                      ),
-                    ],
-                  )),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "History",
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  const SizedBox(height: 4),
+                  const HistoryDownloadWidget(),
+                ],
+              ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
@@ -64,15 +100,32 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   late final ShowLostConnectInternetHelper _connectInternetHelper = ShowLostConnectInternetHelper(context);
+
+  final List<Function> _permissions = [
+    PermissionHelper.requestNotificationPermission,
+    PermissionHelper.requestAudioPermission,
+    PermissionHelper.requestVideoPermission,
+    PermissionHelper.requestStoragePermission,
+  ];
+
+  void _callPermissions() async {
+    for (int i = 0; i < _permissions.length; i++) {
+      await _permissions[i]();
+    }
+
+    setState(() {});
+  }
+
   @override
   void initState() {
     super.initState();
     socketChannel.startConnection();
 
-    PermissionHelper.requestStoragePermission();
-    PermissionHelper.requestNotificationPermission();
-
     _connectInternetHelper.startListen();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _callPermissions();
+    });
   }
 
   @override
@@ -83,6 +136,6 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return MenuPage();
+    return const MenuPage();
   }
 }

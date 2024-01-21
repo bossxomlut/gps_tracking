@@ -7,6 +7,7 @@ import 'package:mp3_convert/base_presentation/theme/theme.dart';
 import 'package:mp3_convert/feature/home/cubit/convert_cubit.dart';
 import 'package:mp3_convert/feature/home/page/home.dart';
 import 'package:mp3_convert/internet_connect/socket/socket.dart';
+import 'package:mp3_convert/util/app_life_cycle_mixin.dart';
 import 'package:mp3_convert/util/downloader_util.dart';
 
 import 'main_setting/app_setting.dart';
@@ -50,6 +51,9 @@ class MyApp extends StatelessWidget {
             useMaterial3: true,
           ),
           home: const HomePage(),
+          navigatorObservers: [
+            AppLifeCycleMixin.routeObserver,
+          ],
         );
       },
     );

@@ -1,3 +1,4 @@
+import 'package:mp3_convert/data/entity/app_file.dart';
 import 'package:mp3_convert/widget/file_picker.dart';
 
 enum ConvertStatus {

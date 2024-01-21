@@ -9,6 +9,7 @@ import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:mp3_convert/base_presentation/cubit/base_cubit.dart';
 import 'package:mp3_convert/base_presentation/cubit/event_mixin.dart';
 import 'package:mp3_convert/data/data_result.dart';
+import 'package:mp3_convert/data/entity/app_file.dart';
 import 'package:mp3_convert/data/entity/failure_entity.dart';
 import 'package:mp3_convert/feature/home/cubit/convert_event.dart';
 import 'package:mp3_convert/feature/home/cubit/convert_state.dart';
@@ -265,6 +266,19 @@ extension FileManager on ConvertCubit {
     }
   }
 
+  void removeFileByIndex(int index) {
+    final cloneFiles = [...?state.files];
+    cloneFiles.removeAt(index);
+    if (cloneFiles.isEmpty) {
+      emit(ConvertEmptyState(maxFiles: state.maxFiles));
+    } else {
+      emit(PickedFileState(
+        maxFiles: state.maxFiles,
+        files: cloneFiles,
+      ));
+    }
+  }
+
   void _validateConvertAll() {
     ////note: duyệt theo cách này sẽ đi tuần tự hết list
     if ([for (int i = 0; i < _files.length; i++) _validateFileIndex(i)].contains(false)) {
@@ -401,7 +415,12 @@ extension ConvertingFileProcess on ConvertCubit {
 
   //convert file
   Future onConvert(int index, ConfigConvertFile file) async {
-    //validate: kiểm tra có destination type chưa
+    ///Check if this file is in converting progress
+    ///Ignore it
+    if (file is ConvertStatusFile) {
+      return;
+    }
+
     onAddRow(index, file);
   }
 
@@ -433,7 +452,6 @@ extension ConvertingFileProcess on ConvertCubit {
     final id = await FlutterDownloader.enqueue(
       url: "https://cdndl.xyz/media/sv1/api/upload/downloadFile/$downloadId",
       savedDir: path,
-      saveInPublicStorage: true,
       fileName: downloadingFile.getConvertFileName(),
     );
 
@@ -443,17 +461,27 @@ extension ConvertingFileProcess on ConvertCubit {
       _setFileAtIndex(index, downloadingFile.copyWith(downloaderId: id));
     } else {
       //todo: handle when cannot get downloader id
+      log("cannot get downloader id");
     }
   }
 
   Future<String> _getPath() async {
-    final Directory downloadsDir = await getApplicationDocumentsDirectory();
-
-    final savedDir = Directory(downloadsDir.absolute.path);
-
-    if (!savedDir.existsSync()) {
-      await savedDir.create();
-    }
-    return downloadsDir.absolute.path;
+    return getPath();
   }
+}
+
+Future<String> getPath() async {
+  late final Directory downloadsDir;
+  if (Platform.isAndroid) {
+    downloadsDir = Directory('/storage/emulated/0/Download');
+  } else {
+    downloadsDir = await getApplicationDocumentsDirectory();
+  }
+
+  final savedDir = Directory("${downloadsDir.absolute.path}/mp3_convert");
+
+  if (!savedDir.existsSync()) {
+    await savedDir.create();
+  }
+  return savedDir.absolute.path;
 }

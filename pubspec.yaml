@@ -72,10 +72,13 @@ dependencies:
   flutter_svg: 2.0.9
 
   #open file
-  open_file: ^3.3.2
+  open_file_plus: 3.4.1
 
   #internet connection checker
   internet_connection_checker: 1.0.0+1
+
+  #share file
+  share_plus: 7.2.1
 
 
 dev_dependencies:
@@ -83,6 +86,13 @@ dev_dependencies:
     sdk: flutter
 
   flutter_lints: 2.0.0
+
+  flutter_launcher_icons: 0.13.1
+
+flutter_launcher_icons:
+  android: "ic_launcher"
+  ios: true
+  image_path: "assets/launcher_icon.png"
 
 flutter:
   uses-material-design: true
@@ -93,3 +103,4 @@ flutter:
     - assets/translations/vi-VN.json
 
     - assets/icons/
+    - assets/images/
