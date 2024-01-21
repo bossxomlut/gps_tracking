@@ -452,7 +452,6 @@ extension ConvertingFileProcess on ConvertCubit {
     final id = await FlutterDownloader.enqueue(
       url: "https://cdndl.xyz/media/sv1/api/upload/downloadFile/$downloadId",
       savedDir: path,
-      saveInPublicStorage: true,
       fileName: downloadingFile.getConvertFileName(),
     );
 
@@ -462,6 +461,7 @@ extension ConvertingFileProcess on ConvertCubit {
       _setFileAtIndex(index, downloadingFile.copyWith(downloaderId: id));
     } else {
       //todo: handle when cannot get downloader id
+      log("cannot get downloader id");
     }
   }
 
@@ -471,9 +471,14 @@ extension ConvertingFileProcess on ConvertCubit {
 }
 
 Future<String> getPath() async {
-  final Directory downloadsDir = await getApplicationDocumentsDirectory();
+  late final Directory downloadsDir;
+  if (Platform.isAndroid) {
+    downloadsDir = Directory('/storage/emulated/0/Download');
+  } else {
+    downloadsDir = await getApplicationDocumentsDirectory();
+  }
 
-  final savedDir = Directory("${downloadsDir.absolute.path}/mp3-convert");
+  final savedDir = Directory("${downloadsDir.absolute.path}/mp3_convert");
 
   if (!savedDir.existsSync()) {
     await savedDir.create();
