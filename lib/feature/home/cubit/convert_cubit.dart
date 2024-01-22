@@ -19,13 +19,11 @@ import 'package:mp3_convert/feature/home/data/entity/mapping_type.dart';
 import 'package:mp3_convert/feature/home/data/entity/media_type.dart';
 import 'package:mp3_convert/feature/home/data/entity/setting_file.dart';
 import 'package:mp3_convert/feature/home/data/repository/convert_file_repository.dart';
-import 'package:mp3_convert/feature/home/data/repository/picking_file_repository.dart';
+import 'package:mp3_convert/feature/home/data/repository/convert_file_repository_impl.dart';
 import 'package:mp3_convert/feature/home/data/entity/pick_multiple_file.dart';
 import 'package:mp3_convert/main.dart';
 import 'package:mp3_convert/util/downloader_util.dart';
 import 'package:mp3_convert/util/generate_string.dart';
-import 'package:mp3_convert/util/parse_util.dart';
-import 'package:mp3_convert/widget/file_picker.dart';
 import 'package:path_provider/path_provider.dart';
 
 class ConvertCubit extends Cubit<ConvertState>
