@@ -1,7 +1,38 @@
 {
-"setting" : {
-    "setting": "Setting",
-    "instruction": "Instruction",
-    "help_and_feedback":"Help and feedback"
-}
+    "language": {
+        "en": "English",
+        "vi": "Vietnamese"
+    },
+    "setting": {
+        "setting": "Setting",
+        "instruction": "Instruction",
+        "help_and_feedback": "Help and feedback",
+        "language": "Language"
+    },
+    "common": {
+        "lost_connect_internet": "Lost connect internet!",
+        "empty_list": "Empty list",
+        "convert": "Convert"
+    },
+    "home_page": {
+        "features": "Features",
+        "history": "History",
+        "empty_list": "Empty list"
+    },
+    "convert_page": {
+        "tap_to_select_files": "Tap to select files",
+        "choose": "Choose",
+        "convert": "Convert",
+        "uploading": "Uploading",
+        "converting": "Converting",
+        "download": "Download",
+        "downloading": "Downloading",
+        "open_file": "Open file",
+        "have_error": "Have an error in this session!",
+        "retry": "Retry",
+        "download_error": "Something wrong with download progress!",
+        "start_convert_all": "Start convert all",
+        "delete": "Delete",
+        "require_choose_file_type": "Please select convert file type!"
+    }
 }

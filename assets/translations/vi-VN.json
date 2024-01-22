@@ -1,8 +1,37 @@
 {
-"setting" : {
-    "setting": "Cài đặt",
-    "instruction": "Hướng dẫn",
-        "help_and_feedback":"Trợ giúp và phản hồi"
-
-}
+    "language": {
+        "en": "Tiếng Anh",
+        "vi": "Tiếng Việt"
+    },
+    "setting": {
+        "setting": "Cài đặt",
+        "instruction": "Hướng dẫn",
+        "help_and_feedback":"Trợ giúp và phản hồi",
+        "language": "Ngôn ngữ"
+    },
+    "common": {
+        "lost_connect_internet": "Mất kết nối internet!",
+        "empty_list": "Danh sách rỗng",
+        "convert": "Chuyển đổi"
+    },
+    "home_page": {
+        "features": "Chức năng",
+        "history": "Lịch sử"
+    },
+    "convert_page": {
+        "tap_to_select_files": "Nhấn để chọn tệp",
+        "choose": "Chọn",
+        "convert": "Chuyển đổi",
+        "uploading": "Đang tải lên",
+        "converting": "Đang chuyển đổi",
+        "download": "Tải xuống",
+        "downloading": "Đang tải xuống",
+        "open_file": "Mở tệp",
+        "have_error": "Đã có lỗi xảy ra!",
+        "retry": "Thử lại",
+        "download_error": "Đã có lỗi xảy ra!",
+        "start_convert_all": "Chuyển đổi tất cả",
+        "delete": "Xoá",
+        "require_choose_file_type": "Vui lòng chọn loại tệp!"
+    }
 }

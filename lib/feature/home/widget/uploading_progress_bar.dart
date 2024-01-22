@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:mp3_convert/base_presentation/view/view.dart';
 import 'package:mp3_convert/resource/icon_path.dart';
+import 'package:mp3_convert/resource/string.dart';
 import 'package:mp3_convert/widget/image.dart';
 
 class UploadingProgressBar extends StatelessWidget {
@@ -18,8 +20,8 @@ class UploadingProgressBar extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                "Uploading",
+              LText(
+                ConvertPageLocalization.uploading,
                 style: Theme.of(context).textTheme.labelLarge?.copyWith(
                       fontSize: 16,
                     ),
@@ -55,8 +57,8 @@ class ConvertingProgressBar extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                "Converting",
+              LText(
+                ConvertPageLocalization.converting,
                 style: Theme.of(context).textTheme.labelLarge?.copyWith(
                       fontSize: 16,
                     ),
@@ -101,8 +103,8 @@ class DownloadingProgressBar extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                isError ? "Something wrong with download progress" : "Downloading",
+              LText(
+                isError ? ConvertPageLocalization.downloadError : ConvertPageLocalization.downloading,
                 style: Theme.of(context).textTheme.labelLarge?.copyWith(
                       fontSize: 16,
                       color: isError ? errorColor : null,

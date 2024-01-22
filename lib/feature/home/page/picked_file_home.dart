@@ -52,7 +52,7 @@ class PickedFileHome extends StatelessWidget {
                     onPressed: () {
                       context.read<ConvertCubit>().onConvertAll();
                     },
-                    child: Text("Start Convert All"),
+                    child: LText(ConvertPageLocalization.startConvertAll),
                   ),
                 ),
               );
