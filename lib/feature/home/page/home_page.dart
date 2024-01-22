@@ -32,8 +32,8 @@ class MenuPage extends BasePage {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    "Features",
+                  LText(
+                    HomePageLocalization.features,
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                   const SizedBox(height: 4),
@@ -50,8 +50,8 @@ class MenuPage extends BasePage {
                               children: [
                                 AppImage.svg(IconPath.exchange),
                                 const SizedBox(width: 16),
-                                Text(
-                                  'Convert',
+                                LText(
+                                  CommonLocalization.emptyList,
                                   style: Theme.of(context).textTheme.titleLarge,
                                 ),
                               ],
@@ -73,8 +73,8 @@ class MenuPage extends BasePage {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    "History",
+                  LText(
+                    HomePageLocalization.history,
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                   const SizedBox(height: 4),

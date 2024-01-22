@@ -1,12 +1,15 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mp3_convert/base_presentation/view/base_view.dart';
+import 'package:mp3_convert/base_presentation/view/view.dart';
 import 'package:mp3_convert/feature/home/cubit/convert_cubit.dart';
 import 'package:mp3_convert/feature/home/data/entity/media_type.dart';
 import 'package:mp3_convert/feature/home/data/entity/setting_file.dart';
 import 'package:mp3_convert/feature/home/widget/convert_status_widget.dart';
 import 'package:mp3_convert/feature/home/widget/file_type_widget.dart';
 import 'package:mp3_convert/feature/home/widget/uploading_progress_bar.dart';
+import 'package:mp3_convert/resource/string.dart';
 import 'package:mp3_convert/util/reduce_text.dart';
 import 'package:mp3_convert/widget/button/loading_button.dart';
 
@@ -42,28 +45,28 @@ class _AppFileCardState extends BaseStatefulWidgetState<AppFileCard> {
         widget.onDelete();
       },
       background: ColoredBox(
-        color: Color(0xFFf44234).withOpacity(0.7),
+        color: const Color(0xFFf44234).withOpacity(0.7),
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16),
+          padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Row(
             children: [
-              Icon(Icons.delete),
-              SizedBox(width: 4),
-              Text("Delete"),
+              const Icon(Icons.delete),
+              const SizedBox(width: 4),
+              LText(ConvertPageLocalization.delete),
             ],
           ),
         ),
       ),
       secondaryBackground: ColoredBox(
-        color: Color(0xFFf44234).withOpacity(0.7),
+        color: const Color(0xFFf44234).withOpacity(0.7),
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16),
+          padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Row(
             children: [
-              Spacer(),
-              Icon(Icons.delete),
-              SizedBox(width: 4),
-              Text("Delete"),
+              const Spacer(),
+              const Icon(Icons.delete),
+              const SizedBox(width: 4),
+              LText(ConvertPageLocalization.delete),
             ],
           ),
         ),
@@ -93,30 +96,34 @@ class _AppFileCardState extends BaseStatefulWidgetState<AppFileCard> {
                 Row(
                   children: [
                     LoadingButton(
-                      child: Text(file.destinationType ?? "Chọn"),
                       isError: file is UnValidConfigConvertFile,
                       onTap: () async {
                         final listMediaType = await context.read<ConvertCubit>().getMappingType(file.type);
+                        if (mounted) {
+                          if (listMediaType == null) {
+                            final snackBar = SnackBar(
+                              content: LText(ConvertPageLocalization.haveError),
+                            );
 
-                        if (listMediaType == null) {
-                          const snackBar = SnackBar(
-                            content: Text('Please select convert file type!'),
-                          );
-
-                          ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                        }
-
-                        ListMediaTypeWidget(
-                          typeList: listMediaType!,
-                          initList: file.destinationType != null ? [MediaType(name: file.destinationType!)] : null,
-                        ).showBottomSheet(context).then((destinationType) {
-                          if (destinationType != null) {
-                            if (destinationType.isNotEmpty) {
-                              widget.onSelectDestinationType(destinationType.first.name);
-                            }
+                            ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                            return;
                           }
-                        });
+
+                          ListMediaTypeWidget(
+                            typeList: listMediaType!,
+                            initList: file.destinationType != null ? [MediaType(name: file.destinationType!)] : null,
+                          ).showBottomSheet(context).then((destinationType) {
+                            if (destinationType != null) {
+                              if (destinationType.isNotEmpty) {
+                                widget.onSelectDestinationType(destinationType.first.name);
+                              }
+                            }
+                          });
+                        }
                       },
+                      child: file.destinationType != null
+                          ? Text(file.destinationType!)
+                          : LText(ConvertPageLocalization.choose),
                     ),
                     // IconButton(onPressed: () {}, icon: Icon(Icons.settings))
                   ],
@@ -136,19 +143,19 @@ class _AppFileCardState extends BaseStatefulWidgetState<AppFileCard> {
                       alignment: Alignment.center,
                       child: ElevatedButton(
                         onPressed: widget.onConvert,
-                        child: Center(
-                          child: Text(
-                            "Convert",
-                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                  color: Colors.white,
-                                ),
-                          ),
-                        ),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Theme.of(context).primaryColor,
                           textStyle: Theme.of(context).textTheme.titleMedium?.copyWith(
                                 color: Colors.white,
                               ),
+                        ),
+                        child: Center(
+                          child: LText(
+                            ConvertPageLocalization.convert,
+                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                  color: Colors.white,
+                                ),
+                          ),
                         ),
                       ),
                     ),

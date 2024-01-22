@@ -30,7 +30,9 @@ class _EmptyHomeState extends State<EmptyHome> implements PickMultipleFile {
               ),
               const SizedBox(height: 16),
               LText(
-                canPickMultipleFile ? SelectFileLocalization.tapToSelectFiles : SelectFileLocalization.tapToSelectFile,
+                canPickMultipleFile
+                    ? ConvertPageLocalization.tapToSelectFiles
+                    : ConvertPageLocalization.tapToSelectFiles,
               ),
             ],
           ),

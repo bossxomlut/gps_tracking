@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:mp3_convert/base_presentation/view/view.dart';
 import 'package:mp3_convert/feature/home/cubit/convert_cubit.dart';
 import 'package:mp3_convert/feature/home/data/entity/setting_file.dart';
 import 'package:mp3_convert/feature/home/widget/uploading_progress_bar.dart';
 import 'package:mp3_convert/resource/icon_path.dart';
+import 'package:mp3_convert/resource/string.dart';
 import 'package:mp3_convert/widget/image.dart';
 import 'package:open_file_plus/open_file_plus.dart';
 
@@ -33,6 +35,12 @@ class ConvertStatusWidget extends StatelessWidget {
           onPressed: () {
             context.read<ConvertCubit>().downloadConvertedFile((convertFile as ConvertedFile).downloadId);
           },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Theme.of(context).primaryColor,
+            textStyle: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  color: Colors.white,
+                ),
+          ),
           child: Center(
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -44,20 +52,14 @@ class ConvertStatusWidget extends StatelessWidget {
                   height: 20,
                 ),
                 const SizedBox(width: 8),
-                Text(
-                  "Download",
+                LText(
+                  ConvertPageLocalization.download,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         color: Colors.white,
                       ),
                 ),
               ],
             ),
-          ),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Theme.of(context).primaryColor,
-            textStyle: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: Colors.white,
-                ),
           ),
         );
       case ConvertStatus.downloading:
@@ -70,19 +72,19 @@ class ConvertStatusWidget extends StatelessWidget {
               OpenFile.open((convertFile as DownloadedFile).downloadPath);
             }
           },
-          child: Center(
-            child: Text(
-              "Open File",
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: Colors.white,
-                  ),
-            ),
-          ),
           style: ElevatedButton.styleFrom(
             backgroundColor: Theme.of(context).primaryColor,
             textStyle: Theme.of(context).textTheme.titleMedium?.copyWith(
                   color: Colors.white,
                 ),
+          ),
+          child: Center(
+            child: LText(
+              ConvertPageLocalization.openFile,
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    color: Colors.white,
+                  ),
+            ),
           ),
         );
     }
@@ -100,15 +102,15 @@ class ConvertErrorWidget extends StatelessWidget {
       children: [
         AppImage.svg(IconPath.refreshAlert, color: Theme.of(context).colorScheme.error),
         const SizedBox(width: 12),
-        Text(
-          "Have error in this session!",
+        LText(
+          ConvertPageLocalization.haveError,
           style: Theme.of(context)
               .textTheme
               .labelLarge
               ?.copyWith(fontSize: 16, color: Theme.of(context).colorScheme.error),
         ),
         const SizedBox(width: 12),
-        TextButton(onPressed: onRetry, child: Text("Retry")),
+        TextButton(onPressed: onRetry, child: LText(ConvertPageLocalization.retry)),
       ],
     );
   }

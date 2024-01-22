@@ -2,10 +2,12 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:mp3_convert/base_presentation/view/safe_set_state.dart';
+import 'package:mp3_convert/base_presentation/view/view.dart';
 import 'package:mp3_convert/data/entity/app_file.dart';
 import 'package:mp3_convert/feature/home/cubit/convert_cubit.dart';
 import 'package:mp3_convert/feature/home/widget/file_info_card.dart';
 import 'package:mp3_convert/resource/image_path.dart';
+import 'package:mp3_convert/resource/string.dart';
 import 'package:mp3_convert/util/app_life_cycle_mixin.dart';
 import 'package:mp3_convert/widget/image.dart';
 
@@ -73,8 +75,8 @@ class _HistoryDownloadWidgetState extends AppLifeCycleMixin<HistoryDownloadWidge
               color: Theme.of(context).hintColor,
             ),
             const SizedBox(height: 12),
-            Text(
-              "Empty list",
+            LText(
+              CommonLocalization.emptyList,
               style: Theme.of(context).textTheme.labelMedium?.copyWith(
                     color: Theme.of(context).hintColor,
                   ),

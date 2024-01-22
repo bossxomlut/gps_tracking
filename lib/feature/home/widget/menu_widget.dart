@@ -7,50 +7,50 @@ import 'package:mp3_convert/feature/home/widget/file_type_widget.dart';
 import 'package:mp3_convert/resource/string.dart';
 import 'package:mp3_convert/widget/show_bottom_sheet.dart';
 
-class MenuWidget extends StatelessWidget {
-  const MenuWidget({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return ColoredBox(
-      color: Colors.white,
-      child: SafeArea(
-        child: Container(
-          width: double.maxFinite,
-          child: Row(
-            children: [
-              Expanded(
-                child: _CustomMenuButton(
-                  title: MenuLocalization.tool.tr(),
-                  onTap: () {
-                    const ToolCategoryWidget().showBottomSheet(context).then((featureType) {
-                      if (featureType == null) {
-                        return;
-                      }
-                      switch (featureType) {
-                        case FeatureType.convert:
-                        case FeatureType.split:
-                        // TODO: Handle this case.
-                        case FeatureType.merge:
-                        // TODO: Handle this case.
-                      }
-                    });
-                  },
-                ),
-              ),
-              Expanded(
-                child: _CustomMenuButton(
-                  title: MenuLocalization.export.tr(),
-                  onTap: () {},
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
+// class MenuWidget extends StatelessWidget {
+//   const MenuWidget({super.key});
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return ColoredBox(
+//       color: Colors.white,
+//       child: SafeArea(
+//         child: Container(
+//           width: double.maxFinite,
+//           child: Row(
+//             children: [
+//               Expanded(
+//                 child: _CustomMenuButton(
+//                   title: MenuLocalization.tool.tr(),
+//                   onTap: () {
+//                     const ToolCategoryWidget().showBottomSheet(context).then((featureType) {
+//                       if (featureType == null) {
+//                         return;
+//                       }
+//                       switch (featureType) {
+//                         case FeatureType.convert:
+//                         case FeatureType.split:
+//                         // TODO: Handle this case.
+//                         case FeatureType.merge:
+//                         // TODO: Handle this case.
+//                       }
+//                     });
+//                   },
+//                 ),
+//               ),
+//               Expanded(
+//                 child: _CustomMenuButton(
+//                   title: MenuLocalization.export.tr(),
+//                   onTap: () {},
+//                 ),
+//               ),
+//             ],
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+// }
 
 class _CustomMenuButton extends StatelessWidget {
   const _CustomMenuButton({super.key, required this.title, this.onTap});
