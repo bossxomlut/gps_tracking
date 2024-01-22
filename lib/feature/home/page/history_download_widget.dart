@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:mp3_convert/base_presentation/view/safe_set_state.dart';
 import 'package:mp3_convert/data/entity/app_file.dart';
 import 'package:mp3_convert/feature/home/cubit/convert_cubit.dart';
 import 'package:mp3_convert/feature/home/widget/file_info_card.dart';
@@ -15,7 +16,8 @@ class HistoryDownloadWidget extends StatefulWidget {
   State<HistoryDownloadWidget> createState() => _HistoryDownloadWidgetState();
 }
 
-class _HistoryDownloadWidgetState extends AppLifeCycleMixin<HistoryDownloadWidget> {
+class _HistoryDownloadWidgetState extends AppLifeCycleMixin<HistoryDownloadWidget>
+    with SafeSetState<HistoryDownloadWidget> {
   List<AppFile>? _files;
 
   @override
@@ -44,6 +46,10 @@ class _HistoryDownloadWidgetState extends AppLifeCycleMixin<HistoryDownloadWidge
           ),
         )
         .toList();
+
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   @override

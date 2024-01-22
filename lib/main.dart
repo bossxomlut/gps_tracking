@@ -5,10 +5,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:mp3_convert/base_presentation/theme/theme.dart';
 import 'package:mp3_convert/feature/home/cubit/convert_cubit.dart';
+import 'package:mp3_convert/feature/home/page/convert_page.dart';
 import 'package:mp3_convert/feature/home/page/home.dart';
 import 'package:mp3_convert/internet_connect/socket/socket.dart';
 import 'package:mp3_convert/util/app_life_cycle_mixin.dart';
+import 'package:mp3_convert/util/navigator/app_navigator.dart';
 import 'package:mp3_convert/util/downloader_util.dart';
+import 'package:mp3_convert/util/navigator/app_page.dart';
 
 import 'main_setting/app_setting.dart';
 
@@ -50,7 +53,8 @@ class MyApp extends StatelessWidget {
           darkTheme: ThemeData(
             useMaterial3: true,
           ),
-          home: const HomePage(),
+          home: GetHomePage().getPage(null),
+          navigatorKey: AppNavigator.navigatorKey,
           navigatorObservers: [
             AppLifeCycleMixin.routeObserver,
           ],

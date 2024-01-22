@@ -40,9 +40,7 @@ class MenuPage extends BasePage {
                   Card(
                     child: InkWell(
                       onTap: () {
-                        Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => ConvertPage(),
-                        ));
+                        AppNavigator.to(GetConvertPage());
                       },
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),

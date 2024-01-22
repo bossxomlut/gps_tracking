@@ -11,6 +11,8 @@ import 'package:mp3_convert/feature/home/widget/app_file_card.dart';
 import 'package:mp3_convert/main.dart';
 import 'package:mp3_convert/resource/icon_path.dart';
 import 'package:mp3_convert/resource/string.dart';
+import 'package:mp3_convert/util/navigator/app_navigator.dart';
+import 'package:mp3_convert/util/navigator/app_page.dart';
 import 'package:mp3_convert/util/permission/permission_helper.dart';
 import 'package:mp3_convert/widget/file_picker.dart';
 import 'package:mp3_convert/widget/image.dart';
