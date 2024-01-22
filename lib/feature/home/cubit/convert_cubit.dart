@@ -114,13 +114,13 @@ extension ConvertListener on ConvertCubit {
     int index = state.files?.indexWhere((f) => f is ConvertingFile && f.uploadId == convertData.uploadId) ?? -1;
     if (index > -1) {
       final file = state.files![index];
-      if (convertData.progress < 100) {
+      if (convertData.progress < 100 || convertData.downloadId == null) {
         state.files?[index] = (file as ConvertingFile).copyWith(
           convertProgress: convertData.progress / 100,
         );
       } else {
         state.files?[index] = ConvertedFile(
-          downloadId: convertData.downloadId,
+          downloadId: convertData.downloadId!,
           name: file.name,
           path: file.path,
           destinationType: file.destinationType,
@@ -352,7 +352,7 @@ extension ConvertingFileProcess on ConvertCubit {
     final addRowResult = await convertFileRepository.addRow(
       AddRowRequestData(
         socketId: socketId!,
-        sessionId: "sessionId", //todo: sessionId cần thông tin nó làm cái gì
+        sessionId: generateString.getString(),
         fileName: uploadingFile.name,
         uploadId: uploadingFile.uploadId,
         target: uploadingFile.destinationType!,
@@ -436,6 +436,8 @@ extension ConvertingFileProcess on ConvertCubit {
     final String path = await _getPath();
 
     final ConvertedFile file = state.files![index] as ConvertedFile;
+    final fileName = '${file.generateConvertFileName()}';
+    final downloadPath = '$path/$fileName';
 
     final downloadingFile = DownloadingFile(
       name: file.name,
@@ -443,7 +445,7 @@ extension ConvertingFileProcess on ConvertCubit {
       destinationType: file.destinationType,
       downloadId: file.downloadId,
       downloadProgress: .0,
-      downloadPath: '$path/${file.getConvertFileName()}',
+      downloadPath: downloadPath,
       downloaderId: null,
     );
 
@@ -452,7 +454,7 @@ extension ConvertingFileProcess on ConvertCubit {
     final id = await FlutterDownloader.enqueue(
       url: "https://cdndl.xyz/media/sv1/api/upload/downloadFile/$downloadId",
       savedDir: path,
-      fileName: downloadingFile.getConvertFileName(),
+      fileName: fileName,
     );
 
     log("added ${id} to FlutterDownloader.enqueue");

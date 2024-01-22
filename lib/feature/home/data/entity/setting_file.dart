@@ -49,6 +49,12 @@ class ConfigConvertFile extends AppFile {
   String getConvertFileName() {
     return name.substring(0, name.length - type.length) + destinationType!;
   }
+
+  String generateConvertFileName() {
+    return name.substring(0, (name.length - type.length) - 1) +
+        '${DateTime.now().millisecondsSinceEpoch}.' +
+        destinationType!;
+  }
 }
 
 class UnValidConfigConvertFile extends ConfigConvertFile {
@@ -148,7 +154,7 @@ class ConvertingFile extends UploadFile {
 }
 
 class HaveDownloadIdFile extends ConvertStatusFile {
-  final String? downloadId;
+  final String downloadId;
 
   HaveDownloadIdFile({
     required super.name,

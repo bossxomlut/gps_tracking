@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 
 abstract class AppLifeCycleMixin<T extends StatefulWidget> extends State<T> with WidgetsBindingObserver, RouteAware {
@@ -21,6 +23,7 @@ abstract class AppLifeCycleMixin<T extends StatefulWidget> extends State<T> with
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
+    log("didChangeAppLifecycleState: ${state.name}");
     super.didChangeAppLifecycleState(state);
     switch (state) {
       case AppLifecycleState.resumed:
