@@ -31,8 +31,7 @@ class ConvertStatusWidget extends StatelessWidget {
       case ConvertStatus.converted:
         return ElevatedButton(
           onPressed: () {
-            final String? downloadId = (convertFile as ConvertedFile).downloadId;
-            context.read<ConvertCubit>().downloadConvertedFile(downloadId!);
+            context.read<ConvertCubit>().downloadConvertedFile((convertFile as ConvertedFile).downloadId);
           },
           child: Center(
             child: Row(

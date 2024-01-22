@@ -114,13 +114,13 @@ extension ConvertListener on ConvertCubit {
     int index = state.files?.indexWhere((f) => f is ConvertingFile && f.uploadId == convertData.uploadId) ?? -1;
     if (index > -1) {
       final file = state.files![index];
-      if (convertData.progress < 100) {
+      if (convertData.progress < 100 || convertData.downloadId == null) {
         state.files?[index] = (file as ConvertingFile).copyWith(
           convertProgress: convertData.progress / 100,
         );
       } else {
         state.files?[index] = ConvertedFile(
-          downloadId: convertData.downloadId,
+          downloadId: convertData.downloadId!,
           name: file.name,
           path: file.path,
           destinationType: file.destinationType,
@@ -352,7 +352,7 @@ extension ConvertingFileProcess on ConvertCubit {
     final addRowResult = await convertFileRepository.addRow(
       AddRowRequestData(
         socketId: socketId!,
-        sessionId: "sessionId", //todo: sessionId cần thông tin nó làm cái gì
+        sessionId: generateString.getString(),
         fileName: uploadingFile.name,
         uploadId: uploadingFile.uploadId,
         target: uploadingFile.destinationType!,

@@ -154,7 +154,7 @@ class ConvertingFile extends UploadFile {
 }
 
 class HaveDownloadIdFile extends ConvertStatusFile {
-  final String? downloadId;
+  final String downloadId;
 
   HaveDownloadIdFile({
     required super.name,
