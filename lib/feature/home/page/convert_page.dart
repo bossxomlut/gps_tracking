@@ -25,20 +25,7 @@ class _ConvertPageState extends SingleProviderBasePageState<ConvertPage, Convert
 
   @override
   PreferredSizeWidget? buildAppBar(BuildContext context) {
-    final List<String> keys = [];
-    return AppBar(
-      actions: [
-        PopupMenuButton(
-          itemBuilder: (context) {
-            return [
-              PopupMenuItem<int>(value: 0, child: LText(SettingLocalization.setting)),
-              PopupMenuItem<int>(value: 1, child: LText(SettingLocalization.instruction)),
-              PopupMenuItem<int>(value: 2, child: LText(SettingLocalization.helpAndFeedback)),
-            ];
-          },
-        )
-      ],
-    );
+    return AppBar();
   }
 
   @override
