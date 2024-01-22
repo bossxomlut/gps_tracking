@@ -16,6 +16,15 @@ class MenuPage extends BasePage {
               PopupMenuItem<int>(value: 2, child: LText(SettingLocalization.helpAndFeedback)),
             ];
           },
+          onSelected: (value) {
+            switch (value) {
+              case 0:
+                {
+                  AppNavigator.to(GetSettingPage());
+                  break;
+                }
+            }
+          },
         )
       ],
     );

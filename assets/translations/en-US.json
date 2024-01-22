@@ -1,8 +1,13 @@
 {
+    "language": {
+        "en": "English",
+        "vi": "Vietnamese"
+    },
     "setting": {
         "setting": "Setting",
         "instruction": "Instruction",
-        "help_and_feedback": "Help and feedback"
+        "help_and_feedback": "Help and feedback",
+        "language": "Language"
     },
     "common": {
         "lost_connect_internet": "Lost connect internet!",

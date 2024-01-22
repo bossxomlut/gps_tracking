@@ -8,6 +8,8 @@ class SettingLocalization {
   static String get instruction => "${prefix}instruction";
 
   static String get helpAndFeedback => "${prefix}help_and_feedback";
+
+  static String get language => "${prefix}language";
 }
 
 class CommonLocalization {

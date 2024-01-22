@@ -17,17 +17,30 @@ import 'main_setting/app_setting.dart';
 
 final ConvertChannel socketChannel = ConvertChannel("https://syt.cdndl.xyz");
 
+class AppLocale {
+  final List<Locale> supportedLocales = [
+    const Locale('en', 'US'),
+    const Locale('vi', 'VN'),
+  ];
+
+  Locale get defaultLocale => supportedLocales.first;
+
+  String get path => 'assets/translations';
+}
+
 Future main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await AppSetting().initApp();
 
+  final AppLocale appLocale = AppLocale();
+
   runApp(
     EasyLocalization(
-      supportedLocales: [Locale('en', 'US'), Locale('vi', 'VN')],
-      path: 'assets/translations',
-      startLocale: Locale('en', 'US'),
-      fallbackLocale: Locale('en', 'US'),
+      supportedLocales: appLocale.supportedLocales,
+      startLocale: appLocale.defaultLocale,
+      fallbackLocale: appLocale.defaultLocale,
+      path: appLocale.path,
       child: const MyApp(),
     ),
   );

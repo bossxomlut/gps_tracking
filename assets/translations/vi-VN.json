@@ -1,8 +1,13 @@
 {
+    "language": {
+        "en": "Tiếng Anh",
+        "vi": "Tiếng Việt"
+    },
     "setting": {
         "setting": "Cài đặt",
         "instruction": "Hướng dẫn",
-        "help_and_feedback":"Trợ giúp và phản hồi"
+        "help_and_feedback":"Trợ giúp và phản hồi",
+        "language": "Ngôn ngữ"
     },
     "common": {
         "lost_connect_internet": "Mất kết nối internet!",
