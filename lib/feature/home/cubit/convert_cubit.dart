@@ -436,6 +436,8 @@ extension ConvertingFileProcess on ConvertCubit {
     final String path = await _getPath();
 
     final ConvertedFile file = state.files![index] as ConvertedFile;
+    final fileName = '${file.generateConvertFileName()}';
+    final downloadPath = '$path/$fileName';
 
     final downloadingFile = DownloadingFile(
       name: file.name,
@@ -443,7 +445,7 @@ extension ConvertingFileProcess on ConvertCubit {
       destinationType: file.destinationType,
       downloadId: file.downloadId,
       downloadProgress: .0,
-      downloadPath: '$path/${file.getConvertFileName()}',
+      downloadPath: downloadPath,
       downloaderId: null,
     );
 
@@ -452,7 +454,7 @@ extension ConvertingFileProcess on ConvertCubit {
     final id = await FlutterDownloader.enqueue(
       url: "https://cdndl.xyz/media/sv1/api/upload/downloadFile/$downloadId",
       savedDir: path,
-      fileName: downloadingFile.getConvertFileName(),
+      fileName: fileName,
     );
 
     log("added ${id} to FlutterDownloader.enqueue");
