@@ -51,7 +51,7 @@ class MenuPage extends BasePage {
                                 AppImage.svg(IconPath.exchange),
                                 const SizedBox(width: 16),
                                 LText(
-                                  CommonLocalization.emptyList,
+                                  CommonLocalization.convert,
                                   style: Theme.of(context).textTheme.titleLarge,
                                 ),
                               ],

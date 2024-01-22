@@ -6,7 +6,8 @@
     },
     "common": {
         "lost_connect_internet": "Mất kết nối internet!",
-        "empty_list": "Danh sách rỗng"
+        "empty_list": "Danh sách rỗng",
+        "convert": "Chuyển đổi"
     },
     "home_page": {
         "features": "Chức năng",
