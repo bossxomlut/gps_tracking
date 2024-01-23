@@ -13,13 +13,16 @@ class PickingFileRepositoryImpl extends PickingFileRepository {
   PickingFileRepositoryImpl({
     FileTypeMappingSource? fileTypeMappingSource,
     MappingStorage<String, ListMediaType>? mappingTypeStorage,
+    MappingStorage<String, String>? mappingTypeNameStorage,
   }) {
     _fileTypeMappingSource = fileTypeMappingSource ?? di.get();
     _mappingTypeStorage = mappingTypeStorage ?? di.get<MappingTypeStorage>();
+    _mappingTypeNameStorage = mappingTypeNameStorage ?? di.get<MappingTypeNameStorage>();
   }
 
   late final FileTypeMappingSource _fileTypeMappingSource;
   late final MappingStorage<String, ListMediaType> _mappingTypeStorage;
+  late final MappingStorage<String, String> _mappingTypeNameStorage;
 
   @override
   Future<DataResult<FailureEntity, ListMediaType>> mappingType(String sourceType) async {
@@ -34,6 +37,10 @@ class PickingFileRepositoryImpl extends PickingFileRepository {
           if (responseData is Map) {
             final value = ListMediaType.fromJson(responseData);
             _mappingTypeStorage.setValue(sourceType, value);
+            final typeName = responseData['fileType']?.toString() ?? '';
+            if (typeName.isNotEmpty) {
+              _mappingTypeNameStorage.setValue(sourceType, typeName);
+            }
             return SuccessDataResult(value);
           }
         case FailureApiResponse():
@@ -45,6 +52,11 @@ class PickingFileRepositoryImpl extends PickingFileRepository {
       return FailureDataResult(FailureEntity(message: response.message));
     });
   }
+
+  @override
+  Future<String?> getTypeName(String sourceType) async {
+    return _mappingTypeNameStorage.getValue(sourceType);
+  }
 }
 
 class MappingTypeStorage extends MappingStorage<String, ListMediaType> {
@@ -53,6 +65,21 @@ class MappingTypeStorage extends MappingStorage<String, ListMediaType> {
   static final MappingTypeStorage _i = MappingTypeStorage._();
 
   factory MappingTypeStorage() {
+    return _i;
+  }
+
+  @override
+  String getKey(String key) {
+    return key;
+  }
+}
+
+class MappingTypeNameStorage extends MappingStorage<String, String> {
+  MappingTypeNameStorage._();
+
+  static final MappingTypeNameStorage _i = MappingTypeNameStorage._();
+
+  factory MappingTypeNameStorage() {
     return _i;
   }
 

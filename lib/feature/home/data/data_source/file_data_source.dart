@@ -1,3 +1,4 @@
+import 'package:mp3_convert/data/entity/feature.dart';
 import 'package:mp3_convert/feature/home/data/data_source/file_data_source_impl.dart';
 import 'package:mp3_convert/internet_connect/http_request/api_dto.dart';
 import 'package:mp3_convert/internet_connect/http_request/api_response.dart';
@@ -30,6 +31,7 @@ class AddRowDto extends ApiDto {
   final String target;
   final String ext;
   final String fileType;
+  final AppFeature feature;
 
   AddRowDto({
     required this.fileName,
@@ -39,6 +41,7 @@ class AddRowDto extends ApiDto {
     required this.target,
     required this.ext,
     required this.fileType,
+    required this.feature,
   });
 
   @override
@@ -51,6 +54,7 @@ class AddRowDto extends ApiDto {
       "target": target,
       "ext": ext,
       "fileType": fileType,
+      "actionType": feature.number,
     };
   }
 }

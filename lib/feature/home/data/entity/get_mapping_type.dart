@@ -19,4 +19,9 @@ class GetMappingType implements MappingType {
       }
     });
   }
+
+  @override
+  Future<String?> getTypeName(String sourceType) {
+    return pickingFileRepository.getTypeName(sourceType);
+  }
 }

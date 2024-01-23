@@ -23,5 +23,6 @@ void registerDI() {
   //repository
   di.registerFactory<PickingFileRepository>(() => PickingFileRepositoryImpl());
   di.registerFactory<MappingTypeStorage>(() => MappingTypeStorage());
+  di.registerFactory<MappingTypeNameStorage>(() => MappingTypeNameStorage());
   di.registerFactory<ConvertFileRepository>(() => ConvertFileRepositoryImpl());
 }

@@ -11,6 +11,7 @@ import 'package:mp3_convert/base_presentation/cubit/event_mixin.dart';
 import 'package:mp3_convert/data/data_result.dart';
 import 'package:mp3_convert/data/entity/app_file.dart';
 import 'package:mp3_convert/data/entity/failure_entity.dart';
+import 'package:mp3_convert/data/entity/feature.dart';
 import 'package:mp3_convert/feature/home/cubit/convert_event.dart';
 import 'package:mp3_convert/feature/home/cubit/convert_state.dart';
 import 'package:mp3_convert/feature/home/data/entity/convert_data.dart';
@@ -61,6 +62,11 @@ class ConvertCubit extends Cubit<ConvertState>
   @override
   Future<ListMediaType?> getMappingType(String sourceType) {
     return _getMappingType.getMappingType(sourceType);
+  }
+
+  @override
+  Future<String?> getTypeName(String sourceType) {
+    return _getMappingType.getTypeName(sourceType);
   }
 
   void _refreshPickedFileState() {
@@ -355,7 +361,8 @@ extension ConvertingFileProcess on ConvertCubit {
         uploadId: uploadingFile.uploadId,
         target: uploadingFile.destinationType!,
         ext: uploadingFile.type,
-        fileType: "audio", //todo: cần điều chỉnh lại cái chổ này theo API
+        fileType: (await getTypeName(uploadingFile.type)) ?? '',
+        feature: AppFeature.convert,
       ),
     );
 

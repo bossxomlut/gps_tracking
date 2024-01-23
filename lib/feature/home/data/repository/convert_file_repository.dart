@@ -1,5 +1,6 @@
 import 'package:mp3_convert/data/data_result.dart';
 import 'package:mp3_convert/data/entity/failure_entity.dart';
+import 'package:mp3_convert/data/entity/feature.dart';
 import 'package:mp3_convert/data/request_data.dart';
 import 'package:mp3_convert/feature/home/data/data_source/file_data_source.dart';
 import 'package:mp3_convert/feature/home/data/data_source/file_data_source_impl.dart';
@@ -21,6 +22,7 @@ class AddRowRequestData implements RequestData<AddRowDto> {
   final String target;
   final String ext;
   final String fileType;
+  final AppFeature feature;
 
   AddRowRequestData({
     required this.fileName,
@@ -30,6 +32,7 @@ class AddRowRequestData implements RequestData<AddRowDto> {
     required this.target,
     required this.ext,
     required this.fileType,
+    required this.feature,
   });
 
   @override
@@ -42,6 +45,7 @@ class AddRowRequestData implements RequestData<AddRowDto> {
       target: target,
       ext: ext,
       fileType: fileType,
+      feature: feature,
     );
   }
 }
