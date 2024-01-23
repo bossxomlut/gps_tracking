@@ -35,6 +35,7 @@
         "download_error": "Something wrong with download progress!",
         "start_convert_all": "Start convert all",
         "delete": "Delete",
-        "require_choose_file_type": "Please select convert file type!"
+        "require_choose_file_type": "Please select convert file type!",
+        "auto_download": "Auto download"
     }
 }

@@ -1,8 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:mp3_convert/feature/home/page/convert_page.dart';
+import 'package:mp3_convert/feature/home/page/convert_setting_page.dart';
 import 'package:mp3_convert/feature/home/page/home.dart';
 import 'package:mp3_convert/feature/setting/help_and_feedback_page.dart';
 import 'package:mp3_convert/feature/setting/setting_page.dart';
+
+class GetConvertSettingPage extends AppPage {
+  GetConvertSettingPage() : super('/convert/setting');
+
+  @override
+  Widget? getPage(Object? arguments) {
+    return const ConvertSettingPage();
+  }
+}
 
 class GetHelpAndFeedbackPage extends AppPage {
   GetHelpAndFeedbackPage() : super('/help-and-feedback');

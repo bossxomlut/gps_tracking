@@ -9,6 +9,8 @@ import 'package:mp3_convert/feature/home/cubit/convert_state.dart';
 import 'package:mp3_convert/feature/home/data/entity/setting_file.dart';
 import 'package:mp3_convert/feature/home/page/home.dart';
 import 'package:mp3_convert/resource/string.dart';
+import 'package:mp3_convert/util/navigator/app_navigator.dart';
+import 'package:mp3_convert/util/navigator/app_page.dart';
 import 'package:mp3_convert/widget/file_picker.dart';
 import 'package:mp3_convert/base_presentation/page/base_page.dart';
 
@@ -25,7 +27,15 @@ class _ConvertPageState extends SingleProviderBasePageState<ConvertPage, Convert
 
   @override
   PreferredSizeWidget? buildAppBar(BuildContext context) {
-    return AppBar();
+    return AppBar(
+      actions: [
+        IconButton(
+            onPressed: () {
+              AppNavigator.to(GetConvertSettingPage());
+            },
+            icon: const Icon(Icons.settings)),
+      ],
+    );
   }
 
   @override

@@ -94,6 +94,9 @@ dependencies:
   #url launcher
   url_launcher: 6.2.4
 
+  #local storage
+  shared_preferences: 2.2.2
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

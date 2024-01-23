@@ -34,6 +34,7 @@
         "download_error": "Đã có lỗi xảy ra!",
         "start_convert_all": "Chuyển đổi tất cả",
         "delete": "Xoá",
-        "require_choose_file_type": "Vui lòng chọn loại tệp!"
+        "require_choose_file_type": "Vui lòng chọn loại tệp!",
+        "auto_download": "Tự động tải xuống"
     }
 }

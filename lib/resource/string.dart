@@ -64,4 +64,6 @@ class ConvertPageLocalization {
   static String get delete => "${prefix}delete";
 
   static String get requireChooseFileType => "${prefix}require_choose_file_type";
+
+  static String get autoDownload => "${prefix}auto_download";
 }
