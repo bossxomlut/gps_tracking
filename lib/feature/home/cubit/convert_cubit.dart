@@ -13,6 +13,7 @@ import 'package:mp3_convert/data/entity/app_file.dart';
 import 'package:mp3_convert/data/entity/failure_entity.dart';
 import 'package:mp3_convert/data/entity/feature.dart';
 import 'package:mp3_convert/feature/home/cubit/convert_event.dart';
+import 'package:mp3_convert/feature/home/cubit/convert_setting_cubit.dart';
 import 'package:mp3_convert/feature/home/cubit/convert_state.dart';
 import 'package:mp3_convert/feature/home/data/entity/convert_data.dart';
 import 'package:mp3_convert/feature/home/data/entity/get_mapping_type.dart';
@@ -129,7 +130,10 @@ extension ConvertListener on ConvertCubit {
           path: file.path,
           destinationType: file.destinationType,
         );
+
+        downloadConvertedFile(convertData.downloadId!);
       }
+
       _refreshPickedFileState();
     }
   }
