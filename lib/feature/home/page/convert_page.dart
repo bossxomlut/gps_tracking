@@ -62,7 +62,7 @@ class _ConvertPageState extends SingleProviderBasePageState<ConvertPage, Convert
   }
 
   void _openPickerDialog(bool canPickMultipleFile) async {
-    VideoFilePicker(allowMultiple: canPickMultipleFile).opeFilePicker().then((appFiles) {
+    AnyFilePicker(allowMultiple: canPickMultipleFile).opeFilePicker().then((appFiles) {
       setFiles(appFiles ?? []);
     }).catchError((error) {
       //todo: handle error if necessary

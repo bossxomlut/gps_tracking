@@ -38,3 +38,10 @@ class AudioFilePicker extends AppFilePicker {
     required super.allowMultiple,
   }) : super(fileType: FileType.audio);
 }
+
+class AnyFilePicker extends AppFilePicker {
+  const AnyFilePicker({
+    super.key,
+    required super.allowMultiple,
+  }) : super(fileType: FileType.any);
+}
