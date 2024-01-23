@@ -363,6 +363,7 @@ extension ConvertingFileProcess on ConvertCubit {
         ext: uploadingFile.type,
         fileType: (await getTypeName(uploadingFile.type)) ?? '',
         feature: AppFeature.convert,
+        fileSize: FileStat.statSync(file.path).size,
       ),
     );
 

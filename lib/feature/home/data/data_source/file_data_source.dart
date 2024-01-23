@@ -32,6 +32,7 @@ class AddRowDto extends ApiDto {
   final String ext;
   final String fileType;
   final AppFeature feature;
+  final int fileSize;
 
   AddRowDto({
     required this.fileName,
@@ -42,6 +43,7 @@ class AddRowDto extends ApiDto {
     required this.ext,
     required this.fileType,
     required this.feature,
+    required this.fileSize,
   });
 
   @override
@@ -55,6 +57,7 @@ class AddRowDto extends ApiDto {
       "ext": ext,
       "fileType": fileType,
       "actionType": feature.number,
+      "fileSize": fileSize,
     };
   }
 }

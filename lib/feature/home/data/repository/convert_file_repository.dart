@@ -23,6 +23,7 @@ class AddRowRequestData implements RequestData<AddRowDto> {
   final String ext;
   final String fileType;
   final AppFeature feature;
+  final int fileSize;
 
   AddRowRequestData({
     required this.fileName,
@@ -33,6 +34,7 @@ class AddRowRequestData implements RequestData<AddRowDto> {
     required this.ext,
     required this.fileType,
     required this.feature,
+    required this.fileSize,
   });
 
   @override
@@ -46,6 +48,7 @@ class AddRowRequestData implements RequestData<AddRowDto> {
       ext: ext,
       fileType: fileType,
       feature: feature,
+      fileSize: fileSize,
     );
   }
 }
