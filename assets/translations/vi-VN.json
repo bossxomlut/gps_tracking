@@ -7,7 +7,9 @@
         "setting": "Cài đặt",
         "instruction": "Hướng dẫn",
         "help_and_feedback":"Trợ giúp và phản hồi",
-        "language": "Ngôn ngữ"
+        "language": "Ngôn ngữ",
+        "version": "Phiên bản",
+        "developer_team": "Nhóm phát triển"
     },
     "common": {
         "lost_connect_internet": "Mất kết nối internet!",

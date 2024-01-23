@@ -10,6 +10,10 @@ class SettingLocalization {
   static String get helpAndFeedback => "${prefix}help_and_feedback";
 
   static String get language => "${prefix}language";
+
+  static String get version => "${prefix}version";
+
+  static String get developerTeam => "${prefix}developer_team";
 }
 
 class CommonLocalization {

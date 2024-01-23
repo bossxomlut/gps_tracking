@@ -7,7 +7,9 @@
         "setting": "Setting",
         "instruction": "Instruction",
         "help_and_feedback": "Help and feedback",
-        "language": "Language"
+        "language": "Language",
+        "version": "Version",
+        "developer_team": "Developer Team"
     },
     "common": {
         "lost_connect_internet": "Lost connect internet!",

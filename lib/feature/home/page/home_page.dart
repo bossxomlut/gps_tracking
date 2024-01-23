@@ -23,6 +23,16 @@ class MenuPage extends BasePage {
                   AppNavigator.to(GetSettingPage());
                   break;
                 }
+              case 1:
+                {
+                  //todo:
+                  break;
+                }
+              case 2:
+                {
+                  AppNavigator.to(GetHelpAndFeedbackPage());
+                  break;
+                }
             }
           },
         )

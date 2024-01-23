@@ -8,6 +8,7 @@ import 'package:mp3_convert/feature/home/data/entity/pick_multiple_file.dart';
 import 'package:mp3_convert/feature/home/data/entity/setting_file.dart';
 import 'package:mp3_convert/feature/home/page/convert_page.dart';
 import 'package:mp3_convert/feature/home/widget/app_file_card.dart';
+import 'package:mp3_convert/feature/setting/help_and_feedback_page.dart';
 import 'package:mp3_convert/main.dart';
 import 'package:mp3_convert/resource/icon_path.dart';
 import 'package:mp3_convert/resource/string.dart';

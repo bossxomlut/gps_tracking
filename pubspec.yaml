@@ -88,6 +88,12 @@ dependencies:
   #dependency_injection_flutter
   get_it: 7.6.7
 
+  #package info
+  package_info_plus: 5.0.1
+
+  #url launcher
+  url_launcher: 6.2.4
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
