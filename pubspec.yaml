@@ -85,6 +85,8 @@ dependencies:
   firebase_analytics: 10.8.0
   firebase_crashlytics: 3.4.9
 
+  #dependency_injection_flutter
+  get_it: 7.6.7
 
 dev_dependencies:
   flutter_test:

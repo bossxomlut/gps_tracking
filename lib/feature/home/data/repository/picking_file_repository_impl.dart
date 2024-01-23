@@ -1,6 +1,7 @@
 import 'package:mp3_convert/data/data_result.dart';
 import 'package:mp3_convert/data/entity/failure_entity.dart';
 import 'package:mp3_convert/data/mapping_storage.dart';
+import 'package:mp3_convert/di/di.dart';
 import 'package:mp3_convert/feature/home/data/data_source/type_mapping_source.dart';
 import 'package:mp3_convert/feature/home/data/data_source/type_mapping_source_impl.dart';
 import 'package:mp3_convert/feature/home/data/entity/media_type.dart';
@@ -9,8 +10,16 @@ import 'package:mp3_convert/internet_connect/http_request/api.dart';
 import 'package:mp3_convert/internet_connect/http_request/api_response.dart';
 
 class PickingFileRepositoryImpl extends PickingFileRepository {
-  final FileTypeMappingSource fileTypeMappingSource = FileTypeMappingSourceImpl(Mp3ApiRequest());
-  final _MappingTypeStorage _mappingTypeStorage = _MappingTypeStorage();
+  PickingFileRepositoryImpl({
+    FileTypeMappingSource? fileTypeMappingSource,
+    MappingStorage<String, ListMediaType>? mappingTypeStorage,
+  }) {
+    _fileTypeMappingSource = fileTypeMappingSource ?? di.get();
+    _mappingTypeStorage = mappingTypeStorage ?? di.get<MappingTypeStorage>();
+  }
+
+  late final FileTypeMappingSource _fileTypeMappingSource;
+  late final MappingStorage<String, ListMediaType> _mappingTypeStorage;
 
   @override
   Future<DataResult<FailureEntity, ListMediaType>> mappingType(String sourceType) async {
@@ -18,7 +27,7 @@ class PickingFileRepositoryImpl extends PickingFileRepository {
       return SuccessDataResult(_mappingTypeStorage.getValue(sourceType)!);
     }
 
-    return fileTypeMappingSource.getMappingType(MappingTypeDto(type: sourceType)).then((response) {
+    return _fileTypeMappingSource.getMappingType(MappingTypeDto(type: sourceType)).then((response) {
       switch (response) {
         case SuccessApiResponse():
           final responseData = response.data;
@@ -38,12 +47,12 @@ class PickingFileRepositoryImpl extends PickingFileRepository {
   }
 }
 
-class _MappingTypeStorage extends MappingStorage<String, ListMediaType> {
-  _MappingTypeStorage._();
+class MappingTypeStorage extends MappingStorage<String, ListMediaType> {
+  MappingTypeStorage._();
 
-  static final _MappingTypeStorage _i = _MappingTypeStorage._();
+  static final MappingTypeStorage _i = MappingTypeStorage._();
 
-  factory _MappingTypeStorage() {
+  factory MappingTypeStorage() {
     return _i;
   }
 
