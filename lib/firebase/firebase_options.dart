@@ -19,6 +19,7 @@ class DefaultFirebaseOptions {
   }
 
   static const String _apiKey = 'AIzaSyARzm27Y0RLsgil18YYsOTFjoUqsvlankU';
+  static const String _iosApiKey = 'AIzaSyBwIUiOaVcyAOqqyp_ZINlXO5I9DG7IK8A';
   static const String _appId = '1:498230792943:android:8286591ef2a051d45ac11a';
   static const String _projectId = 'mp3-convert-410814';
   static const String _messagingSenderId = '498230792943';
@@ -31,7 +32,7 @@ class DefaultFirebaseOptions {
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: _apiKey,
+    apiKey: _iosApiKey,
     appId: _appId,
     messagingSenderId: _messagingSenderId,
     projectId: _projectId,

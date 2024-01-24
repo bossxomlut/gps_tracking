@@ -46,3 +46,4 @@ Podfile
 Podfile.lock
 google-services.json
 devtools_options.yaml
+GoogleService-Info.plist
