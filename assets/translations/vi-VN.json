@@ -35,6 +35,7 @@
         "start_convert_all": "Chuyển đổi tất cả",
         "delete": "Xoá",
         "require_choose_file_type": "Vui lòng chọn loại tệp!",
+        "can_not_download_file": "Không thể tải tệp này!",
         "auto_download": "Tự động tải xuống"
     }
 }

@@ -1,3 +1,4 @@
+import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:mp3_convert/data/data_result.dart';
 import 'package:mp3_convert/data/entity/failure_entity.dart';
 import 'package:mp3_convert/data/request_data.dart';
@@ -50,20 +51,16 @@ class ConvertFileRepositoryImpl extends ConvertFileRepository {
   }
 
   @override
-  Future<DataResult<FailureEntity, dynamic>> download(DownloadRequestData requestData) {
+  Future<DataResult<FailureEntity, String>> download(DownloadRequestData requestData) async {
     return _fileDataSource.downloadFile(requestData.toDto()).then((response) {
       switch (response) {
         case SuccessApiResponse():
-          final responseData = response.data;
-          if (responseData is Map) {
-            return SuccessDataResult(responseData);
-          }
+          return SuccessDataResult(response.data.toString());
         case FailureApiResponse():
           return FailureDataResult(FailureEntity(message: response.message));
         case InternetErrorResponse():
-        // TODO: Handle this case.
+          return FailureDataResult(FailureEntity(message: response.message));
       }
-      return FailureDataResult(FailureEntity(message: response.message));
     });
   }
 }

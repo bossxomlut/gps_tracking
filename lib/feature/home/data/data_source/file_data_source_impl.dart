@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:mp3_convert/di/di.dart';
 import 'package:mp3_convert/internet_connect/http_request/api.dart';
 import 'package:mp3_convert/internet_connect/http_request/api_dto.dart';
@@ -23,8 +24,18 @@ class FileDataSourceImpl extends FileDataSource {
   }
 
   @override
-  Future<ApiResponse> downloadFile(DownloadDto dto) {
-    return _apiRequestWrapper.download("/api/upload/downloadFile/${dto.downloadId}", dto.savePath);
+  Future<ApiResponse> downloadFile(DownloadDto dto) async {
+    final id = await FlutterDownloader.enqueue(
+      url: "${_apiRequestWrapper.domainName}/api/upload/downloadFile/${dto.downloadId}",
+      savedDir: dto.savePath,
+      fileName: dto.fileName,
+    );
+
+    if (id != null) {
+      return SuccessApiResponse(message: 'Start download and downloader id is $id', data: id);
+    }
+
+    return FailureApiResponse(message: 'Download by ${dto.downloadId} failed', data: null);
   }
 
   @override

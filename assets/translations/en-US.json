@@ -36,6 +36,7 @@
         "start_convert_all": "Start convert all",
         "delete": "Delete",
         "require_choose_file_type": "Please select convert file type!",
+        "can_not_download_file": "Can not download file!",
         "auto_download": "Auto download"
     }
 }

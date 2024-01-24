@@ -65,10 +65,12 @@ class AddRowDto extends ApiDto {
 class DownloadDto extends ApiDto {
   final String downloadId;
   final String savePath;
+  final String fileName;
 
   DownloadDto({
     required this.downloadId,
     required this.savePath,
+    required this.fileName,
   });
 
   @override
@@ -76,6 +78,7 @@ class DownloadDto extends ApiDto {
     return {
       "downloadId": downloadId,
       "savePath": savePath,
+      "fileName": fileName,
     };
   }
 }

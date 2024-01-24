@@ -11,7 +11,7 @@ import 'package:mp3_convert/internet_connect/http_request/api_response.dart';
 abstract class ConvertFileRepository {
   Future<DataResult<FailureEntity, dynamic>> addRow(AddRowRequestData requestData);
   Future<DataResult<FailureEntity, dynamic>> uploadFile(UploadRequestData requestData);
-  Future<DataResult<FailureEntity, dynamic>> download(DownloadRequestData requestData);
+  Future<DataResult<FailureEntity, String>> download(DownloadRequestData requestData);
 }
 
 class AddRowRequestData implements RequestData<AddRowDto> {
@@ -80,10 +80,12 @@ class UploadRequestData implements RequestData<UploadFileDto> {
 class DownloadRequestData implements RequestData<DownloadDto> {
   final String downloadId;
   final String savePath;
+  final String fileName;
 
   DownloadRequestData({
     required this.downloadId,
     required this.savePath,
+    required this.fileName,
   });
 
   @override
@@ -91,6 +93,7 @@ class DownloadRequestData implements RequestData<DownloadDto> {
     return DownloadDto(
       downloadId: downloadId,
       savePath: savePath,
+      fileName: fileName,
     );
   }
 }

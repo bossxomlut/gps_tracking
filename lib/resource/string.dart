@@ -65,5 +65,7 @@ class ConvertPageLocalization {
 
   static String get requireChooseFileType => "${prefix}require_choose_file_type";
 
+  static String get canNotDownloadFile => "${prefix}can_not_download_file";
+
   static String get autoDownload => "${prefix}auto_download";
 }

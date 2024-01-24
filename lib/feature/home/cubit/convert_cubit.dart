@@ -463,19 +463,21 @@ extension ConvertingFileProcess on ConvertCubit {
 
     _setFileAtIndex(index, downloadingFile);
 
-    final id = await FlutterDownloader.enqueue(
-      url: "https://cdndl.xyz/media/sv1/api/upload/downloadFile/$downloadId",
-      savedDir: path,
+    final downloadResult = await convertFileRepository.download(DownloadRequestData(
+      downloadId: downloadId,
+      savePath: path,
       fileName: fileName,
-    );
+    ));
 
-    log("added ${id} to FlutterDownloader.enqueue");
-
-    if (id != null) {
-      _setFileAtIndex(index, downloadingFile.copyWith(downloaderId: id));
-    } else {
-      //todo: handle when cannot get downloader id
-      log("cannot get downloader id");
+    switch (downloadResult) {
+      case SuccessDataResult<FailureEntity, String>():
+        final downloaderId = downloadResult.data;
+        log("added ${downloaderId} to FlutterDownloader.enqueue");
+        _setFileAtIndex(index, downloadingFile.copyWith(downloaderId: downloaderId));
+        break;
+      case FailureDataResult<FailureEntity, dynamic>():
+        log("cannot get downloader id");
+        addEvent(CannotDownloadFileEvent());
     }
   }
 

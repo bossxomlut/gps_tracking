@@ -90,8 +90,15 @@ class _ConvertPageState extends SingleProviderBasePageState<ConvertPage, Convert
   void eventListener(event) {
     switch (event) {
       case UnknownDestinationEvent():
-        const snackBar = SnackBar(
-          content: Text('Please select convert file type!'),
+        final snackBar = SnackBar(
+          content: LText(ConvertPageLocalization.requireChooseFileType),
+        );
+
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+        return;
+      case CannotDownloadFileEvent():
+        final snackBar = SnackBar(
+          content: LText(ConvertPageLocalization.canNotDownloadFile),
         );
 
         ScaffoldMessenger.of(context).showSnackBar(snackBar);
