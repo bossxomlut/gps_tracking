@@ -131,7 +131,9 @@ extension ConvertListener on ConvertCubit {
           destinationType: file.destinationType,
         );
 
-        downloadConvertedFile(convertData.downloadId!);
+        if (AutoDownloadSetting().isAutoDownload()) {
+          downloadConvertedFile(convertData.downloadId!);
+        }
       }
 
       _refreshPickedFileState();
