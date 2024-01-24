@@ -27,57 +27,55 @@ class _ListMediaTypeWidgetState extends State<ListMediaTypeWidget> {
   @override
   Widget build(BuildContext context) {
     final l = widget.typeList.types..sort();
-    return Padding(
+    return ListView(
       padding: const EdgeInsets.all(16),
-      child: Column(
-        children: [
-          // Row(
-          //   children: [
-          //     Checkbox(
-          //       value: isMultipleChoice,
-          //       onChanged: (value) {
-          //         isMultipleChoice = value!;
-          //         selected.clear();
-          //         setState(() {});
-          //       },
-          //     ),
-          //     Text("Multiple selection"),
-          //     const Spacer(),
-          //     if (isMultipleChoice)
-          //       TextButton(
-          //           onPressed: () {
-          //             Navigator.of(context).pop(selected.toList());
-          //           },
-          //           child: Text("Select"))
-          //   ],
-          // ),
-          Wrap(
-            spacing: 8,
-            children: [
-              ...l.map(
-                (type) => MediaTypeChip(
-                  type: type,
-                  isSelected: selected.contains(type),
-                  onChanged: (value) {
-                    if (isMultipleChoice) {
-                      if (value) {
-                        selected.add(type);
-                      } else {
-                        selected.remove(type);
-                      }
-                      setState(() {});
+      children: [
+        // Row(
+        //   children: [
+        //     Checkbox(
+        //       value: isMultipleChoice,
+        //       onChanged: (value) {
+        //         isMultipleChoice = value!;
+        //         selected.clear();
+        //         setState(() {});
+        //       },
+        //     ),
+        //     Text("Multiple selection"),
+        //     const Spacer(),
+        //     if (isMultipleChoice)
+        //       TextButton(
+        //           onPressed: () {
+        //             Navigator.of(context).pop(selected.toList());
+        //           },
+        //           child: Text("Select"))
+        //   ],
+        // ),
+        Wrap(
+          spacing: 8,
+          children: [
+            ...l.map(
+              (type) => MediaTypeChip(
+                type: type,
+                isSelected: selected.contains(type),
+                onChanged: (value) {
+                  if (isMultipleChoice) {
+                    if (value) {
+                      selected.add(type);
                     } else {
-                      if (value) {
-                        Navigator.of(context).pop([type]);
-                      }
+                      selected.remove(type);
                     }
-                  },
-                ),
+                    setState(() {});
+                  } else {
+                    if (value) {
+                      Navigator.of(context).pop([type]);
+                    }
+                  }
+                },
               ),
-            ],
-          ),
-        ],
-      ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }

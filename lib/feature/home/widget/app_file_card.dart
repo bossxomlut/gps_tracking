@@ -111,7 +111,9 @@ class _AppFileCardState extends BaseStatefulWidgetState<AppFileCard> {
 
                           ListMediaTypeWidget(
                             typeList: listMediaType!,
-                            initList: file.destinationType != null ? [MediaType(name: file.destinationType!)] : null,
+                            initList: file.destinationType != null
+                                ? [MediaType(name: file.destinationType!.toUpperCase())]
+                                : null,
                           ).showBottomSheet(context).then((destinationType) {
                             if (destinationType != null) {
                               if (destinationType.isNotEmpty) {
