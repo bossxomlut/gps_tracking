@@ -108,6 +108,30 @@ class Mp3ApiRequest extends ApiRequestWrapper {
 }
 
 class UploadApiRequest extends ApiRequestWrapper {
+  static const String _defaultGateWay = "https://cdndl.xyz/media/sv1";
+
+  static String? _remoteConfigGateWay;
+
+  static void loadRemoteConfig() {
+    _GetRemoteConfigGateway().get('').then((response) {
+      switch (response) {
+        case SuccessApiResponse():
+          try {
+            _remoteConfigGateWay = (response.data as Map)['server']?.toString();
+          } catch (e) {}
+          break;
+        case FailureApiResponse():
+        case InternetErrorResponse():
+      }
+      return response;
+    }).catchError((e) {});
+  }
+
   @override
-  String get domainName => "https://cdndl.xyz/media/sv1";
+  String get domainName => _remoteConfigGateWay ?? _defaultGateWay;
+}
+
+class _GetRemoteConfigGateway extends ApiRequestWrapper {
+  @override
+  String get domainName => 'https://cdndl.xyz/config/get-server-yt';
 }
