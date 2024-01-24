@@ -80,6 +80,11 @@ dependencies:
   #share file
   share_plus: 7.2.1
 
+  #firebase
+  firebase_core: 2.24.2
+  firebase_analytics: 10.8.0
+  firebase_crashlytics: 3.4.9
+
 
 dev_dependencies:
   flutter_test:

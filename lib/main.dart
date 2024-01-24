@@ -1,16 +1,15 @@
 import 'dart:async';
 
 import 'package:easy_localization/easy_localization.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:mp3_convert/base_presentation/theme/theme.dart';
-import 'package:mp3_convert/feature/home/cubit/convert_cubit.dart';
-import 'package:mp3_convert/feature/home/page/convert_page.dart';
-import 'package:mp3_convert/feature/home/page/home.dart';
+import 'package:mp3_convert/firebase/firebase_options.dart';
 import 'package:mp3_convert/internet_connect/socket/socket.dart';
 import 'package:mp3_convert/util/app_life_cycle_mixin.dart';
 import 'package:mp3_convert/util/navigator/app_navigator.dart';
-import 'package:mp3_convert/util/downloader_util.dart';
 import 'package:mp3_convert/util/navigator/app_page.dart';
 
 import 'main_setting/app_setting.dart';
@@ -30,6 +29,15 @@ class AppLocale {
 
 Future main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
+
+  PlatformDispatcher.instance.onError = (error, stack) {
+    FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+    return true;
+  };
 
   await AppSetting().initApp();
 
