@@ -1,4 +1,4 @@
-package com.example.mp3_convert
+package com.bizkasa.mp3_convert
 
 import io.flutter.embedding.android.FlutterActivity
 

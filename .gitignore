@@ -44,3 +44,5 @@ app.*.map.json
 /android/app/release
 Podfile
 Podfile.lock
+google-services.json
+devtools_options.yaml
