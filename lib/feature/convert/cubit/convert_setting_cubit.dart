@@ -25,9 +25,7 @@ class ConvertSettingCubit extends Cubit<ConvertSettingState> with SafeEmit {
 }
 
 class AutoDownloadSetting {
-  AutoDownloadSetting._() {
-    _init();
-  }
+  AutoDownloadSetting._();
 
   static final AutoDownloadSetting _i = AutoDownloadSetting._();
 
@@ -35,7 +33,7 @@ class AutoDownloadSetting {
     return _i;
   }
 
-  void _init() async {
+  void init() async {
     ref ??= await SharedPreferences.getInstance();
   }
 
