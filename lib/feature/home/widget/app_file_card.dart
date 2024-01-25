@@ -11,6 +11,7 @@ import 'package:mp3_convert/feature/home/widget/file_type_widget.dart';
 import 'package:mp3_convert/feature/home/widget/uploading_progress_bar.dart';
 import 'package:mp3_convert/resource/string.dart';
 import 'package:mp3_convert/util/reduce_text.dart';
+import 'package:mp3_convert/util/show_snack_bar.dart';
 import 'package:mp3_convert/widget/button/loading_button.dart';
 
 class AppFileCard extends StatefulWidget {
@@ -18,6 +19,7 @@ class AppFileCard extends StatefulWidget {
     super.key,
     required this.file,
     required this.onSelectDestinationType,
+    required this.onSelectDestinationTypeForAll,
     required this.onConvert,
     required this.onRetry,
     required this.onDelete,
@@ -25,6 +27,7 @@ class AppFileCard extends StatefulWidget {
 
   final ConfigConvertFile file;
   final ValueChanged<String> onSelectDestinationType;
+  final ValueChanged<String> onSelectDestinationTypeForAll;
   final VoidCallback onConvert;
   final VoidCallback onRetry;
   final VoidCallback onDelete;
@@ -74,7 +77,7 @@ class _AppFileCardState extends BaseStatefulWidgetState<AppFileCard> {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: theme.highlightColor,
           boxShadow: [
             BoxShadow(offset: const Offset(0, -2), blurRadius: 4.0, color: Colors.black.withOpacity(0.04)),
             BoxShadow(offset: const Offset(0, 4), blurRadius: 8.0, color: Colors.black.withOpacity(0.12)),
@@ -101,17 +104,19 @@ class _AppFileCardState extends BaseStatefulWidgetState<AppFileCard> {
                         final listMediaType = await context.read<ConvertCubit>().getMappingType(file.type);
                         if (mounted) {
                           if (listMediaType == null) {
-                            final snackBar = SnackBar(
-                              content: LText(ConvertPageLocalization.haveError),
-                            );
+                            ShowSnackBar.showError(context, message: ConvertPageLocalization.haveError.tr());
 
-                            ScaffoldMessenger.of(context).showSnackBar(snackBar);
                             return;
                           }
 
                           ListMediaTypeWidget(
                             typeList: listMediaType!,
-                            initList: file.destinationType != null ? [MediaType(name: file.destinationType!)] : null,
+                            initList: file.destinationType != null
+                                ? [MediaType(name: file.destinationType!.toUpperCase())]
+                                : null,
+                            onApplyAll: (destinationType) {
+                              widget.onSelectDestinationTypeForAll(destinationType.first.name);
+                            },
                           ).showBottomSheet(context).then((destinationType) {
                             if (destinationType != null) {
                               if (destinationType.isNotEmpty) {

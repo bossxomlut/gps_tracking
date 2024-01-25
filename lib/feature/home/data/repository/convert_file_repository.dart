@@ -1,5 +1,7 @@
 import 'package:mp3_convert/data/data_result.dart';
 import 'package:mp3_convert/data/entity/failure_entity.dart';
+import 'package:mp3_convert/data/entity/feature.dart';
+import 'package:mp3_convert/data/request_data.dart';
 import 'package:mp3_convert/feature/home/data/data_source/file_data_source.dart';
 import 'package:mp3_convert/feature/home/data/data_source/file_data_source_impl.dart';
 import 'package:mp3_convert/internet_connect/http_request/api.dart';
@@ -9,65 +11,7 @@ import 'package:mp3_convert/internet_connect/http_request/api_response.dart';
 abstract class ConvertFileRepository {
   Future<DataResult<FailureEntity, dynamic>> addRow(AddRowRequestData requestData);
   Future<DataResult<FailureEntity, dynamic>> uploadFile(UploadRequestData requestData);
-  Future<DataResult<FailureEntity, dynamic>> download(DownloadRequestData requestData);
-}
-
-class ConvertFileRepositoryImpl extends ConvertFileRepository {
-  final FileDataSource _fileDataSource = FileDataSourceImpl(UploadApiRequest());
-  @override
-  Future<DataResult<FailureEntity, dynamic>> addRow(AddRowRequestData requestData) {
-    return _fileDataSource.addRow(requestData.toDto()).then((response) {
-      switch (response) {
-        case SuccessApiResponse():
-          final responseData = response.data;
-          if (responseData is Map) {
-            return SuccessDataResult(responseData);
-          }
-        case FailureApiResponse():
-          return FailureDataResult(FailureEntity(message: response.message));
-        case InternetErrorResponse():
-        // TODO: Handle this case.
-      }
-      return FailureDataResult(FailureEntity(message: response.message));
-    });
-  }
-
-  @override
-  Future<DataResult<FailureEntity, dynamic>> uploadFile(UploadRequestData requestData) {
-    return _fileDataSource.uploadFile(requestData.toDto()).then((response) {
-      switch (response) {
-        case SuccessApiResponse():
-          final responseData = response.data;
-          return SuccessDataResult(responseData);
-        case FailureApiResponse():
-          return FailureDataResult(FailureEntity(message: response.message));
-        case InternetErrorResponse():
-          return FailureDataResult(FailureEntity(message: response.message));
-      }
-    });
-  }
-
-  @override
-  Future<DataResult<FailureEntity, dynamic>> download(DownloadRequestData requestData) {
-    return _fileDataSource.downloadFile(requestData.toDto()).then((response) {
-      switch (response) {
-        case SuccessApiResponse():
-          final responseData = response.data;
-          if (responseData is Map) {
-            return SuccessDataResult(responseData);
-          }
-        case FailureApiResponse():
-          return FailureDataResult(FailureEntity(message: response.message));
-        case InternetErrorResponse():
-        // TODO: Handle this case.
-      }
-      return FailureDataResult(FailureEntity(message: response.message));
-    });
-  }
-}
-
-abstract class RequestData<T extends ApiDto> {
-  T toDto();
+  Future<DataResult<FailureEntity, String>> download(DownloadRequestData requestData);
 }
 
 class AddRowRequestData implements RequestData<AddRowDto> {
@@ -78,6 +22,8 @@ class AddRowRequestData implements RequestData<AddRowDto> {
   final String target;
   final String ext;
   final String fileType;
+  final AppFeature feature;
+  final int fileSize;
 
   AddRowRequestData({
     required this.fileName,
@@ -87,6 +33,8 @@ class AddRowRequestData implements RequestData<AddRowDto> {
     required this.target,
     required this.ext,
     required this.fileType,
+    required this.feature,
+    required this.fileSize,
   });
 
   @override
@@ -99,6 +47,8 @@ class AddRowRequestData implements RequestData<AddRowDto> {
       target: target,
       ext: ext,
       fileType: fileType,
+      feature: feature,
+      fileSize: fileSize,
     );
   }
 }
@@ -130,10 +80,12 @@ class UploadRequestData implements RequestData<UploadFileDto> {
 class DownloadRequestData implements RequestData<DownloadDto> {
   final String downloadId;
   final String savePath;
+  final String fileName;
 
   DownloadRequestData({
     required this.downloadId,
     required this.savePath,
+    required this.fileName,
   });
 
   @override
@@ -141,6 +93,7 @@ class DownloadRequestData implements RequestData<DownloadDto> {
     return DownloadDto(
       downloadId: downloadId,
       savePath: savePath,
+      fileName: fileName,
     );
   }
 }

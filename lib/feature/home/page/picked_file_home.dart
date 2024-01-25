@@ -20,6 +20,9 @@ class PickedFileHome extends StatelessWidget {
                   onSelectDestinationType: (type) {
                     context.read<ConvertCubit>().updateDestinationType(index, file, type.toLowerCase());
                   },
+                  onSelectDestinationTypeForAll: (type) {
+                    context.read<ConvertCubit>().updateDestinationTypeForAll(type.toLowerCase());
+                  },
                   onConvert: () {
                     context.read<ConvertCubit>().onConvert(index, file);
                   },

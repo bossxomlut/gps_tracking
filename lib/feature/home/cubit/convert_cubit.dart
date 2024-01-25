@@ -11,7 +11,9 @@ import 'package:mp3_convert/base_presentation/cubit/event_mixin.dart';
 import 'package:mp3_convert/data/data_result.dart';
 import 'package:mp3_convert/data/entity/app_file.dart';
 import 'package:mp3_convert/data/entity/failure_entity.dart';
+import 'package:mp3_convert/data/entity/feature.dart';
 import 'package:mp3_convert/feature/home/cubit/convert_event.dart';
+import 'package:mp3_convert/feature/home/cubit/convert_setting_cubit.dart';
 import 'package:mp3_convert/feature/home/cubit/convert_state.dart';
 import 'package:mp3_convert/feature/home/data/entity/convert_data.dart';
 import 'package:mp3_convert/feature/home/data/entity/get_mapping_type.dart';
@@ -19,13 +21,11 @@ import 'package:mp3_convert/feature/home/data/entity/mapping_type.dart';
 import 'package:mp3_convert/feature/home/data/entity/media_type.dart';
 import 'package:mp3_convert/feature/home/data/entity/setting_file.dart';
 import 'package:mp3_convert/feature/home/data/repository/convert_file_repository.dart';
-import 'package:mp3_convert/feature/home/data/repository/picking_file_repository.dart';
+import 'package:mp3_convert/feature/home/data/repository/convert_file_repository_impl.dart';
 import 'package:mp3_convert/feature/home/data/entity/pick_multiple_file.dart';
 import 'package:mp3_convert/main.dart';
 import 'package:mp3_convert/util/downloader_util.dart';
 import 'package:mp3_convert/util/generate_string.dart';
-import 'package:mp3_convert/util/parse_util.dart';
-import 'package:mp3_convert/widget/file_picker.dart';
 import 'package:path_provider/path_provider.dart';
 
 class ConvertCubit extends Cubit<ConvertState>
@@ -65,14 +65,21 @@ class ConvertCubit extends Cubit<ConvertState>
     return _getMappingType.getMappingType(sourceType);
   }
 
+  @override
+  Future<String?> getTypeName(String sourceType) {
+    return _getMappingType.getTypeName(sourceType);
+  }
+
   void _refreshPickedFileState() {
     emit(PickedFileState(files: [...?state.files], maxFiles: state.maxFiles));
   }
 
   void _setFileAtIndex(int index, ConfigConvertFile file) {
-    state.files?[index] = file;
+    try {
+      state.files?[index] = file;
 
-    _refreshPickedFileState();
+      _refreshPickedFileState();
+    } catch (e) {}
   }
 
   void onRetry(int index, ConvertErrorFile file) {
@@ -125,7 +132,12 @@ extension ConvertListener on ConvertCubit {
           path: file.path,
           destinationType: file.destinationType,
         );
+
+        if (AutoDownloadSetting().isAutoDownload()) {
+          downloadConvertedFile(convertData.downloadId!);
+        }
       }
+
       _refreshPickedFileState();
     }
   }
@@ -234,6 +246,20 @@ extension FileManager on ConvertCubit {
     );
   }
 
+  void updateDestinationTypeForAll(
+    String type,
+  ) {
+    for (int i = 0; i < _files.length; i++) {
+      if (_files[i].destinationType == null) {
+        updateDestinationType(
+          i,
+          _files[i],
+          type,
+        );
+      }
+    }
+  }
+
   List<ConfigConvertFile> validateFiles(List<ConfigConvertFile> files) {
     List<ConfigConvertFile> newFiles = [];
 
@@ -335,11 +361,12 @@ extension ConvertingFileProcess on ConvertCubit {
 
   //add row
   Future onAddRow(int index, ConfigConvertFile file) async {
+    final uploadId = generateString.getString();
     final uploadingFile = UploadingFile(
       name: file.name,
       path: file.path,
       destinationType: file.destinationType,
-      uploadId: generateString.getString(),
+      uploadId: uploadId,
     );
 
     _setFileAtIndex(index, uploadingFile);
@@ -357,17 +384,23 @@ extension ConvertingFileProcess on ConvertCubit {
         uploadId: uploadingFile.uploadId,
         target: uploadingFile.destinationType!,
         ext: uploadingFile.type,
-        fileType: "audio", //todo: cần điều chỉnh lại cái chổ này theo API
+        fileType: (await getTypeName(uploadingFile.type)) ?? '',
+        feature: AppFeature.convert,
+        fileSize: FileStat.statSync(file.path).size,
       ),
     );
 
-    switch (addRowResult) {
-      case SuccessDataResult<FailureEntity, dynamic>():
-        onUploadFile(index, uploadingFile);
-        return;
-      case FailureDataResult<FailureEntity, dynamic>():
-        _setFileAtIndex(index, ConvertErrorFile(convertStatusFile: uploadingFile));
-        return;
+    final updateIndex = _files.indexWhere((f) => f is UploadingFile && f.uploadId == uploadId);
+
+    if (updateIndex >= 0) {
+      switch (addRowResult) {
+        case SuccessDataResult<FailureEntity, dynamic>():
+          onUploadFile(updateIndex, uploadingFile);
+          return;
+        case FailureDataResult<FailureEntity, dynamic>():
+          _setFileAtIndex(updateIndex, ConvertErrorFile(convertStatusFile: uploadingFile));
+          return;
+      }
     }
   }
 
@@ -383,33 +416,36 @@ extension ConvertingFileProcess on ConvertCubit {
       ),
     );
 
-    switch (uploadResult) {
-      case SuccessDataResult<FailureEntity, dynamic>():
-        _setFileAtIndex(
-          index,
-          UploadedFile(
-            name: file.name,
-            path: file.path,
-            destinationType: file.destinationType,
-            uploadId: file.uploadId,
-          ),
-        );
+    final updateIndex = _files.indexWhere((f) => f is UploadingFile && f.uploadId == file.uploadId);
+    if (updateIndex >= 0) {
+      switch (uploadResult) {
+        case SuccessDataResult<FailureEntity, dynamic>():
+          _setFileAtIndex(
+            index,
+            UploadedFile(
+              name: file.name,
+              path: file.path,
+              destinationType: file.destinationType,
+              uploadId: file.uploadId,
+            ),
+          );
 
-        _setFileAtIndex(
-          index,
-          ConvertingFile(
-            name: file.name,
-            path: file.path,
-            destinationType: file.destinationType,
-            uploadId: file.uploadId,
-            convertProgress: .0,
-          ),
-        );
+          _setFileAtIndex(
+            index,
+            ConvertingFile(
+              name: file.name,
+              path: file.path,
+              destinationType: file.destinationType,
+              uploadId: file.uploadId,
+              convertProgress: .0,
+            ),
+          );
 
-        return;
-      case FailureDataResult<FailureEntity, dynamic>():
-        _setFileAtIndex(index, ConvertErrorFile(convertStatusFile: file));
-        return;
+          return;
+        case FailureDataResult<FailureEntity, dynamic>():
+          _setFileAtIndex(index, ConvertErrorFile(convertStatusFile: file));
+          return;
+      }
     }
   }
 
@@ -451,19 +487,21 @@ extension ConvertingFileProcess on ConvertCubit {
 
     _setFileAtIndex(index, downloadingFile);
 
-    final id = await FlutterDownloader.enqueue(
-      url: "https://cdndl.xyz/media/sv1/api/upload/downloadFile/$downloadId",
-      savedDir: path,
+    final downloadResult = await convertFileRepository.download(DownloadRequestData(
+      downloadId: downloadId,
+      savePath: path,
       fileName: fileName,
-    );
+    ));
 
-    log("added ${id} to FlutterDownloader.enqueue");
-
-    if (id != null) {
-      _setFileAtIndex(index, downloadingFile.copyWith(downloaderId: id));
-    } else {
-      //todo: handle when cannot get downloader id
-      log("cannot get downloader id");
+    switch (downloadResult) {
+      case SuccessDataResult<FailureEntity, String>():
+        final downloaderId = downloadResult.data;
+        log("added ${downloaderId} to FlutterDownloader.enqueue");
+        _setFileAtIndex(index, downloadingFile.copyWith(downloaderId: downloaderId));
+        break;
+      case FailureDataResult<FailureEntity, dynamic>():
+        log("cannot get downloader id");
+        addEvent(CannotDownloadFileEvent());
     }
   }
 

@@ -8,6 +8,7 @@ import 'package:mp3_convert/resource/icon_path.dart';
 import 'package:mp3_convert/resource/string.dart';
 import 'package:mp3_convert/widget/image.dart';
 import 'package:open_file_plus/open_file_plus.dart';
+import 'package:share_plus/share_plus.dart';
 
 class ConvertStatusWidget extends StatelessWidget {
   const ConvertStatusWidget({
@@ -66,26 +67,41 @@ class ConvertStatusWidget extends StatelessWidget {
         final double? downloadProgress = (convertFile as DownloadingFile).downloadProgress;
         return DownloadingProgressBar(progress: downloadProgress);
       case ConvertStatus.downloaded:
-        return ElevatedButton(
-          onPressed: () {
-            if (convertFile is DownloadedFile) {
-              OpenFile.open((convertFile as DownloadedFile).downloadPath);
-            }
-          },
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Theme.of(context).primaryColor,
-            textStyle: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: Colors.white,
+        return Row(
+          children: [
+            Expanded(
+              child: ElevatedButton(
+                onPressed: () {
+                  if (convertFile is DownloadedFile) {
+                    OpenFile.open((convertFile as DownloadedFile).downloadPath);
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).primaryColor,
+                  textStyle: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        color: Colors.white,
+                      ),
                 ),
-          ),
-          child: Center(
-            child: LText(
-              ConvertPageLocalization.openFile,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: Colors.white,
+                child: Center(
+                  child: LText(
+                    ConvertPageLocalization.openFile,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          color: Colors.white,
+                        ),
                   ),
+                ),
+              ),
             ),
-          ),
+            IconButton(
+              onPressed: () {
+                Share.shareXFiles([XFile((convertFile as DownloadedFile).downloadPath)]);
+              },
+              icon: CircleAvatar(
+                minRadius: 20,
+                child: const Icon(Icons.share),
+              ),
+            ),
+          ],
         );
     }
   }

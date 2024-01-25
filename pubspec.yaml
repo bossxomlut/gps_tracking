@@ -85,6 +85,20 @@ dependencies:
   firebase_analytics: 10.8.0
   firebase_crashlytics: 3.4.9
 
+  #dependency_injection_flutter
+  get_it: 7.6.7
+
+  #package info
+  package_info_plus: 5.0.1
+
+  #url launcher
+  url_launcher: 6.2.4
+
+  #local storage
+  shared_preferences: 2.2.2
+
+  #show snack bar
+  another_flushbar: 1.12.30
 
 dev_dependencies:
   flutter_test:

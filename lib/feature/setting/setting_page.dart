@@ -1,7 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:mp3_convert/base_presentation/page/base_page.dart';
-import 'package:mp3_convert/base_presentation/view/base_view.dart';
 import 'package:mp3_convert/base_presentation/view/view.dart';
 import 'package:mp3_convert/resource/string.dart';
 
@@ -39,7 +38,7 @@ class Loca extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.maxFinite,
-      color: Colors.white,
+      color: Theme.of(context).cardColor,
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(

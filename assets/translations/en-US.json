@@ -7,12 +7,16 @@
         "setting": "Setting",
         "instruction": "Instruction",
         "help_and_feedback": "Help and feedback",
-        "language": "Language"
+        "language": "Language",
+        "version": "Version",
+        "developer_team": "Developer Team"
     },
     "common": {
         "lost_connect_internet": "Lost connect internet!",
         "empty_list": "Empty list",
-        "convert": "Convert"
+        "convert": "Convert",
+        "cutter": "Cutter",
+        "merger": "Merger"
     },
     "home_page": {
         "features": "Features",
@@ -33,6 +37,10 @@
         "download_error": "Something wrong with download progress!",
         "start_convert_all": "Start convert all",
         "delete": "Delete",
-        "require_choose_file_type": "Please select convert file type!"
+        "require_choose_file_type": "Please select convert file type!",
+        "can_not_download_file": "Can not download file!",
+        "auto_download": "Auto download",
+        "select_convert_type": "Select convert type",
+        "apply_all": "Apply all"
     }
 }

@@ -6,7 +6,7 @@ class MenuPage extends BasePage {
   @override
   PreferredSizeWidget? buildAppBar(BuildContext context) {
     return AppBar(
-      title: Text("MP3-Convert"),
+      title: const Text("MP3-Convert"),
       actions: [
         PopupMenuButton(
           itemBuilder: (context) {
@@ -21,6 +21,16 @@ class MenuPage extends BasePage {
               case 0:
                 {
                   AppNavigator.to(GetSettingPage());
+                  break;
+                }
+              case 1:
+                {
+                  //todo:
+                  break;
+                }
+              case 2:
+                {
+                  AppNavigator.to(GetHelpAndFeedbackPage());
                   break;
                 }
             }
@@ -41,32 +51,34 @@ class MenuPage extends BasePage {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  const SizedBox(height: 20),
                   LText(
                     HomePageLocalization.features,
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
-                  const SizedBox(height: 4),
-                  Card(
-                    child: InkWell(
-                      onTap: () {
-                        AppNavigator.to(GetConvertPage());
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-                        child: Align(
-                            alignment: Alignment.centerLeft,
-                            child: Row(
-                              children: [
-                                AppImage.svg(IconPath.exchange),
-                                const SizedBox(width: 16),
-                                LText(
-                                  CommonLocalization.convert,
-                                  style: Theme.of(context).textTheme.titleLarge,
-                                ),
-                              ],
-                            )),
+                  const SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      FeatureMenuButton(
+                        onTap: () {
+                          AppNavigator.to(GetConvertPage());
+                        },
+                        icon: IconPath.exchange,
+                        titleKey: CommonLocalization.convert,
+                        backgroundColor: const Color(0xfffd4da8),
                       ),
-                    ),
+                      CutMenuButton(
+                        icon: IconPath.cut,
+                        titleKey: CommonLocalization.cutter,
+                        backgroundColor: const Color(0xfff39565),
+                      ),
+                      FeatureMenuButton(
+                        icon: IconPath.merger,
+                        titleKey: CommonLocalization.merger,
+                        backgroundColor: const Color(0xff308ad5),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -93,6 +105,112 @@ class MenuPage extends BasePage {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class CutMenuButton extends FeatureMenuButton {
+  const CutMenuButton({
+    super.key,
+    required super.icon,
+    required super.titleKey,
+    super.backgroundColor,
+    super.onTap,
+  });
+
+  @override
+  Widget buildIcon(BuildContext context) {
+    final theme = Theme.of(context);
+
+    final color = backgroundColor ?? theme.highlightColor;
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: color,
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            color,
+            color.withOpacity(0.7),
+            color.withOpacity(0.5),
+            color.withOpacity(0.3),
+          ],
+        ),
+      ),
+      child: const Icon(
+        Icons.cut,
+        size: 32,
+      ),
+    );
+  }
+}
+
+class FeatureMenuButton extends StatelessWidget {
+  const FeatureMenuButton({
+    super.key,
+    required this.icon,
+    required this.titleKey,
+    this.backgroundColor,
+    this.onTap,
+  });
+
+  final String icon;
+  final String titleKey;
+  final VoidCallback? onTap;
+  final Color? backgroundColor;
+
+  @override
+  Widget build(BuildContext context) {
+    final isEnable = onTap != null;
+    final widget = GestureDetector(
+      onTap: onTap,
+      child: Column(
+        children: [
+          buildIcon(context),
+          const SizedBox(height: 8),
+          LText(
+            titleKey,
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+        ],
+      ),
+    );
+    if (!isEnable) {
+      return Opacity(
+        opacity: 0.2,
+        child: widget,
+      );
+    }
+    return widget;
+  }
+
+  Widget buildIcon(BuildContext context) {
+    final theme = Theme.of(context);
+
+    final color = backgroundColor ?? theme.highlightColor;
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: color,
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            color,
+            color.withOpacity(0.7),
+            color.withOpacity(0.5),
+            color.withOpacity(0.3),
+          ],
+        ),
+      ),
+      child: AppImage.svg(
+        icon,
+        color: Theme.of(context).iconTheme.color,
       ),
     );
   }

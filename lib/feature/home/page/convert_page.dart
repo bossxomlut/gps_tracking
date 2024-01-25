@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mp3_convert/base_presentation/cubit/event_mixin.dart';
@@ -9,6 +10,9 @@ import 'package:mp3_convert/feature/home/cubit/convert_state.dart';
 import 'package:mp3_convert/feature/home/data/entity/setting_file.dart';
 import 'package:mp3_convert/feature/home/page/home.dart';
 import 'package:mp3_convert/resource/string.dart';
+import 'package:mp3_convert/util/navigator/app_navigator.dart';
+import 'package:mp3_convert/util/navigator/app_page.dart';
+import 'package:mp3_convert/util/show_snack_bar.dart';
 import 'package:mp3_convert/widget/file_picker.dart';
 import 'package:mp3_convert/base_presentation/page/base_page.dart';
 
@@ -25,7 +29,15 @@ class _ConvertPageState extends SingleProviderBasePageState<ConvertPage, Convert
 
   @override
   PreferredSizeWidget? buildAppBar(BuildContext context) {
-    return AppBar();
+    return AppBar(
+      actions: [
+        IconButton(
+            onPressed: () {
+              AppNavigator.to(GetConvertSettingPage());
+            },
+            icon: const Icon(Icons.settings)),
+      ],
+    );
   }
 
   @override
@@ -62,7 +74,7 @@ class _ConvertPageState extends SingleProviderBasePageState<ConvertPage, Convert
   }
 
   void _openPickerDialog(bool canPickMultipleFile) async {
-    VideoFilePicker(allowMultiple: canPickMultipleFile).opeFilePicker().then((appFiles) {
+    AnyFilePicker(allowMultiple: canPickMultipleFile).opeFilePicker().then((appFiles) {
       setFiles(appFiles ?? []);
     }).catchError((error) {
       //todo: handle error if necessary
@@ -80,11 +92,11 @@ class _ConvertPageState extends SingleProviderBasePageState<ConvertPage, Convert
   void eventListener(event) {
     switch (event) {
       case UnknownDestinationEvent():
-        const snackBar = SnackBar(
-          content: Text('Please select convert file type!'),
-        );
+        ShowSnackBar.showError(context, message: ConvertPageLocalization.requireChooseFileType.tr());
 
-        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+        return;
+      case CannotDownloadFileEvent():
+        ShowSnackBar.showError(context, message: ConvertPageLocalization.canNotDownloadFile.tr());
         return;
       default:
         return;

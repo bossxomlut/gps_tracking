@@ -10,6 +10,10 @@ class SettingLocalization {
   static String get helpAndFeedback => "${prefix}help_and_feedback";
 
   static String get language => "${prefix}language";
+
+  static String get version => "${prefix}version";
+
+  static String get developerTeam => "${prefix}developer_team";
 }
 
 class CommonLocalization {
@@ -20,6 +24,10 @@ class CommonLocalization {
   static String get emptyList => "${prefix}empty_list";
 
   static String get convert => "${prefix}convert";
+
+  static String get cutter => "${prefix}cutter";
+
+  static String get merger => "${prefix}merger";
 }
 
 class HomePageLocalization {
@@ -60,4 +68,12 @@ class ConvertPageLocalization {
   static String get delete => "${prefix}delete";
 
   static String get requireChooseFileType => "${prefix}require_choose_file_type";
+
+  static String get canNotDownloadFile => "${prefix}can_not_download_file";
+
+  static String get autoDownload => "${prefix}auto_download";
+
+  static String get selectConvertType => "${prefix}select_convert_type";
+
+  static String get applyAll => "${prefix}apply_all";
 }

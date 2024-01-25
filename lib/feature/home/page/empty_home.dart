@@ -23,10 +23,9 @@ class _EmptyHomeState extends State<EmptyHome> implements PickMultipleFile {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(
+              Icon(
                 Icons.add_circle_outline,
                 size: 200,
-                color: Colors.black26,
               ),
               const SizedBox(height: 16),
               LText(
@@ -42,7 +41,7 @@ class _EmptyHomeState extends State<EmptyHome> implements PickMultipleFile {
   }
 
   void _openPickerDialog() async {
-    VideoFilePicker(allowMultiple: canPickMultipleFile).opeFilePicker().then((appFiles) {
+    AnyFilePicker(allowMultiple: canPickMultipleFile).opeFilePicker().then((appFiles) {
       setFiles(appFiles ?? []);
     }).catchError((error) {
       //todo: handle error if necessary
