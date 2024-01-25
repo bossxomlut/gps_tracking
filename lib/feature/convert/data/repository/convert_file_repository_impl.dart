@@ -1,13 +1,8 @@
-import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:mp3_convert/data/data_result.dart';
 import 'package:mp3_convert/data/entity/failure_entity.dart';
-import 'package:mp3_convert/data/request_data.dart';
 import 'package:mp3_convert/di/di.dart';
-import 'package:mp3_convert/feature/home/data/data_source/file_data_source.dart';
-import 'package:mp3_convert/feature/home/data/data_source/file_data_source_impl.dart';
-import 'package:mp3_convert/feature/home/data/repository/convert_file_repository.dart';
-import 'package:mp3_convert/internet_connect/http_request/api.dart';
-import 'package:mp3_convert/internet_connect/http_request/api_dto.dart';
+import 'package:mp3_convert/feature/convert/data/data_source/file_data_source.dart';
+import 'package:mp3_convert/feature/convert/data/repository/convert_file_repository.dart';
 import 'package:mp3_convert/internet_connect/http_request/api_response.dart';
 
 class ConvertFileRepositoryImpl extends ConvertFileRepository {

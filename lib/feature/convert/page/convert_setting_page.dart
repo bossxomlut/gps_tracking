@@ -4,7 +4,7 @@ import 'package:mp3_convert/base_presentation/page/base_page.dart';
 import 'package:mp3_convert/base_presentation/view/base_view.dart';
 import 'package:mp3_convert/base_presentation/view/safe_set_state.dart';
 import 'package:mp3_convert/base_presentation/view/view.dart';
-import 'package:mp3_convert/feature/home/cubit/convert_setting_cubit.dart';
+import 'package:mp3_convert/feature/convert/cubit/convert_setting_cubit.dart';
 import 'package:mp3_convert/feature/setting/help_and_feedback_page.dart';
 import 'package:mp3_convert/resource/string.dart';
 import 'package:mp3_convert/util/hardcode_string.dart';

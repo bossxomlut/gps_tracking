@@ -4,10 +4,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mp3_convert/base_presentation/cubit/event_mixin.dart';
 import 'package:mp3_convert/base_presentation/view/view.dart';
 import 'package:mp3_convert/data/entity/app_file.dart';
-import 'package:mp3_convert/feature/home/cubit/convert_cubit.dart';
-import 'package:mp3_convert/feature/home/cubit/convert_event.dart';
-import 'package:mp3_convert/feature/home/cubit/convert_state.dart';
-import 'package:mp3_convert/feature/home/data/entity/setting_file.dart';
+import 'package:mp3_convert/feature/convert/cubit/convert_cubit.dart';
+import 'package:mp3_convert/feature/convert/cubit/convert_event.dart';
+import 'package:mp3_convert/feature/convert/cubit/convert_state.dart';
+import 'package:mp3_convert/feature/convert/data/entity/setting_file.dart';
 import 'package:mp3_convert/feature/home/page/home.dart';
 import 'package:mp3_convert/resource/string.dart';
 import 'package:mp3_convert/util/navigator/app_navigator.dart';
@@ -46,7 +46,7 @@ class _ConvertPageState extends SingleProviderBasePageState<ConvertPage, Convert
       builder: (context, state) {
         switch (state) {
           case PickedFileState():
-            return PickedFileHome(
+            return ConvertPickedFilePage(
               files: state.files!,
             );
           case ConvertEmptyState():

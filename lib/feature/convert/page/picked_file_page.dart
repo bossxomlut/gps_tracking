@@ -1,7 +1,7 @@
-part of 'home.dart';
+part of '../../home/page/home.dart';
 
-class PickedFileHome extends StatelessWidget {
-  const PickedFileHome({Key? key, required this.files}) : super(key: key);
+class ConvertPickedFilePage extends StatelessWidget {
+  const ConvertPickedFilePage({Key? key, required this.files}) : super(key: key);
 
   final List<ConfigConvertFile> files;
 

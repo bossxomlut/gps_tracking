@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
-import 'package:mp3_convert/feature/home/data/entity/setting_file.dart';
-import 'package:mp3_convert/feature/home/data/entity/pick_multiple_file.dart';
+import 'package:mp3_convert/feature/convert/data/entity/setting_file.dart';
+import 'package:mp3_convert/feature/convert/data/entity/pick_multiple_file.dart';
 
 const minFiles = 1;
 

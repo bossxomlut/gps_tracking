@@ -1,17 +1,18 @@
-part of 'home.dart';
+import 'package:flutter/material.dart';
+import 'package:mp3_convert/base_presentation/view/view.dart';
+import 'package:mp3_convert/data/entity/app_file.dart';
+import 'package:mp3_convert/resource/string.dart';
+import 'package:mp3_convert/widget/file_picker.dart';
 
-class EmptyHome extends StatefulWidget {
-  const EmptyHome({Key? key}) : super(key: key);
+class EmptyPickerWidget extends StatelessWidget {
+  const EmptyPickerWidget({
+    super.key,
+    required this.canPickMultipleFile,
+    required this.onGetFiles,
+  });
 
-  @override
-  State<EmptyHome> createState() => _EmptyHomeState();
-}
-
-class _EmptyHomeState extends State<EmptyHome> implements PickMultipleFile {
-  ConvertCubit get homeCubit => context.read<ConvertCubit>();
-
-  @override
-  bool get canPickMultipleFile => context.read<ConvertCubit>().canPickMultipleFile;
+  final bool canPickMultipleFile;
+  final ValueChanged<List<AppFile>> onGetFiles;
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +24,7 @@ class _EmptyHomeState extends State<EmptyHome> implements PickMultipleFile {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
+              const Icon(
                 Icons.add_circle_outline,
                 size: 200,
               ),
@@ -49,6 +50,6 @@ class _EmptyHomeState extends State<EmptyHome> implements PickMultipleFile {
   }
 
   void setFiles(List<AppFile> filePaths) {
-    homeCubit.setPickedFiles(filePaths.map((e) => ConfigConvertFile(path: e.path, name: e.name)).toList());
+    onGetFiles(filePaths);
   }
 }
