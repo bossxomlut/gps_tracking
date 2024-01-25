@@ -361,11 +361,12 @@ extension ConvertingFileProcess on ConvertCubit {
 
   //add row
   Future onAddRow(int index, ConfigConvertFile file) async {
+    final uploadId = generateString.getString();
     final uploadingFile = UploadingFile(
       name: file.name,
       path: file.path,
       destinationType: file.destinationType,
-      uploadId: generateString.getString(),
+      uploadId: uploadId,
     );
 
     _setFileAtIndex(index, uploadingFile);
@@ -389,13 +390,17 @@ extension ConvertingFileProcess on ConvertCubit {
       ),
     );
 
-    switch (addRowResult) {
-      case SuccessDataResult<FailureEntity, dynamic>():
-        onUploadFile(index, uploadingFile);
-        return;
-      case FailureDataResult<FailureEntity, dynamic>():
-        _setFileAtIndex(index, ConvertErrorFile(convertStatusFile: uploadingFile));
-        return;
+    final updateIndex = _files.indexWhere((f) => f is UploadingFile && f.uploadId == uploadId);
+
+    if (updateIndex >= 0) {
+      switch (addRowResult) {
+        case SuccessDataResult<FailureEntity, dynamic>():
+          onUploadFile(updateIndex, uploadingFile);
+          return;
+        case FailureDataResult<FailureEntity, dynamic>():
+          _setFileAtIndex(updateIndex, ConvertErrorFile(convertStatusFile: uploadingFile));
+          return;
+      }
     }
   }
 
@@ -411,33 +416,36 @@ extension ConvertingFileProcess on ConvertCubit {
       ),
     );
 
-    switch (uploadResult) {
-      case SuccessDataResult<FailureEntity, dynamic>():
-        _setFileAtIndex(
-          index,
-          UploadedFile(
-            name: file.name,
-            path: file.path,
-            destinationType: file.destinationType,
-            uploadId: file.uploadId,
-          ),
-        );
+    final updateIndex = _files.indexWhere((f) => f is UploadingFile && f.uploadId == file.uploadId);
+    if (updateIndex >= 0) {
+      switch (uploadResult) {
+        case SuccessDataResult<FailureEntity, dynamic>():
+          _setFileAtIndex(
+            index,
+            UploadedFile(
+              name: file.name,
+              path: file.path,
+              destinationType: file.destinationType,
+              uploadId: file.uploadId,
+            ),
+          );
 
-        _setFileAtIndex(
-          index,
-          ConvertingFile(
-            name: file.name,
-            path: file.path,
-            destinationType: file.destinationType,
-            uploadId: file.uploadId,
-            convertProgress: .0,
-          ),
-        );
+          _setFileAtIndex(
+            index,
+            ConvertingFile(
+              name: file.name,
+              path: file.path,
+              destinationType: file.destinationType,
+              uploadId: file.uploadId,
+              convertProgress: .0,
+            ),
+          );
 
-        return;
-      case FailureDataResult<FailureEntity, dynamic>():
-        _setFileAtIndex(index, ConvertErrorFile(convertStatusFile: file));
-        return;
+          return;
+        case FailureDataResult<FailureEntity, dynamic>():
+          _setFileAtIndex(index, ConvertErrorFile(convertStatusFile: file));
+          return;
+      }
     }
   }
 
