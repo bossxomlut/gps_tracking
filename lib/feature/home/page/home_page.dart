@@ -55,28 +55,29 @@ class MenuPage extends BasePage {
                     HomePageLocalization.features,
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
-                  const SizedBox(height: 4),
-                  Card(
-                    child: InkWell(
-                      onTap: () {
-                        AppNavigator.to(GetConvertPage());
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-                        child: Align(
-                            alignment: Alignment.centerLeft,
-                            child: Row(
-                              children: [
-                                AppImage.svg(IconPath.exchange),
-                                const SizedBox(width: 16),
-                                LText(
-                                  CommonLocalization.convert,
-                                  style: Theme.of(context).textTheme.titleLarge,
-                                ),
-                              ],
-                            )),
+                  const SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      FeatureMenuButton(
+                        onTap: () {
+                          AppNavigator.to(GetConvertPage());
+                        },
+                        icon: IconPath.exchange,
+                        titleKey: CommonLocalization.convert,
+                        backgroundColor: const Color(0xfffd4da8),
                       ),
-                    ),
+                      FeatureMenuButton(
+                        icon: IconPath.exchange,
+                        titleKey: CommonLocalization.cutter,
+                        backgroundColor: const Color(0xfff39565),
+                      ),
+                      FeatureMenuButton(
+                        icon: IconPath.exchange,
+                        titleKey: CommonLocalization.merger,
+                        backgroundColor: const Color(0xff308ad5),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -105,6 +106,68 @@ class MenuPage extends BasePage {
         ],
       ),
     );
+  }
+}
+
+class FeatureMenuButton extends StatelessWidget {
+  const FeatureMenuButton({
+    super.key,
+    required this.icon,
+    required this.titleKey,
+    this.backgroundColor,
+    this.onTap,
+  });
+
+  final String icon;
+  final String titleKey;
+  final VoidCallback? onTap;
+  final Color? backgroundColor;
+
+  @override
+  Widget build(BuildContext context) {
+    final isEnable = onTap != null;
+    final theme = Theme.of(context);
+    final color = backgroundColor ?? theme.highlightColor;
+    final widget = GestureDetector(
+      onTap: onTap,
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: color,
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  color,
+                  color.withOpacity(0.7),
+                  color.withOpacity(0.5),
+                  color.withOpacity(0.3),
+                ],
+              ),
+            ),
+            child: AppImage.svg(
+              icon,
+              color: Theme.of(context).iconTheme.color,
+            ),
+          ),
+          const SizedBox(height: 8),
+          LText(
+            titleKey,
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+        ],
+      ),
+    );
+    if (!isEnable) {
+      return Opacity(
+        opacity: 0.2,
+        child: widget,
+      );
+    }
+    return widget;
   }
 }
 

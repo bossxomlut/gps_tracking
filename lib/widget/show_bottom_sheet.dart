@@ -8,8 +8,11 @@ mixin ShowBottomSheet<T> on Widget {
       isScrollControlled: true,
       useSafeArea: true,
       enableDrag: true,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(),
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+        topLeft: Radius.circular(16),
+        topRight: Radius.circular(16),
+      )),
     );
   }
 }

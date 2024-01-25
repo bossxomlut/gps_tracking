@@ -75,9 +75,11 @@ class ConvertCubit extends Cubit<ConvertState>
   }
 
   void _setFileAtIndex(int index, ConfigConvertFile file) {
-    state.files?[index] = file;
+    try {
+      state.files?[index] = file;
 
-    _refreshPickedFileState();
+      _refreshPickedFileState();
+    } catch (e) {}
   }
 
   void onRetry(int index, ConvertErrorFile file) {
@@ -242,6 +244,20 @@ extension FileManager on ConvertCubit {
         destinationType: type,
       ),
     );
+  }
+
+  void updateDestinationTypeForAll(
+    String type,
+  ) {
+    for (int i = 0; i < _files.length; i++) {
+      if (_files[i].destinationType == null) {
+        updateDestinationType(
+          i,
+          _files[i],
+          type,
+        );
+      }
+    }
   }
 
   List<ConfigConvertFile> validateFiles(List<ConfigConvertFile> files) {

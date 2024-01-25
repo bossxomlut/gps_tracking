@@ -23,10 +23,9 @@ class _EmptyHomeState extends State<EmptyHome> implements PickMultipleFile {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(
+              Icon(
                 Icons.add_circle_outline,
                 size: 200,
-                color: Colors.black26,
               ),
               const SizedBox(height: 16),
               LText(

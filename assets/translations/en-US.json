@@ -14,7 +14,9 @@
     "common": {
         "lost_connect_internet": "Lost connect internet!",
         "empty_list": "Empty list",
-        "convert": "Convert"
+        "convert": "Convert",
+        "cutter": "Cutter",
+        "merger": "Merger"
     },
     "home_page": {
         "features": "Features",
@@ -37,6 +39,8 @@
         "delete": "Delete",
         "require_choose_file_type": "Please select convert file type!",
         "can_not_download_file": "Can not download file!",
-        "auto_download": "Auto download"
+        "auto_download": "Auto download",
+        "select_convert_type": "Select convert type",
+        "apply_all": "Apply all"
     }
 }

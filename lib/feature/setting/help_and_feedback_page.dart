@@ -59,7 +59,7 @@ class ReportWidget extends StatelessWidget {
       children: [
         LText(
           SettingLocalization.developerTeam,
-          style: textTheme.titleMedium?.copyWith(color: theme.primaryColor),
+          style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w500),
         ),
         const SizedBox(height: 12),
         Text(
@@ -127,7 +127,7 @@ class _AppVersionState extends State<AppVersion> with SafeSetState {
       children: [
         LText(
           SettingLocalization.version,
-          style: textTheme.titleMedium?.copyWith(color: theme.primaryColor),
+          style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w500),
         ),
         const SizedBox(height: 8),
         Text(

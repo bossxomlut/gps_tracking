@@ -68,12 +68,13 @@ class MyApp extends StatelessWidget {
           supportedLocales: context.supportedLocales,
           locale: context.locale,
           themeMode: AppTheme.instance.mode,
-          theme: ThemeData(
-            useMaterial3: true,
-          ),
-          darkTheme: ThemeData(
-            useMaterial3: true,
-          ),
+          theme: ThemeData.dark(),
+          // theme: ThemeData(
+          //   useMaterial3: true,
+          // ),
+          // darkTheme: ThemeData(
+          //   useMaterial3: true,
+          // ),
           home: GetHomePage().getPage(null),
           navigatorKey: AppNavigator.navigatorKey,
           navigatorObservers: [

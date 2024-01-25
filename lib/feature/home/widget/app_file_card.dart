@@ -18,6 +18,7 @@ class AppFileCard extends StatefulWidget {
     super.key,
     required this.file,
     required this.onSelectDestinationType,
+    required this.onSelectDestinationTypeForAll,
     required this.onConvert,
     required this.onRetry,
     required this.onDelete,
@@ -25,6 +26,7 @@ class AppFileCard extends StatefulWidget {
 
   final ConfigConvertFile file;
   final ValueChanged<String> onSelectDestinationType;
+  final ValueChanged<String> onSelectDestinationTypeForAll;
   final VoidCallback onConvert;
   final VoidCallback onRetry;
   final VoidCallback onDelete;
@@ -74,7 +76,7 @@ class _AppFileCardState extends BaseStatefulWidgetState<AppFileCard> {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: theme.highlightColor,
           boxShadow: [
             BoxShadow(offset: const Offset(0, -2), blurRadius: 4.0, color: Colors.black.withOpacity(0.04)),
             BoxShadow(offset: const Offset(0, 4), blurRadius: 8.0, color: Colors.black.withOpacity(0.12)),
@@ -103,6 +105,7 @@ class _AppFileCardState extends BaseStatefulWidgetState<AppFileCard> {
                           if (listMediaType == null) {
                             final snackBar = SnackBar(
                               content: LText(ConvertPageLocalization.haveError),
+                              backgroundColor: Theme.of(context).colorScheme.secondary,
                             );
 
                             ScaffoldMessenger.of(context).showSnackBar(snackBar);
@@ -114,6 +117,9 @@ class _AppFileCardState extends BaseStatefulWidgetState<AppFileCard> {
                             initList: file.destinationType != null
                                 ? [MediaType(name: file.destinationType!.toUpperCase())]
                                 : null,
+                            onApplyAll: (destinationType) {
+                              widget.onSelectDestinationTypeForAll(destinationType.first.name);
+                            },
                           ).showBottomSheet(context).then((destinationType) {
                             if (destinationType != null) {
                               if (destinationType.isNotEmpty) {

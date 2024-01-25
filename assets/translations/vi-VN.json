@@ -14,7 +14,9 @@
     "common": {
         "lost_connect_internet": "Mất kết nối internet!",
         "empty_list": "Danh sách rỗng",
-        "convert": "Chuyển đổi"
+        "convert": "Chuyển đổi",
+        "cutter": "Cắt",
+        "merger": "Hợp nhất"
     },
     "home_page": {
         "features": "Chức năng",
@@ -36,6 +38,8 @@
         "delete": "Xoá",
         "require_choose_file_type": "Vui lòng chọn loại tệp!",
         "can_not_download_file": "Không thể tải tệp này!",
-        "auto_download": "Tự động tải xuống"
+        "auto_download": "Tự động tải xuống",
+        "select_convert_type": "Chọn kiểu chuyển đổi",
+        "apply_all": "Áp dụng tất cả"
     }
 }
