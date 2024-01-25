@@ -153,7 +153,7 @@ class _AppImageState extends State<AppImage> {
       case _ImageType.svg:
         return SvgPicture.asset(
           widget.url,
-          color: widget.color,
+          color: widget.color ?? Theme.of(context).iconTheme.color,
           fit: widget.boxFit ?? BoxFit.cover,
           width: widget.width,
           height: widget.height,
