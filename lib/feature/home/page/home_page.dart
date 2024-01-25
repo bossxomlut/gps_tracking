@@ -6,7 +6,7 @@ class MenuPage extends BasePage {
   @override
   PreferredSizeWidget? buildAppBar(BuildContext context) {
     return AppBar(
-      title: Text("MP3-Convert"),
+      title: const Text("MP3-Convert"),
       actions: [
         PopupMenuButton(
           itemBuilder: (context) {
@@ -51,6 +51,7 @@ class MenuPage extends BasePage {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  const SizedBox(height: 20),
                   LText(
                     HomePageLocalization.features,
                     style: Theme.of(context).textTheme.titleMedium,
@@ -67,13 +68,13 @@ class MenuPage extends BasePage {
                         titleKey: CommonLocalization.convert,
                         backgroundColor: const Color(0xfffd4da8),
                       ),
-                      FeatureMenuButton(
-                        icon: IconPath.exchange,
+                      CutMenuButton(
+                        icon: IconPath.cut,
                         titleKey: CommonLocalization.cutter,
                         backgroundColor: const Color(0xfff39565),
                       ),
                       FeatureMenuButton(
-                        icon: IconPath.exchange,
+                        icon: IconPath.merger,
                         titleKey: CommonLocalization.merger,
                         backgroundColor: const Color(0xff308ad5),
                       ),
@@ -109,6 +110,44 @@ class MenuPage extends BasePage {
   }
 }
 
+class CutMenuButton extends FeatureMenuButton {
+  const CutMenuButton({
+    super.key,
+    required super.icon,
+    required super.titleKey,
+    super.backgroundColor,
+    super.onTap,
+  });
+
+  @override
+  Widget buildIcon(BuildContext context) {
+    final theme = Theme.of(context);
+
+    final color = backgroundColor ?? theme.highlightColor;
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: color,
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            color,
+            color.withOpacity(0.7),
+            color.withOpacity(0.5),
+            color.withOpacity(0.3),
+          ],
+        ),
+      ),
+      child: const Icon(
+        Icons.cut,
+        size: 32,
+      ),
+    );
+  }
+}
+
 class FeatureMenuButton extends StatelessWidget {
   const FeatureMenuButton({
     super.key,
@@ -126,33 +165,11 @@ class FeatureMenuButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isEnable = onTap != null;
-    final theme = Theme.of(context);
-    final color = backgroundColor ?? theme.highlightColor;
     final widget = GestureDetector(
       onTap: onTap,
       child: Column(
         children: [
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: color,
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  color,
-                  color.withOpacity(0.7),
-                  color.withOpacity(0.5),
-                  color.withOpacity(0.3),
-                ],
-              ),
-            ),
-            child: AppImage.svg(
-              icon,
-              color: Theme.of(context).iconTheme.color,
-            ),
-          ),
+          buildIcon(context),
           const SizedBox(height: 8),
           LText(
             titleKey,
@@ -168,6 +185,34 @@ class FeatureMenuButton extends StatelessWidget {
       );
     }
     return widget;
+  }
+
+  Widget buildIcon(BuildContext context) {
+    final theme = Theme.of(context);
+
+    final color = backgroundColor ?? theme.highlightColor;
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: color,
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            color,
+            color.withOpacity(0.7),
+            color.withOpacity(0.5),
+            color.withOpacity(0.3),
+          ],
+        ),
+      ),
+      child: AppImage.svg(
+        icon,
+        color: Theme.of(context).iconTheme.color,
+      ),
+    );
   }
 }
 
