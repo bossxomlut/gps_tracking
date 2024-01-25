@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mp3_convert/base_presentation/cubit/event_mixin.dart';
@@ -11,6 +12,7 @@ import 'package:mp3_convert/feature/home/page/home.dart';
 import 'package:mp3_convert/resource/string.dart';
 import 'package:mp3_convert/util/navigator/app_navigator.dart';
 import 'package:mp3_convert/util/navigator/app_page.dart';
+import 'package:mp3_convert/util/show_snack_bar.dart';
 import 'package:mp3_convert/widget/file_picker.dart';
 import 'package:mp3_convert/base_presentation/page/base_page.dart';
 
@@ -90,18 +92,11 @@ class _ConvertPageState extends SingleProviderBasePageState<ConvertPage, Convert
   void eventListener(event) {
     switch (event) {
       case UnknownDestinationEvent():
-        final snackBar = SnackBar(
-          content: LText(ConvertPageLocalization.requireChooseFileType),
-        );
+        ShowSnackBar.showError(context, message: ConvertPageLocalization.requireChooseFileType.tr());
 
-        ScaffoldMessenger.of(context).showSnackBar(snackBar);
         return;
       case CannotDownloadFileEvent():
-        final snackBar = SnackBar(
-          content: LText(ConvertPageLocalization.canNotDownloadFile),
-        );
-
-        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+        ShowSnackBar.showError(context, message: ConvertPageLocalization.canNotDownloadFile.tr());
         return;
       default:
         return;

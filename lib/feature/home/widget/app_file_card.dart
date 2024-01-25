@@ -11,6 +11,7 @@ import 'package:mp3_convert/feature/home/widget/file_type_widget.dart';
 import 'package:mp3_convert/feature/home/widget/uploading_progress_bar.dart';
 import 'package:mp3_convert/resource/string.dart';
 import 'package:mp3_convert/util/reduce_text.dart';
+import 'package:mp3_convert/util/show_snack_bar.dart';
 import 'package:mp3_convert/widget/button/loading_button.dart';
 
 class AppFileCard extends StatefulWidget {
@@ -103,12 +104,8 @@ class _AppFileCardState extends BaseStatefulWidgetState<AppFileCard> {
                         final listMediaType = await context.read<ConvertCubit>().getMappingType(file.type);
                         if (mounted) {
                           if (listMediaType == null) {
-                            final snackBar = SnackBar(
-                              content: LText(ConvertPageLocalization.haveError),
-                              backgroundColor: Theme.of(context).colorScheme.secondary,
-                            );
+                            ShowSnackBar.showError(context, message: ConvertPageLocalization.haveError.tr());
 
-                            ScaffoldMessenger.of(context).showSnackBar(snackBar);
                             return;
                           }
 
