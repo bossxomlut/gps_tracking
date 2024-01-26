@@ -294,7 +294,7 @@ extension FileManager on ConvertCubit {
 
   void removeFileByIndex(int index) {
     final cloneFiles = [...?state.files];
-    cloneFiles.removeAt(index);
+    final file = cloneFiles.removeAt(index);
     if (cloneFiles.isEmpty) {
       emit(ConvertEmptyState(maxFiles: state.maxFiles));
     } else {
@@ -302,6 +302,9 @@ extension FileManager on ConvertCubit {
         maxFiles: state.maxFiles,
         files: cloneFiles,
       ));
+    }
+    if (file is DownloadingFile) {
+      FlutterDownloader.cancel(taskId: file.downloaderId ?? '');
     }
   }
 
