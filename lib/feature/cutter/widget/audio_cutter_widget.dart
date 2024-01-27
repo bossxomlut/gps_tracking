@@ -138,7 +138,9 @@ class _CutterAudioWidgetState extends State<CutterAudioWidget> with SafeSetState
                 ],
               ),
             ),
-          ),
+          )
+        else
+          const SizedBox(height: 100),
         Padding(
           padding: EdgeInsets.symmetric(horizontal: pd),
           child: Row(

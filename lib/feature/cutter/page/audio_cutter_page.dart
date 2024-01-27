@@ -56,11 +56,11 @@ class _AudioCutterPageState extends SingleProviderBasePageState<AudioCutterPage,
 
   @override
   Widget buildBody(BuildContext context) {
-    return BlocSelector<CutterCubit, CutterState, ConfigConvertFile?>(
-      selector: (state) => state.file,
-      builder: (context, file) {
-        if (file != null) {
-          return _AudioPage(key: ValueKey(file.path), file: file);
+    return BlocSelector<CutterCubit, CutterState, String?>(
+      selector: (state) => state.file?.path,
+      builder: (context, filePath) {
+        if (filePath != null) {
+          return _AudioPage(key: ValueKey(filePath), file: cubit.state.file!);
         }
         return EmptyPickerWidget(
           canPickMultipleFile: false,

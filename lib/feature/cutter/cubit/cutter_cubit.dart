@@ -51,6 +51,11 @@ class CutterCubit extends Cubit<CutterState> with SafeEmit implements MappingTyp
   }
 
   void setFile(AppFile file) {
+    //if select current file -> ignore
+    if (file.path == state.file?.path) {
+      return;
+    }
+
     emit(
       CutterState(
         file: ConfigConvertFile(
