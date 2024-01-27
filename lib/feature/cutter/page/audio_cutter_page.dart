@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_audio_waveforms/flutter_audio_waveforms.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:just_waveform/just_waveform.dart';
 import 'package:mp3_convert/base_presentation/page/base_page.dart';
 import 'package:mp3_convert/data/entity/app_file.dart';
+import 'package:mp3_convert/feature/convert/data/entity/media_type.dart';
+import 'package:mp3_convert/feature/convert/widget/file_type_widget.dart';
+import 'package:mp3_convert/feature/cutter/cubit/cutter_cubit.dart';
 import 'package:mp3_convert/feature/cutter/load_audio_data.dart';
 import 'package:mp3_convert/feature/cutter/waveform/get_wave_form.dart';
 import 'package:mp3_convert/feature/cutter/widget/audio_cutter_widget.dart';
@@ -20,8 +24,8 @@ class AudioCutterPage extends StatefulWidget {
   _AudioCutterPageState createState() => _AudioCutterPageState();
 }
 
-class _AudioCutterPageState extends BasePageState<AudioCutterPage> {
-  AppFile? file;
+class _AudioCutterPageState extends SingleProviderBasePageState<AudioCutterPage, CutterCubit> {
+  _AudioCutterPageState() : super(cubit: CutterCubit());
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +35,11 @@ class _AudioCutterPageState extends BasePageState<AudioCutterPage> {
   @override
   PreferredSizeWidget? buildAppBar(BuildContext context) {
     return AppBar(
-      title: Text(file?.name ?? ''),
+      title: BlocSelector<CutterCubit, CutterState, String?>(
+          selector: (state) => state.file?.name,
+          builder: (context, name) {
+            return Text(name ?? '');
+          }),
       leading: BackButton(
         onPressed: () {
           Navigator.of(context).pop();
@@ -42,14 +50,18 @@ class _AudioCutterPageState extends BasePageState<AudioCutterPage> {
 
   @override
   Widget buildBody(BuildContext context) {
-    if (file != null) {
-      return _AudioPage(file: file!);
-    }
-    return EmptyPickerWidget(
-      canPickMultipleFile: false,
-      onGetFiles: (files) {
-        file = files.first;
-        setState(() {});
+    return BlocBuilder<CutterCubit, CutterState>(
+      builder: (context, state) {
+        final file = state.file;
+        if (file != null) {
+          return _AudioPage(file: file);
+        }
+        return EmptyPickerWidget(
+          canPickMultipleFile: false,
+          onGetFiles: (files) {
+            cubit.setFile(files.first);
+          },
+        );
       },
     );
   }
@@ -84,30 +96,54 @@ class _AudioPageState extends State<_AudioPage> {
           ColumnStart(
             children: [
               const SizedBox(height: 20),
+              BlocSelector<CutterCubit, CutterState, bool>(
+                selector: (state) => state.isRemoveSelection ?? false,
+                builder: (context, state) {
+                  return Row(
+                    children: [
+                      Checkbox(
+                        value: state,
+                        onChanged: (value) {
+                          context.read<CutterCubit>().setRemoveSelection(value ?? false);
+                        },
+                      ),
+                      Text("Remove selection".hardCode),
+                    ],
+                  );
+                },
+              ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Text(
-                  "Option".hardCode,
+                  "Convert Type".hardCode,
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
               ),
-              Row(
-                children: [
-                  Radio(
-                    value: true,
-                    groupValue: false,
-                    onChanged: (value) {},
-                  ),
-                  Text("Remove selection"),
-                ],
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Text(
-                  "Convert Type",
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-              ),
+              BlocBuilder<CutterCubit, CutterState>(
+                builder: (context, state) {
+                  final types = state.listMediaType?.types;
+                  if (types == null) {
+                    return const SizedBox();
+                  }
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Wrap(
+                      spacing: 8,
+                      children: [
+                        ...types.map(
+                          (type) => MediaTypeChip(
+                            type: type,
+                            isSelected: type.name == state.destinationType,
+                            onChanged: (value) {
+                              context.read<CutterCubit>().setConvertType(type);
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              )
             ],
           )
         ],
