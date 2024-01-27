@@ -5,10 +5,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:just_waveform/just_waveform.dart';
 import 'package:mp3_convert/base_presentation/view/safe_set_state.dart';
+import 'package:mp3_convert/base_presentation/view/view.dart';
 import 'package:mp3_convert/feature/cutter/cubit/cutter_cubit.dart';
 import 'package:mp3_convert/feature/cutter/load_audio_data.dart';
 import 'package:mp3_convert/feature/cutter/waveform/get_wave_form.dart';
 import 'package:mp3_convert/feature/cutter/widget/ruller.dart';
+import 'package:mp3_convert/resource/string.dart';
 import 'package:mp3_convert/util/hardcode_string.dart';
 
 class CutterAudioWidget extends StatefulWidget {
@@ -203,13 +205,32 @@ class _CutterAudioWidgetState extends State<CutterAudioWidget> with SafeSetState
         ),
         if (cutterAudioController != null)
           Padding(
-            padding: const EdgeInsets.only(bottom: 12),
+            padding: const EdgeInsets.only(bottom: 12, left: 16, right: 16),
             child: ListenableBuilder(
               listenable: cutterAudioController!,
               builder: (context, child) {
-                return Text(
-                    "Cutting from  ${printDuration(cutterAudioController!.startDuration)} to ${printDuration(cutterAudioController!.endDuration)}"
-                        .hardCode);
+                return Row(
+                  children: [
+                    LText(
+                      CutterPageLocalization.from,
+                    ),
+                    Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.secondaryContainer,
+                        ),
+                        child: Text(printDuration(cutterAudioController!.startDuration))),
+                    LText(
+                      CutterPageLocalization.to,
+                    ),
+                    Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.secondaryContainer,
+                        ),
+                        child: Text(printDuration(cutterAudioController!.endDuration))),
+                  ],
+                );
               },
             ),
           ),

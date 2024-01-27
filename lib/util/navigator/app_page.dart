@@ -3,8 +3,18 @@ import 'package:mp3_convert/feature/convert/page/convert_page.dart';
 import 'package:mp3_convert/feature/convert/page/convert_setting_page.dart';
 import 'package:mp3_convert/feature/cutter/page/audio_cutter_page.dart';
 import 'package:mp3_convert/feature/home/page/home.dart';
+import 'package:mp3_convert/feature/merger/page/merger_page.dart';
 import 'package:mp3_convert/feature/setting/help_and_feedback_page.dart';
 import 'package:mp3_convert/feature/setting/setting_page.dart';
+
+class GetMergerPage extends AppPage {
+  GetMergerPage() : super('/merger');
+
+  @override
+  Widget? getPage(Object? arguments) {
+    return const MergerPage();
+  }
+}
 
 class GetAudioCutterPage extends AppPage {
   GetAudioCutterPage() : super('/cutter');

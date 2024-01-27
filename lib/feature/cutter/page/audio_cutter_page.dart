@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:just_waveform/just_waveform.dart';
 import 'package:mp3_convert/base_presentation/page/base_page.dart';
+import 'package:mp3_convert/base_presentation/view/view.dart';
 import 'package:mp3_convert/data/entity/app_file.dart';
 import 'package:mp3_convert/feature/convert/data/entity/media_type.dart';
 import 'package:mp3_convert/feature/convert/data/entity/setting_file.dart';
@@ -15,6 +16,7 @@ import 'package:mp3_convert/feature/cutter/load_audio_data.dart';
 import 'package:mp3_convert/feature/cutter/waveform/get_wave_form.dart';
 import 'package:mp3_convert/feature/cutter/widget/audio_cutter_widget.dart';
 import 'package:mp3_convert/feature/setting/help_and_feedback_page.dart';
+import 'package:mp3_convert/resource/string.dart';
 import 'package:mp3_convert/util/hardcode_string.dart';
 import 'package:mp3_convert/widget/empty_picker_widget.dart';
 import 'dart:math' as math;
@@ -149,7 +151,7 @@ class _AudioPageState extends State<_AudioPage> {
                     onPressed: () {
                       context.read<CutterCubit>().startCut();
                     },
-                    child: Center(child: Text("Start Cut".hardCode)),
+                    child: Center(child: LText(CutterPageLocalization.startCut)),
                   );
                 }),
           ),
@@ -167,15 +169,15 @@ class _AudioPageState extends State<_AudioPage> {
                           context.read<CutterCubit>().setRemoveSelection(value ?? false);
                         },
                       ),
-                      Text("Remove selection".hardCode),
+                      LText(CutterPageLocalization.removeSelection),
                     ],
                   );
                 },
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Text(
-                  "Convert Type".hardCode,
+                child: LText(
+                  CutterPageLocalization.convertType,
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
               ),

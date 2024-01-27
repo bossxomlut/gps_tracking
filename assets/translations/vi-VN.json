@@ -41,5 +41,13 @@
         "auto_download": "Tự động tải xuống",
         "select_convert_type": "Chọn kiểu chuyển đổi",
         "apply_all": "Áp dụng tất cả"
+    },
+
+    "cutter_page": {
+        "start_cut": "Bắt đầu cắt",
+        "remove_selection": "Xoá chọn",
+        "convert_type": "Kiểu chuyển đổi",
+        "from": "Từ",
+        "to": "đến"
     }
 }
