@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:mp3_convert/data/data_result.dart';
 import 'package:mp3_convert/data/entity/failure_entity.dart';
 import 'package:mp3_convert/data/entity/feature.dart';
@@ -76,13 +78,13 @@ class CutterAddRowDto extends AddRowDto {
   Map<String, dynamic> toJson() {
     return {
       ...super.toJson(),
-      "options": {
+      "options": jsonEncode({
         "isFaceIn": fadeIn,
         "isFaceOut": fadeOut,
         "isRemoveSelection": isRemoveSelection,
         "from": startDuration.inSeconds.toDouble(),
         "to": endDuration.inSeconds.toDouble(),
-      },
+      }),
       "targetName": fileName,
       "typeUpload": 1,
     };
