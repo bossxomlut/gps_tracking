@@ -8,6 +8,7 @@ import 'package:mp3_convert/base_presentation/page/base_page.dart';
 import 'package:mp3_convert/data/entity/app_file.dart';
 import 'package:mp3_convert/feature/convert/data/entity/media_type.dart';
 import 'package:mp3_convert/feature/convert/data/entity/setting_file.dart';
+import 'package:mp3_convert/feature/convert/widget/convert_status_widget.dart';
 import 'package:mp3_convert/feature/convert/widget/file_type_widget.dart';
 import 'package:mp3_convert/feature/cutter/cubit/cutter_cubit.dart';
 import 'package:mp3_convert/feature/cutter/load_audio_data.dart';
@@ -111,14 +112,46 @@ class _AudioPageState extends State<_AudioPage> {
           const SizedBox(height: 16),
           CutterAudioWidget(path: widget.file.path),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            child: FilledButton(
-              style: FilledButton.styleFrom(
-                backgroundColor: Color(0xfffff25d17),
-              ),
-              onPressed: () {},
-              child: Center(child: Text("Start Cut".hardCode)),
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: BlocSelector<CutterCubit, CutterState, ConfigConvertFile?>(
+                selector: (state) => state.file,
+                builder: (context, file) {
+                  if (file == null) {
+                    return const SizedBox();
+                  }
+                  if (file is ConvertStatusFile) {
+                    return ConvertStatusWidget(
+                      convertFile: file,
+                      onDownload: (value) {
+                        context.read<CutterCubit>().startDownload();
+                      },
+                    );
+                    switch (file.status) {
+                      case ConvertStatus.uploading:
+                        return Text('uploading...');
+                      case ConvertStatus.uploaded:
+                        return Text('uploaded...');
+
+                      case ConvertStatus.converting:
+                        return Text('converting...');
+                      case ConvertStatus.converted:
+                        return Text('converted...');
+                      case ConvertStatus.downloading:
+                        return Text('downloading...');
+                      case ConvertStatus.downloaded:
+                        return Text('downloaded...');
+                    }
+                  }
+                  return FilledButton(
+                    style: FilledButton.styleFrom(
+                      backgroundColor: Color(0xfffff25d17),
+                    ),
+                    onPressed: () {
+                      context.read<CutterCubit>().startCut();
+                    },
+                    child: Center(child: Text("Start Cut".hardCode)),
+                  );
+                }),
           ),
           ColumnStart(
             children: [
@@ -163,7 +196,7 @@ class _AudioPageState extends State<_AudioPage> {
                         ...types.map(
                           (type) => MediaTypeChip(
                             type: type,
-                            isSelected: type.name == state.destinationType,
+                            isSelected: type.name.toLowerCase() == state.destinationType,
                             onChanged: (value) {
                               context.read<CutterCubit>().setConvertType(type);
                             },

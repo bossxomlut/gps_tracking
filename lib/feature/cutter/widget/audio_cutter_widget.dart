@@ -1,9 +1,11 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_audio_waveforms/flutter_audio_waveforms.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:just_waveform/just_waveform.dart';
 import 'package:mp3_convert/base_presentation/view/safe_set_state.dart';
+import 'package:mp3_convert/feature/cutter/cubit/cutter_cubit.dart';
 import 'package:mp3_convert/feature/cutter/load_audio_data.dart';
 import 'package:mp3_convert/feature/cutter/waveform/get_wave_form.dart';
 import 'package:mp3_convert/feature/cutter/widget/ruller.dart';
@@ -53,7 +55,10 @@ class _CutterAudioWidgetState extends State<CutterAudioWidget> with SafeSetState
   Future<void> initPlayAudio() async {
     try {
       _player.setAudioSource(AudioSource.file(widget.path)).then((value) {
-        setState(() {});
+        if (value != null) {
+          setState(() {});
+          context.read<CutterCubit>().setDurations(Duration.zero, value!);
+        }
       }).catchError((e) {});
     } catch (e) {}
   }
@@ -79,7 +84,7 @@ class _CutterAudioWidgetState extends State<CutterAudioWidget> with SafeSetState
                         child: Stack(
                           clipBehavior: Clip.none,
                           children: [
-                            Center(
+                            Container(
                               child: PolygonWaveform(
                                 samples: samples,
                                 height: 98,
@@ -88,6 +93,7 @@ class _CutterAudioWidgetState extends State<CutterAudioWidget> with SafeSetState
                                 activeColor: Color(0xfff4570a),
                                 inactiveColor: Color(0xfff4570a),
                               ),
+                              alignment: Alignment.center,
                             ),
                             StreamBuilder(
                               stream: _player.positionStream,
@@ -118,6 +124,12 @@ class _CutterAudioWidgetState extends State<CutterAudioWidget> with SafeSetState
                     },
                     onInitialized: (audioController) {
                       cutterAudioController = audioController;
+
+                      cutterAudioController?.addListener(() {
+                        context
+                            .read<CutterCubit>()
+                            .setDurations(cutterAudioController!.startDuration, cutterAudioController!.endDuration);
+                      });
                       setState(() {});
                     },
                   ),

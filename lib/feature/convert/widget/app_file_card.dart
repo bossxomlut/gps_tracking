@@ -172,6 +172,9 @@ class _AppFileCardState extends BaseStatefulWidgetState<AppFileCard> {
                   const Divider(),
                   ConvertStatusWidget(
                     convertFile: file,
+                    onDownload: (convertFile) {
+                      context.read<ConvertCubit>().downloadConvertedFile((convertFile).downloadId);
+                    },
                   ),
                 ],
               ),

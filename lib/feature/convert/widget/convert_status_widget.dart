@@ -14,9 +14,11 @@ class ConvertStatusWidget extends StatelessWidget {
   const ConvertStatusWidget({
     super.key,
     required this.convertFile,
+    required this.onDownload,
   });
 
   final ConvertStatusFile convertFile;
+  final ValueChanged<ConvertedFile> onDownload;
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +36,7 @@ class ConvertStatusWidget extends StatelessWidget {
       case ConvertStatus.converted:
         return ElevatedButton(
           onPressed: () {
-            context.read<ConvertCubit>().downloadConvertedFile((convertFile as ConvertedFile).downloadId);
+            onDownload(convertFile as ConvertedFile);
           },
           style: ElevatedButton.styleFrom(
             backgroundColor: Theme.of(context).primaryColor,
