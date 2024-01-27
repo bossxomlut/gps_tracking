@@ -17,6 +17,8 @@ import 'package:mp3_convert/util/hardcode_string.dart';
 import 'package:mp3_convert/widget/empty_picker_widget.dart';
 import 'dart:math' as math;
 
+import 'package:mp3_convert/widget/file_picker.dart';
+
 class AudioCutterPage extends StatefulWidget {
   const AudioCutterPage({Key? key}) : super(key: key);
 
@@ -54,7 +56,7 @@ class _AudioCutterPageState extends SingleProviderBasePageState<AudioCutterPage,
       builder: (context, state) {
         final file = state.file;
         if (file != null) {
-          return _AudioPage(file: file);
+          return _AudioPage(key: ValueKey(file.path), file: file);
         }
         return EmptyPickerWidget(
           canPickMultipleFile: false,
@@ -64,6 +66,28 @@ class _AudioCutterPageState extends SingleProviderBasePageState<AudioCutterPage,
         );
       },
     );
+  }
+
+  @override
+  Widget? buildFloatingActionButton(BuildContext context) {
+    return BlocBuilder<CutterCubit, CutterState>(builder: (context, state) {
+      if (state.file != null) {
+        return FloatingActionButton(
+          onPressed: () {
+            const AnyFilePicker(allowMultiple: false).opeFilePicker().then((files) {
+              if (files != null && files.isNotEmpty) {
+                cubit.setFile(files.first);
+              }
+            }).catchError((error) {
+              //todo: handle error if necessary
+            });
+          },
+          child: const Icon(Icons.add_circle_outline),
+        );
+      }
+
+      return const SizedBox();
+    });
   }
 }
 
