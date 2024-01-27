@@ -7,6 +7,7 @@ import 'package:just_waveform/just_waveform.dart';
 import 'package:mp3_convert/base_presentation/page/base_page.dart';
 import 'package:mp3_convert/data/entity/app_file.dart';
 import 'package:mp3_convert/feature/convert/data/entity/media_type.dart';
+import 'package:mp3_convert/feature/convert/data/entity/setting_file.dart';
 import 'package:mp3_convert/feature/convert/widget/file_type_widget.dart';
 import 'package:mp3_convert/feature/cutter/cubit/cutter_cubit.dart';
 import 'package:mp3_convert/feature/cutter/load_audio_data.dart';
@@ -52,9 +53,9 @@ class _AudioCutterPageState extends SingleProviderBasePageState<AudioCutterPage,
 
   @override
   Widget buildBody(BuildContext context) {
-    return BlocBuilder<CutterCubit, CutterState>(
-      builder: (context, state) {
-        final file = state.file;
+    return BlocSelector<CutterCubit, CutterState, ConfigConvertFile?>(
+      selector: (state) => state.file,
+      builder: (context, file) {
         if (file != null) {
           return _AudioPage(key: ValueKey(file.path), file: file);
         }
@@ -70,24 +71,26 @@ class _AudioCutterPageState extends SingleProviderBasePageState<AudioCutterPage,
 
   @override
   Widget? buildFloatingActionButton(BuildContext context) {
-    return BlocBuilder<CutterCubit, CutterState>(builder: (context, state) {
-      if (state.file != null) {
-        return FloatingActionButton(
-          onPressed: () {
-            const AnyFilePicker(allowMultiple: false).opeFilePicker().then((files) {
-              if (files != null && files.isNotEmpty) {
-                cubit.setFile(files.first);
-              }
-            }).catchError((error) {
-              //todo: handle error if necessary
-            });
-          },
-          child: const Icon(Icons.add_circle_outline),
-        );
-      }
+    return BlocSelector<CutterCubit, CutterState, ConfigConvertFile?>(
+        selector: (state) => state.file,
+        builder: (context, file) {
+          if (file != null) {
+            return FloatingActionButton(
+              onPressed: () {
+                const AnyFilePicker(allowMultiple: false).opeFilePicker().then((files) {
+                  if (files != null && files.isNotEmpty) {
+                    cubit.setFile(files.first);
+                  }
+                }).catchError((error) {
+                  //todo: handle error if necessary
+                });
+              },
+              child: const Icon(Icons.add_circle_outline),
+            );
+          }
 
-      return const SizedBox();
-    });
+          return const SizedBox();
+        });
   }
 }
 
@@ -144,6 +147,9 @@ class _AudioPageState extends State<_AudioPage> {
                 ),
               ),
               BlocBuilder<CutterCubit, CutterState>(
+                buildWhen: (p, c) =>
+                    p.listMediaType.hashCode != c.listMediaType.hashCode ||
+                    p.file?.destinationType != c.file?.destinationType,
                 builder: (context, state) {
                   final types = state.listMediaType?.types;
                   if (types == null) {
