@@ -41,12 +41,31 @@ class FileDataSourceImpl extends FileDataSource {
   @override
   Future<ApiResponse> uploadFile(UploadFileDto dto) async {
     FormData formData = FormData.fromMap({
-      'file':
-          await MultipartFile.fromFile(dto.filePath, filename: dto.fileName, contentType: MediaType('video', 'mp4')),
+      'file': await MultipartFile.fromFile(dto.filePath, filename: dto.fileName),
     });
 
     return _apiRequestWrapper.post(
       "/api/upload/uploadFile",
+      data: formData,
+      headers: {
+        "Fb-X-Token": dto.uploadId,
+      },
+    );
+  }
+}
+
+class CutterFileDataSourceImpl extends FileDataSourceImpl {
+  @override
+  Future<ApiResponse> uploadFile(UploadFileDto dto) async {
+    FormData formData = FormData.fromMap({
+      'file': await MultipartFile.fromFile(
+        dto.filePath,
+        filename: dto.fileName,
+      ),
+    });
+
+    return _apiRequestWrapper.post(
+      "/api/cutter/upload",
       data: formData,
       headers: {
         "Fb-X-Token": dto.uploadId,

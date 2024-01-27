@@ -40,9 +40,15 @@ class CutterCubit extends Cubit<CutterState> with SafeEmit implements MappingTyp
 
   final DownloaderHelper _downloaderHelper = DownloaderHelper();
 
-  final ConvertFileRepository convertFileRepository = ConvertFileRepositoryImpl();
+  final ConvertFileRepository convertFileRepository = CutterFileRepositoryImpl();
 
   final GenerateString generateString = UUIDGenerateString();
+
+  @override
+  Future<void> close() {
+    _downloaderHelper.dispose();
+    return super.close();
+  }
 
   void setFile(AppFile file) {
     emit(
