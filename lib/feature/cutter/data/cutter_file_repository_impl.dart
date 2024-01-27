@@ -83,6 +83,7 @@ class CutterAddRowDto extends AddRowDto {
         "from": startDuration.inSeconds.toDouble(),
         "to": endDuration.inSeconds.toDouble(),
       },
+      "targetName": fileName,
       "typeUpload": 1,
     };
   }
