@@ -8,6 +8,8 @@ import 'package:mp3_convert/data/entity/app_file.dart';
 import 'package:mp3_convert/feature/cutter/load_audio_data.dart';
 import 'package:mp3_convert/feature/cutter/waveform/get_wave_form.dart';
 import 'package:mp3_convert/feature/cutter/widget/audio_cutter_widget.dart';
+import 'package:mp3_convert/feature/setting/help_and_feedback_page.dart';
+import 'package:mp3_convert/util/hardcode_string.dart';
 import 'package:mp3_convert/widget/empty_picker_widget.dart';
 import 'dart:math' as math;
 
@@ -19,6 +21,8 @@ class AudioCutterPage extends StatefulWidget {
 }
 
 class _AudioCutterPageState extends BasePageState<AudioCutterPage> {
+  AppFile? file;
+
   @override
   Widget build(BuildContext context) {
     return PopScope(canPop: false, child: super.build(context));
@@ -27,6 +31,7 @@ class _AudioCutterPageState extends BasePageState<AudioCutterPage> {
   @override
   PreferredSizeWidget? buildAppBar(BuildContext context) {
     return AppBar(
+      title: Text(file?.name ?? ''),
       leading: BackButton(
         onPressed: () {
           Navigator.of(context).pop();
@@ -35,7 +40,6 @@ class _AudioCutterPageState extends BasePageState<AudioCutterPage> {
     );
   }
 
-  AppFile? file;
   @override
   Widget buildBody(BuildContext context) {
     if (file != null) {
@@ -62,10 +66,52 @@ class _AudioPage extends StatefulWidget {
 class _AudioPageState extends State<_AudioPage> {
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        CutterAudioWidget(path: widget.file.path),
-      ],
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          const SizedBox(height: 16),
+          CutterAudioWidget(path: widget.file.path),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            child: FilledButton(
+              style: FilledButton.styleFrom(
+                backgroundColor: Color(0xfffff25d17),
+              ),
+              onPressed: () {},
+              child: Center(child: Text("Start Cut".hardCode)),
+            ),
+          ),
+          ColumnStart(
+            children: [
+              const SizedBox(height: 20),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Text(
+                  "Option".hardCode,
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+              ),
+              Row(
+                children: [
+                  Radio(
+                    value: true,
+                    groupValue: false,
+                    onChanged: (value) {},
+                  ),
+                  Text("Remove selection"),
+                ],
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Text(
+                  "Convert Type",
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+              ),
+            ],
+          )
+        ],
+      ),
     );
   }
 }

@@ -3,8 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_audio_waveforms/flutter_audio_waveforms.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:just_waveform/just_waveform.dart';
+import 'package:mp3_convert/base_presentation/view/safe_set_state.dart';
 import 'package:mp3_convert/feature/cutter/load_audio_data.dart';
 import 'package:mp3_convert/feature/cutter/waveform/get_wave_form.dart';
+import 'package:mp3_convert/feature/cutter/widget/ruller.dart';
+import 'package:mp3_convert/util/hardcode_string.dart';
 
 class CutterAudioWidget extends StatefulWidget {
   const CutterAudioWidget({super.key, required this.path});
@@ -15,12 +18,14 @@ class CutterAudioWidget extends StatefulWidget {
   State<CutterAudioWidget> createState() => _CutterAudioWidgetState();
 }
 
-class _CutterAudioWidgetState extends State<CutterAudioWidget> {
+class _CutterAudioWidgetState extends State<CutterAudioWidget> with SafeSetState {
   final _player = AudioPlayer();
 
   List<double> get samples => waveform?.data != null ? loadWaveFormSample(waveform!.data, 256) : [];
 
   Waveform? waveform;
+
+  CutterAudioController? cutterAudioController;
 
   @override
   void initState() {
@@ -47,110 +52,155 @@ class _CutterAudioWidgetState extends State<CutterAudioWidget> {
 
   Future<void> initPlayAudio() async {
     try {
-      _player.setAudioSource(AudioSource.file(widget.path));
+      _player.setAudioSource(AudioSource.file(widget.path)).then((value) {
+        setState(() {});
+      }).catchError((e) {});
     } catch (e) {}
   }
 
   @override
   Widget build(BuildContext context) {
+    final pd = 16.0;
     return Column(
       children: [
-        Padding(
-          padding: const EdgeInsets.all(32),
-          child: SizedBox(
-            height: 100,
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: _cutterBarWidth),
-                  child: LayoutBuilder(builder: (context, c) {
-                    return SizedBox(
-                      height: 98,
-                      width: double.maxFinite,
-                      child: Stack(
-                        clipBehavior: Clip.none,
-                        children: [
-                          Center(
-                            child: PolygonWaveform(
-                              samples: samples,
-                              height: 98,
-                              width: c.maxWidth,
-                              invert: true,
+        if (_player.duration != null)
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: pd),
+            child: SizedBox(
+              height: 100,
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: _cutterBarWidth),
+                    child: LayoutBuilder(builder: (context, c) {
+                      return SizedBox(
+                        height: 98,
+                        child: Stack(
+                          clipBehavior: Clip.none,
+                          children: [
+                            Center(
+                              child: PolygonWaveform(
+                                samples: samples,
+                                height: 98,
+                                width: c.maxWidth,
+                                absolute: true,
+                                activeColor: Color(0xfff4570a),
+                                inactiveColor: Color(0xfff4570a),
+                              ),
                             ),
-                          ),
-                          StreamBuilder(
-                            stream: _player.positionStream,
-                            builder: (_, s) {
-                              if (s.hasData && s.data != null) {
-                                return Positioned(
-                                  left: (s.data!.inSeconds * 1.0 / (_player.duration?.inSeconds ?? 1)) * c.maxWidth,
-                                  child: Container(
-                                    width: 1,
-                                    height: 120,
-                                    color: Colors.white,
-                                  ),
-                                );
-                              }
-                              return const SizedBox();
-                            },
-                          ),
-                        ],
-                      ),
-                    );
-                  }),
-                ),
-                CuttingArea(
-                  key: ValueKey(_player.duration?.inSeconds ?? 0),
-                  totalSecond: _player.duration?.inSeconds ?? 0,
-                  onChanged: (start, end) {},
-                  onChangedStop: (l, r) {
-                    _player.seek(Duration(seconds: l));
-                  },
-                ),
-              ],
+                            StreamBuilder(
+                              stream: _player.positionStream,
+                              builder: (_, s) {
+                                if (s.hasData && s.data != null) {
+                                  return Positioned(
+                                    left: (s.data!.inSeconds * 1.0 / (_player.duration?.inSeconds ?? 1)) * c.maxWidth,
+                                    child: Container(
+                                      width: 1,
+                                      height: 100,
+                                      color: Colors.white,
+                                    ),
+                                  );
+                                }
+                                return const SizedBox();
+                              },
+                            ),
+                          ],
+                        ),
+                      );
+                    }),
+                  ),
+                  CuttingArea(
+                    totalSecond: _player.duration?.inSeconds ?? 0,
+                    onChanged: (start, end) {},
+                    onChangedStop: (l, r) {
+                      _player.seek(Duration(seconds: l));
+                    },
+                    onInitialized: (audioController) {
+                      cutterAudioController = audioController;
+                      setState(() {});
+                    },
+                  ),
+                ],
+              ),
             ),
           ),
-        ),
-        StreamBuilder<PlayerState>(
-            stream: _player.playerStateStream,
-            builder: (context, snapshot) {
-              if (snapshot.hasData && snapshot.data != null) {
-                final state = snapshot.data!;
-                if (state.playing) {
-                  return IconButton(
-                      onPressed: () {
-                        _player.pause();
-                      },
-                      icon: const Icon(Icons.pause_circle));
-                }
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: pd),
+          child: Row(
+            children: [
+              StreamBuilder<PlayerState>(
+                  stream: _player.playerStateStream,
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData && snapshot.data != null) {
+                      final state = snapshot.data!;
+                      if (state.playing) {
+                        return IconButton(
+                            onPressed: () {
+                              _player.pause();
+                            },
+                            icon: const Icon(Icons.pause_circle));
+                      }
 
-                switch (snapshot.data!.processingState) {
-                  case ProcessingState.idle:
-                  // TODO: Handle this case.
-                  case ProcessingState.loading:
-                  // TODO: Handle this case.
-                  case ProcessingState.buffering:
-                  // TODO: Handle this case.
-                  case ProcessingState.ready:
-                    return IconButton(
-                      onPressed: () {
-                        _player.play();
-                      },
-                      icon: const Icon(Icons.play_circle_outline),
+                      switch (snapshot.data!.processingState) {
+                        case ProcessingState.idle:
+                        // TODO: Handle this case.
+                        case ProcessingState.loading:
+                        // TODO: Handle this case.
+                        case ProcessingState.buffering:
+                        // TODO: Handle this case.
+                        case ProcessingState.ready:
+                          return IconButton(
+                            onPressed: () {
+                              _player.play();
+                            },
+                            icon: const Icon(Icons.play_circle_outline),
+                          );
+                        case ProcessingState.completed:
+                          return IconButton(
+                            onPressed: () {
+                              _player.seek(Duration.zero);
+                              _player.play();
+                            },
+                            icon: const Icon(Icons.play_circle_outline),
+                          );
+                      }
+                    }
+                    return const Text('Loading...');
+                  }),
+              StreamBuilder<Duration>(
+                stream: _player.positionStream,
+                builder: (_, s) {
+                  if (s.hasData && s.data != null) {
+                    return Text(
+                      printDuration(s.data!),
+                      style: Theme.of(context).textTheme.labelSmall,
                     );
-                  case ProcessingState.completed:
-                    return IconButton(
-                      onPressed: () {
-                        _player.seek(Duration.zero);
-                        _player.play();
-                      },
-                      icon: const Icon(Icons.play_circle_outline),
-                    );
-                }
-              }
-              return const Text('Loading...');
-            }),
+                  }
+                  return const SizedBox();
+                },
+              ),
+              const Spacer(),
+              if (_player.duration != null)
+                Text(
+                  "Time: ${printDuration(_player.duration!)}",
+                  style: Theme.of(context).textTheme.labelSmall,
+                ),
+            ],
+          ),
+        ),
+        if (cutterAudioController != null)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: ListenableBuilder(
+              listenable: cutterAudioController!,
+              builder: (context, child) {
+                return Text(
+                    "Cutting from  ${printDuration(cutterAudioController!.startDuration)} to ${printDuration(cutterAudioController!.endDuration)}"
+                        .hardCode);
+              },
+            ),
+          ),
       ],
     );
   }
@@ -162,11 +212,13 @@ class CuttingArea extends StatefulWidget {
     required this.totalSecond,
     required this.onChanged,
     required this.onChangedStop,
+    required this.onInitialized,
   });
   final int totalSecond;
 
   final Function(int start, int end) onChanged;
   final Function(int start, int end) onChangedStop;
+  final Function(CutterAudioController audioController) onInitialized;
 
   @override
   State<CuttingArea> createState() => _CuttingAreaState();
@@ -182,6 +234,8 @@ class _CuttingAreaState extends State<CuttingArea> {
     _audioController.addListener(() {
       _audioController.getCutterData(widget.onChanged);
     });
+
+    widget.onInitialized(_audioController);
   }
 
   @override
@@ -202,7 +256,18 @@ class _CuttingAreaState extends State<CuttingArea> {
                     return Container(
                       height: cutterHeight,
                       width: double.maxFinite,
-                      color: Colors.blueAccent.withOpacity(.1),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Color(0xfff25d17).withOpacity(0.3),
+                            Color(0xfff25d17).withOpacity(0.2),
+                            Color(0xfff25d17).withOpacity(0.1),
+                            Colors.transparent,
+                          ],
+                        ),
+                      ),
                     );
                   },
                 ),
@@ -236,7 +301,7 @@ class _CuttingAreaState extends State<CuttingArea> {
                         child: Container(
                           height: cutterHeight,
                           decoration: BoxDecoration(
-                            border: Border.all(color: Colors.yellow),
+                            border: Border.all(color: _dragBarColor, strokeAlign: BorderSide.strokeAlignOutside),
                           ),
                         ),
                       ),
@@ -264,6 +329,7 @@ class _CuttingAreaState extends State<CuttingArea> {
 }
 
 const double _cutterBarWidth = 10.0;
+const Color _dragBarColor = Color(0xffc4f061);
 
 class LeftDragBar extends StatelessWidget {
   const LeftDragBar({
@@ -290,7 +356,7 @@ class LeftDragBar extends StatelessWidget {
         height: height / 2,
         width: _cutterBarWidth,
         decoration: const BoxDecoration(
-            color: Colors.yellow,
+            color: _dragBarColor,
             borderRadius: BorderRadius.only(
               topLeft: Radius.circular(8),
               bottomLeft: Radius.circular(8),
@@ -325,7 +391,7 @@ class RightDragBar extends StatelessWidget {
         height: height / 2,
         width: _cutterBarWidth,
         decoration: const BoxDecoration(
-          color: Colors.yellow,
+          color: _dragBarColor,
           borderRadius: BorderRadius.only(
             topRight: Radius.circular(8),
             bottomRight: Radius.circular(8),
@@ -339,7 +405,7 @@ class RightDragBar extends StatelessWidget {
 class CutterAudioController extends ChangeNotifier {
   double _startPosition = 0;
   double _endPosition = 0;
-  double containerWidth = 0;
+  double containerWidth = 1;
 
   double get start => _startPosition;
 
@@ -380,4 +446,8 @@ class CutterAudioController extends ChangeNotifier {
 
     callBack(l, r);
   }
+
+  Duration get startDuration => Duration(seconds: ((start / containerWidth) * durationInSeconds).floor());
+
+  Duration get endDuration => Duration(seconds: ((1 - (end.abs() / containerWidth)) * durationInSeconds).floor());
 }
