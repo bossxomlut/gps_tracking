@@ -175,7 +175,7 @@ class _ListFilesContentState extends State<_ListFilesContent> {
                                     f.name,
                                     style: Theme.of(context).textTheme.bodyLarge,
                                   ),
-                                  if (f is ConvertStatusFile) ConvertStatusWidget(convertFile: f, onDownload: (_) {}),
+                                  if (f is ConvertStatusFile) MergerStatusWidget(convertFile: f, onDownload: (_) {}),
                                 ],
                               ),
                             ],

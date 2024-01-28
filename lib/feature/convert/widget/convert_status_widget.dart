@@ -98,13 +98,44 @@ class ConvertStatusWidget extends StatelessWidget {
               onPressed: () {
                 Share.shareXFiles([XFile((convertFile as DownloadedFile).downloadPath)]);
               },
-              icon: CircleAvatar(
+              icon: const CircleAvatar(
                 minRadius: 20,
-                child: const Icon(Icons.share),
+                child: Icon(Icons.share),
               ),
             ),
           ],
         );
+    }
+  }
+}
+
+class MergerStatusWidget extends StatelessWidget {
+  const MergerStatusWidget({
+    super.key,
+    required this.convertFile,
+    required this.onDownload,
+  });
+
+  final ConvertStatusFile convertFile;
+  final ValueChanged<ConvertedFile> onDownload;
+
+  @override
+  Widget build(BuildContext context) {
+    final ConvertStatus status = convertFile.status;
+
+    switch (status) {
+      case ConvertStatus.uploading:
+        return const UploadingProgressBar();
+      case ConvertStatus.uploaded:
+        return const UploadingProgressBar(progress: 1);
+      case ConvertStatus.converting:
+        final double? progress = (convertFile as ConvertingFile).convertProgress;
+        return ConvertingProgressBar(progress: progress);
+      case ConvertStatus.converted:
+        return const ConvertedProgressBar();
+      case ConvertStatus.downloading:
+      case ConvertStatus.downloaded:
+        return const SizedBox();
     }
   }
 }
