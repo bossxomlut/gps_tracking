@@ -165,9 +165,11 @@ class _ListFilesContentState extends State<_ListFilesContent> {
                               //   backgroundColor: Color(0xfff25d17),
                               // ),
                               child: Text("Start merge".hardCode),
-                              onPressed: () {
-                                context.read<MergerCubit>().startMerger();
-                              },
+                              onPressed: (state.files?.length ?? 0) > 1
+                                  ? () {
+                                      context.read<MergerCubit>().startMerger();
+                                    }
+                                  : null,
                             ),
                           ),
                         ],

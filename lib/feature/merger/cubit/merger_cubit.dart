@@ -222,12 +222,9 @@ extension DownloadListener on MergerCubit {
     ///4: error
     int status = data[1];
     int progress = data[2];
-    log("LOL: download listener progress: ${progress}");
 
     if (progress < 100) {
     } else {
-      log("LOL:  gooooo");
-
       emit(state.copyWith(
         status: MergeStatus.downloaded,
       ));
