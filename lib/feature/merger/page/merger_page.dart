@@ -232,12 +232,12 @@ class _ListFilesContentState extends State<_ListFilesContent> {
                               // style: FilledButton.styleFrom(
                               //   backgroundColor: Color(0xfff25d17),
                               // ),
-                              child: Text("Start merge".hardCode),
                               onPressed: (state.files?.length ?? 0) > 1
                                   ? () {
                                       context.read<MergerCubit>().startMerger();
                                     }
                                   : null,
+                              child: LText(MergerPageLocalization.startMerge),
                             ),
                           ),
                         ],
@@ -251,7 +251,6 @@ class _ListFilesContentState extends State<_ListFilesContent> {
           selector: (state) => state.status,
           builder: (context, status) {
             if (status != null) {
-              print('status merge: ${status}');
               return Container(
                 color: Colors.white.withOpacity(0.2),
                 alignment: Alignment.center,
@@ -264,20 +263,25 @@ class _ListFilesContentState extends State<_ListFilesContent> {
                   child: ColumnStart(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(
-                        "Đang xử lý",
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
+                      _getTitle(status),
                       const SizedBox(height: 12),
                       _getProgressWidget(status),
                       const SizedBox(height: 12),
                       Align(
-                          alignment: Alignment.bottomRight,
-                          child: TextButton(
-                              onPressed: () {
-                                context.read<MergerCubit>().cancelMerge();
-                              },
-                              child: Text('Cancel'.hardCode))),
+                        alignment: Alignment.bottomRight,
+                        child: InkWell(
+                          onTap: () {
+                            context.read<MergerCubit>().cancelMerge();
+                          },
+                          child: ColoredBox(
+                            color: Colors.transparent,
+                            child: LText(
+                              MergerPageLocalization.cancel,
+                              style: Theme.of(context).textTheme.labelLarge,
+                            ),
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -294,20 +298,54 @@ class _ListFilesContentState extends State<_ListFilesContent> {
   String _getProgressString(MergeStatus status) {
     switch (status) {
       case MergeStatus.uploading:
-        return "Progressing in upload...";
+        return MergerPageLocalization.inProgressUpload.tr();
       case MergeStatus.converting:
-        return "Progressing in convert...";
+        return MergerPageLocalization.inProgressConvert.tr();
+      case MergeStatus.merging:
+        return MergerPageLocalization.inProgressMerge.tr();
       case MergeStatus.downloading:
-        return "Progressing in download...";
+        return MergerPageLocalization.inProgressDownload.tr();
       case MergeStatus.downloaded:
-        return "Progressing in convert...";
+        return "";
       case MergeStatus.merged:
-        return "Progressing in convert...";
+        return "";
     }
   }
 
   Widget _getProgressWidget(MergeStatus status) {
     switch (status) {
+      case MergeStatus.merged:
+        return ElevatedButton(
+          onPressed: () {
+            context.read<MergerCubit>().startDownload();
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Theme.of(context).primaryColor,
+            textStyle: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  color: Colors.white,
+                ),
+          ),
+          child: Center(
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                AppImage.svg(
+                  IconPath.download,
+                  color: Colors.white,
+                  width: 20,
+                  height: 20,
+                ),
+                const SizedBox(width: 8),
+                LText(
+                  ConvertPageLocalization.download,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        color: Colors.white,
+                      ),
+                ),
+              ],
+            ),
+          ),
+        );
       case MergeStatus.uploading:
         return Row(
           children: [
@@ -317,6 +355,14 @@ class _ListFilesContentState extends State<_ListFilesContent> {
           ],
         );
       case MergeStatus.converting:
+        return Row(
+          children: [
+            const CircularProgressIndicator(strokeWidth: 2),
+            const SizedBox(width: 20),
+            Text(_getProgressString(status)),
+          ],
+        );
+      case MergeStatus.merging:
         return Row(
           children: [
             const CircularProgressIndicator(strokeWidth: 2),
@@ -350,7 +396,7 @@ class _ListFilesContentState extends State<_ListFilesContent> {
             ),
             IconButton(
               onPressed: () {
-                // Share.shareXFiles([XFile((convertFile as DownloadedFile).downloadPath)]);
+                Share.shareXFiles([XFile(context.read<MergerCubit>().getDownloadPath() ?? '')]);
               },
               icon: const CircleAvatar(
                 minRadius: 20,
@@ -367,38 +413,24 @@ class _ListFilesContentState extends State<_ListFilesContent> {
             Text(_getProgressString(status)),
           ],
         );
+    }
+  }
 
+  Widget _getTitle(MergeStatus status) {
+    switch (status) {
+      case MergeStatus.uploading:
+      case MergeStatus.converting:
+      case MergeStatus.merging:
+        return LText(
+          MergerPageLocalization.pleaseWait,
+          style: Theme.of(context).textTheme.titleMedium,
+        );
       case MergeStatus.merged:
-        return ElevatedButton(
-          onPressed: () {
-            context.read<MergerCubit>().startDownload();
-          },
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Theme.of(context).primaryColor,
-            textStyle: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: Colors.white,
-                ),
-          ),
-          child: Center(
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                AppImage.svg(
-                  IconPath.download,
-                  color: Colors.white,
-                  width: 20,
-                  height: 20,
-                ),
-                const SizedBox(width: 8),
-                LText(
-                  ConvertPageLocalization.download,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: Colors.white,
-                      ),
-                ),
-              ],
-            ),
-          ),
+      case MergeStatus.downloading:
+      case MergeStatus.downloaded:
+        return LText(
+          MergerPageLocalization.completed,
+          style: Theme.of(context).textTheme.titleMedium,
         );
     }
   }

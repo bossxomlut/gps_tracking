@@ -95,7 +95,7 @@ class ConvertedProgressBar extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               LText(
-                'converted'.hardCode,
+                MergerPageLocalization.converted,
                 style: Theme.of(context).textTheme.labelLarge?.copyWith(
                       fontSize: 16,
                     ),

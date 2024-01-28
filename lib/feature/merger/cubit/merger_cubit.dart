@@ -43,6 +43,13 @@ class MergerCubit extends Cubit<MergerState> with SafeEmit implements MappingTyp
         emit(state.copyWith(status: MergeStatus.uploading));
         return;
       }
+
+      if ((state.status?.index ?? -1) < MergeStatus.merged.index) {
+        if (files?.every((f) => f is ConvertedFile) ?? false) {
+          emit(state.copyWith(status: MergeStatus.merging));
+          return;
+        }
+      }
     });
   }
 
@@ -143,13 +150,11 @@ class MergerCubit extends Cubit<MergerState> with SafeEmit implements MappingTyp
       newIndex -= 1;
     }
 
-    final items = state.files?[oldIndex];
+    final item = state.files?.removeAt(oldIndex);
 
-    final reorderedList = List.of(_files)
-      ..removeWhere((element) => element.hashCode == items.hashCode)
-      ..insert(newIndex, items!);
+    state.files?.insert(newIndex, item!);
 
-    emit(state.copyWith(files: [...reorderedList]));
+    emit(state.copyWith(files: [...?state.files]));
   }
 }
 
@@ -211,7 +216,6 @@ extension ConvertListener on MergerCubit {
   void _updateMergingProgress(Map data) {
     final mergeData = MergeData.fromMap(data);
     if (mergeData.progress == 100 && mergeData.sessionId == _sessionId) {
-      print('LOL: hahaha');
       emit(state.copyWith(status: MergeStatus.merged));
       //startDownload();
     }
@@ -442,4 +446,4 @@ class MergerState extends Equatable {
   }
 }
 
-enum MergeStatus { uploading, converting, merged, downloading, downloaded }
+enum MergeStatus { uploading, converting, merging, merged, downloading, downloaded }

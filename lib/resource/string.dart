@@ -82,8 +82,34 @@ class CutterPageLocalization {
   static String get prefix => "cutter_page.";
 
   static String get startCut => "${prefix}start_cut";
+
   static String get removeSelection => "${prefix}remove_selection";
+
   static String get convertType => "${prefix}convert_type";
+
   static String get from => "${prefix}from";
+
   static String get to => "${prefix}to";
+}
+
+class MergerPageLocalization {
+  static String get prefix => "merger_page.";
+
+  static String get converted => "${prefix}converted";
+
+  static String get cancel => "${prefix}cancel";
+
+  static String get startMerge => "${prefix}start_merge";
+
+  static String get pleaseWait => "${prefix}please_wait";
+
+  static String get completed => "${prefix}complete";
+
+  static String get inProgressUpload => "${prefix}in_progress_upload";
+
+  static String get inProgressConvert => "${prefix}in_progress_convert";
+
+  static String get inProgressMerge => "${prefix}in_progress_merge";
+
+  static String get inProgressDownload => "${prefix}in_progress_download";
 }
