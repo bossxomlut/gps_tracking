@@ -1,14 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mp3_convert/base_presentation/page/base_page.dart';
+import 'package:mp3_convert/base_presentation/view/view.dart';
 import 'package:mp3_convert/feature/convert/data/entity/setting_file.dart';
 import 'package:mp3_convert/feature/convert/widget/convert_status_widget.dart';
 import 'package:mp3_convert/feature/merger/cubit/merger_cubit.dart';
+import 'package:mp3_convert/feature/setting/help_and_feedback_page.dart';
+import 'package:mp3_convert/resource/icon_path.dart';
+import 'package:mp3_convert/resource/string.dart';
 import 'package:mp3_convert/util/hardcode_string.dart';
 import 'package:mp3_convert/util/list_util.dart';
 import 'package:mp3_convert/widget/empty_picker_widget.dart';
 import 'package:collection/collection.dart';
 import 'package:mp3_convert/widget/file_picker.dart';
+import 'package:mp3_convert/widget/image.dart';
+import 'package:share_plus/share_plus.dart';
 
 class MergerPage extends StatefulWidget {
   const MergerPage({super.key});
@@ -77,41 +83,202 @@ class _ListFilesContent extends StatefulWidget {
 class _ListFilesContentState extends State<_ListFilesContent> {
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<MergerCubit, MergerState>(
-      builder: (context, state) {
-        return Column(
-          mainAxisSize: MainAxisSize.max,
-          children: [
-            Expanded(
-              child: Column(
-                children: [
-                  ...?state.files?.map((f) => Card(
-                        child: Column(
-                          children: [
-                            Text(f.name),
-                            if (f is ConvertStatusFile) ConvertStatusWidget(convertFile: f, onDownload: (_) {}),
-                          ],
-                        ),
-                      )),
-                ],
-              ),
-            ),
-            SafeArea(
-                minimum: const EdgeInsets.all(16),
-                child: Center(
-                  child: FilledButton(
-                    // style: FilledButton.styleFrom(
-                    //   backgroundColor: Color(0xfff25d17),
-                    // ),
-                    child: Text("Start merge".hardCode),
-                    onPressed: () {
-                      context.read<MergerCubit>().startMerger();
-                    },
+    return Stack(
+      children: [
+        BlocBuilder<MergerCubit, MergerState>(
+          builder: (context, state) {
+            return Column(
+              mainAxisSize: MainAxisSize.max,
+              children: [
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      children: [
+                        ...?state.files?.map((f) => Container(
+                              padding: EdgeInsets.all(16),
+                              alignment: Alignment.centerLeft,
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).splashColor,
+                              ),
+                              child: ColumnStart(
+                                children: [
+                                  Text(
+                                    f.name,
+                                    style: Theme.of(context).textTheme.bodyLarge,
+                                  ),
+                                  if (f is ConvertStatusFile) ConvertStatusWidget(convertFile: f, onDownload: (_) {}),
+                                ],
+                              ),
+                            )),
+                      ],
+                    ),
                   ),
-                )),
+                ),
+                SafeArea(
+                    minimum: const EdgeInsets.all(16),
+                    child: Center(
+                      child: FilledButton(
+                        // style: FilledButton.styleFrom(
+                        //   backgroundColor: Color(0xfff25d17),
+                        // ),
+                        child: Text("Start merge".hardCode),
+                        onPressed: () {
+                          context.read<MergerCubit>().startMerger();
+                        },
+                      ),
+                    )),
+              ],
+            );
+          },
+        ),
+        BlocSelector<MergerCubit, MergerState, MergeStatus?>(
+          selector: (state) => state.status,
+          builder: (context, status) {
+            if (status != null) {
+              return Container(
+                color: Colors.white.withOpacity(0.2),
+                alignment: Alignment.center,
+                child: Container(
+                  width: double.maxFinite,
+                  margin: EdgeInsets.all(32),
+                  padding: EdgeInsets.all(16),
+                  decoration:
+                      BoxDecoration(color: Theme.of(context).primaryColorDark, borderRadius: BorderRadius.circular(8)),
+                  child: ColumnStart(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        "Đang xử lý",
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      const SizedBox(height: 12),
+                      _getProgressWidget(status),
+                      const SizedBox(height: 12),
+                      Align(
+                          alignment: Alignment.bottomRight,
+                          child: TextButton(
+                              onPressed: () {
+                                context.read<MergerCubit>().cancelMerge();
+                              },
+                              child: Text('Cancel'.hardCode))),
+                    ],
+                  ),
+                ),
+              );
+            }
+
+            return const SizedBox();
+          },
+        )
+      ],
+    );
+  }
+
+  String _getProgressString(MergeStatus status) {
+    switch (status) {
+      case MergeStatus.uploading:
+        return "Progressing in upload...";
+      case MergeStatus.converting:
+        return "Progressing in convert...";
+      case MergeStatus.downloading:
+        return "Progressing in download...";
+      case MergeStatus.downloaded:
+        return "Progressing in convert...";
+      case MergeStatus.merged:
+        return "Progressing in convert...";
+    }
+  }
+
+  Widget _getProgressWidget(MergeStatus status) {
+    switch (status) {
+      case MergeStatus.uploading:
+        return Row(
+          children: [
+            CircularProgressIndicator(strokeWidth: 2),
+            const SizedBox(width: 20),
+            Text(_getProgressString(status)),
           ],
         );
-      },
-    );
+      case MergeStatus.converting:
+        return Row(
+          children: [
+            CircularProgressIndicator(strokeWidth: 2),
+            const SizedBox(width: 20),
+            Text(_getProgressString(status)),
+          ],
+        );
+      case MergeStatus.downloading:
+        return Row(
+          children: [
+            CircularProgressIndicator(strokeWidth: 2),
+            const SizedBox(width: 20),
+            Text(_getProgressString(status)),
+          ],
+        );
+      case MergeStatus.downloaded:
+        return Row(
+          children: [
+            Expanded(
+              child: ElevatedButton(
+                onPressed: () {},
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).primaryColor,
+                  textStyle: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        color: Colors.white,
+                      ),
+                ),
+                child: Center(
+                  child: LText(
+                    ConvertPageLocalization.openFile,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          color: Colors.white,
+                        ),
+                  ),
+                ),
+              ),
+            ),
+            IconButton(
+              onPressed: () {
+                // Share.shareXFiles([XFile((convertFile as DownloadedFile).downloadPath)]);
+              },
+              icon: CircleAvatar(
+                minRadius: 20,
+                child: const Icon(Icons.share),
+              ),
+            ),
+          ],
+        );
+      case MergeStatus.merged:
+        return ElevatedButton(
+          onPressed: () {},
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Theme.of(context).primaryColor,
+            textStyle: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  color: Colors.white,
+                ),
+          ),
+          child: Center(
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                AppImage.svg(
+                  IconPath.download,
+                  color: Colors.white,
+                  width: 20,
+                  height: 20,
+                ),
+                const SizedBox(width: 8),
+                LText(
+                  ConvertPageLocalization.download,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        color: Colors.white,
+                      ),
+                ),
+              ],
+            ),
+          ),
+        );
+    }
   }
 }

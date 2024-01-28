@@ -39,10 +39,12 @@ class AddRowMergerRequestData extends AddRowRequestData {
     required super.fileSize,
     required this.fileIndex,
     required this.totalUpload,
+    required this.totalDuration,
   }) : super(feature: AppFeature.merger);
 
   final int fileIndex;
   final int totalUpload;
+  final Duration totalDuration;
 
   @override
   AddRowDto toDto() {
@@ -58,6 +60,7 @@ class AddRowMergerRequestData extends AddRowRequestData {
       fileSize: fileSize,
       fileIndex: fileIndex,
       totalUpload: totalUpload,
+      totalDuration: totalDuration,
     );
   }
 }
@@ -75,17 +78,20 @@ class MergerAddRowDto extends AddRowDto {
     required super.fileSize,
     required this.fileIndex,
     required this.totalUpload,
+    required this.totalDuration,
   });
 
   final int fileIndex;
   final int totalUpload;
-
+  final Duration totalDuration;
   @override
   Map<String, dynamic> toJson() {
     return {
       ...super.toJson(),
       "fileIndex": fileIndex,
       "totalUpload": totalUpload,
+      "duration": totalDuration.inMilliseconds / 1000,
+      "options": '{"from":0,"to":${totalDuration.inMilliseconds / 1000}',
     };
   }
 }

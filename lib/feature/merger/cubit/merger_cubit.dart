@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:mp3_convert/base_presentation/cubit/base_cubit.dart';
 import 'package:mp3_convert/data/data_result.dart';
 import 'package:mp3_convert/data/entity/app_file.dart';
@@ -26,10 +27,23 @@ class MergerCubit extends Cubit<MergerState> with SafeEmit implements MappingTyp
     //use socket to listen convert progress from server
     socketChannel
       ..onConverting(_convertListener)
-      ..onDisconnected(_onConvertingError);
+      ..onDisconnected(_onConvertingError)
+      ..onMerging(_meringListener);
 
     //use downloader to listen download progress from internet
     _downloaderHelper.startListen(_downloadListener);
+
+    stream.map((event) => event.files).listen((files) {
+      if (files?.every((f) => f is ConvertingFile) ?? false) {
+        emit(state.copyWith(status: MergeStatus.converting));
+        return;
+      }
+
+      if (files?.every((f) => f is UploadingFile) ?? false) {
+        emit(state.copyWith(status: MergeStatus.uploading));
+        return;
+      }
+    });
   }
 
   final GetMappingType _getMappingType = GetMappingType();
@@ -66,6 +80,21 @@ class MergerCubit extends Cubit<MergerState> with SafeEmit implements MappingTyp
     }
   }
 
+  Duration totalDuration = Duration.zero;
+
+  final _player = AudioPlayer();
+
+  Future _getTotalDuration() async {
+    // _files.fold(Duration.zero, (previousValue, element) => null)
+    totalDuration = Duration.zero;
+    for (var f in _files) {
+      var d = await _player.setFilePath(f.path);
+      if (d != null) {
+        totalDuration += d;
+      }
+    }
+  }
+
   @override
   Future<ListMediaType?> getMappingType(String sourceType) {
     return _getMappingType.getMappingType(sourceType);
@@ -87,9 +116,29 @@ class MergerCubit extends Cubit<MergerState> with SafeEmit implements MappingTyp
   void _refreshPickedFileState() {
     emit(state.copyWith(files: [...?state.files]));
   }
+
+  void cancelMerge() {
+    emit(state.clearStatus());
+  }
 }
 
 extension ConvertListener on MergerCubit {
+  void _meringListener(dynamic data) {
+    log("onMerge listener: ${data}");
+    if (data is Map) {
+      _updateMergingProgress(data);
+    } else if (data is String) {
+      try {
+        final decodeData = jsonDecode(data);
+        if (decodeData is Map) {
+          _updateMergingProgress(decodeData);
+        }
+      } catch (e) {
+        log("onMerge decode string error: $e");
+      }
+    }
+  }
+
   void _convertListener(dynamic data) {
     log("onConvert listener: ${data}");
     if (data is Map) {
@@ -111,13 +160,13 @@ extension ConvertListener on MergerCubit {
     int index = state.files?.indexWhere((f) => f is ConvertingFile && f.uploadId == convertData.uploadId) ?? -1;
     if (index > -1) {
       final file = state.files![index];
-      if (convertData.progress < 100 || convertData.downloadId == null) {
+      if (convertData.progress < 100) {
         state.files?[index] = (file as ConvertingFile).copyWith(
           convertProgress: convertData.progress / 100,
         );
       } else {
         state.files?[index] = ConvertedFile(
-          downloadId: convertData.downloadId!,
+          downloadId: '',
           name: file.name,
           path: file.path,
           destinationType: file.destinationType,
@@ -125,6 +174,15 @@ extension ConvertListener on MergerCubit {
       }
 
       _refreshPickedFileState();
+    }
+  }
+
+  void _updateMergingProgress(Map data) {
+    final mergeData = MergeData.fromMap(data);
+    if (mergeData.progress == 100 && mergeData.sessionId == _sessionId) {
+      print('LOL: hahaha');
+      emit(state.copyWith(status: MergeStatus.merged));
+      //startDownload();
     }
   }
 
@@ -203,6 +261,7 @@ extension MergerFileProcess on MergerCubit {
 
   void startMerger() async {
     _sessionId = generateString.getString();
+    await _getTotalDuration();
 
     for (int i = 0; i < _files.length; i++) {
       onAddRow(_files[i], i);
@@ -238,6 +297,7 @@ extension MergerFileProcess on MergerCubit {
         fileSize: FileStat.statSync(file.path).size,
         fileIndex: index,
         totalUpload: _files.length,
+        totalDuration: totalDuration,
       ),
     );
 
@@ -300,44 +360,30 @@ extension MergerFileProcess on MergerCubit {
   //download file
 
   void startDownload() {
-    // if (state.file is ConvertedFile) {
-    //   downloadConvertedFile((state.file as ConvertedFile).downloadId);
-    // }
+    downloadConvertedFile(_sessionId);
   }
 
   void downloadConvertedFile(String downloadId) async {
-    // final String path = await _getPath();
-    //
-    // final ConvertedFile file = state.file as ConvertedFile;
-    // final fileName = '${file.generateConvertFileName()}';
-    // final downloadPath = '$path/$fileName';
-    //
-    // final downloadingFile = DownloadingFile(
-    //   name: file.name,
-    //   path: file.path,
-    //   destinationType: file.destinationType,
-    //   downloadId: file.downloadId,
-    //   downloadProgress: .0,
-    //   downloadPath: downloadPath,
-    //   downloaderId: null,
-    // );
-    // emit(state.copyWith(file: downloadingFile));
-    //
-    // final downloadResult = await convertFileRepository.download(
-    //   DownloadRequestData(
-    //     downloadId: downloadId,
-    //     savePath: path,
-    //     fileName: fileName,
-    //   ),
-    // );
-    //
-    // switch (downloadResult) {
-    //   case SuccessDataResult<FailureEntity, String>():
-    //     final downloaderId = downloadResult.data;
-    //     emit(state.copyWith(file: downloadingFile.copyWith(downloaderId: downloaderId)));
-    //     break;
-    //   case FailureDataResult<FailureEntity, dynamic>():
-    // }
+    emit(state.copyWith(status: MergeStatus.downloading));
+
+    final String path = await _getPath();
+
+    final downloadResult = await convertFileRepository.download(
+      DownloadRequestData(
+        downloadId: downloadId,
+        savePath: path,
+        fileName: '$downloadId.${state.mediaType?.name ?? MergerState.defaultConvertType}',
+      ),
+    );
+
+    switch (downloadResult) {
+      case SuccessDataResult<FailureEntity, String>():
+        final downloaderId = downloadResult.data;
+        // emit(state.copyWith(file: downloadingFile.copyWith(downloaderId: downloaderId)));
+        break;
+      case FailureDataResult<FailureEntity, dynamic>():
+      //todo:
+    }
   }
 
   Future<String> _getPath() async {
@@ -350,25 +396,39 @@ class MergerState extends Equatable {
 
   final List<ConfigConvertFile>? files;
   final MediaType? mediaType;
+  final MergeStatus? status;
 
   const MergerState({
     this.files,
     this.mediaType,
+    this.status,
   });
 
   @override
   List<Object?> get props => [
         files.hashCode,
         mediaType,
+        status,
       ];
 
   MergerState copyWith({
     List<ConfigConvertFile>? files,
     MediaType? mediaType,
+    MergeStatus? status,
   }) {
     return MergerState(
       files: files ?? this.files,
       mediaType: mediaType ?? this.mediaType,
+      status: status ?? this.status,
+    );
+  }
+
+  MergerState clearStatus() {
+    return MergerState(
+      files: files?.map((f) => ConfigConvertFile(path: f.path, name: f.name)).toList(),
+      mediaType: mediaType,
     );
   }
 }
+
+enum MergeStatus { uploading, converting, merged, downloading, downloaded }
