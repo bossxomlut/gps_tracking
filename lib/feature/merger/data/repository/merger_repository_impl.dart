@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:mp3_convert/data/data_result.dart';
 import 'package:mp3_convert/data/entity/failure_entity.dart';
 import 'package:mp3_convert/data/entity/feature.dart';
@@ -91,7 +93,10 @@ class MergerAddRowDto extends AddRowDto {
       "fileIndex": fileIndex,
       "totalUpload": totalUpload,
       "duration": totalDuration.inMilliseconds / 1000,
-      "options": '{"from":0,"to":${totalDuration.inMilliseconds / 1000}',
+      "options": jsonEncode({
+        "from": 0,
+        "to": totalDuration.inMilliseconds / 1000,
+      }),
     };
   }
 }

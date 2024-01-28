@@ -46,7 +46,7 @@ class MergerCubit extends Cubit<MergerState> with SafeEmit implements MappingTyp
     });
   }
 
-  final GetMappingType _getMappingType = GetMappingType();
+  final MappingType _getMappingType = MergeMappingType();
 
   final DownloaderHelper _downloaderHelper = DownloaderHelper();
 
@@ -55,6 +55,13 @@ class MergerCubit extends Cubit<MergerState> with SafeEmit implements MappingTyp
   final GenerateString generateString = UUIDGenerateString();
 
   String _sessionId = '';
+
+  String get getFileName => _sessionId + '.${state.mediaType?.name}';
+  @override
+  Future<void> close() {
+    _downloaderHelper.dispose();
+    return super.close();
+  }
 
   void addFiles(Iterable<ConfigConvertFile> files) {
     emit(state.copyWith(files: [...?state.files, ...files]));
@@ -97,12 +104,12 @@ class MergerCubit extends Cubit<MergerState> with SafeEmit implements MappingTyp
 
   @override
   Future<ListMediaType?> getMappingType(String sourceType) {
-    return _getMappingType.getMappingType(sourceType);
+    return _getMappingType.getMappingType('sourceType');
   }
 
   @override
   Future<String?> getTypeName(String sourceType) {
-    return _getMappingType.getTypeName(sourceType);
+    return _getMappingType.getTypeName('sourceType');
   }
 
   void _setFileAtIndex(int index, ConfigConvertFile file) {
@@ -120,6 +127,16 @@ class MergerCubit extends Cubit<MergerState> with SafeEmit implements MappingTyp
   void cancelMerge() {
     emit(state.clearStatus());
   }
+
+  void setType(String name) {
+    emit(state.copyWith(mediaType: MediaType(name: name.toLowerCase())));
+  }
+
+  String? getDownloadPath() {
+    return _currentDownloadPath;
+  }
+
+  String _currentDownloadPath = '';
 }
 
 extension ConvertListener on MergerCubit {
@@ -206,34 +223,15 @@ extension DownloadListener on MergerCubit {
     int status = data[1];
     int progress = data[2];
     log("LOL: download listener progress: ${progress}");
-    // final f = state.file!;
-    // if (f is DownloadedFile) {
-    //   emit(state.copyWith(file: f));
-    //   return;
-    // }
-    // print('LOl: ${_checkIsDownloadingFile(f, id) || _checkIsDownloadingFileFromError(f, id)}');
-    //
-    // if (_checkIsDownloadingFile(f, id) || _checkIsDownloadingFileFromError(f, id)) {
-    //   final DownloadingFile file = _getDownloadingFile(f);
-    //
-    //   if (status == 4) {
-    //     emit(state.copyWith(file: ConvertErrorFile(convertStatusFile: f as ConvertStatusFile)));
-    //     return;
-    //   }
-    //
-    //   if (progress < 100) {
-    //     emit(state.copyWith(file: file.copyWith(downloadProgress: progress / 100)));
-    //   } else {
-    //     emit(state.copyWith(
-    //       file: DownloadedFile(
-    //         destinationType: file.destinationType,
-    //         path: file.path,
-    //         name: file.name,
-    //         downloadPath: file.downloadPath,
-    //       ),
-    //     ));
-    //   }
-    // }
+
+    if (progress < 100) {
+    } else {
+      log("LOL:  gooooo");
+
+      emit(state.copyWith(
+        status: MergeStatus.downloaded,
+      ));
+    }
   }
 
   // bool _checkIsDownloadingFile(ConfigConvertFile f, String id) {
@@ -372,13 +370,15 @@ extension MergerFileProcess on MergerCubit {
       DownloadRequestData(
         downloadId: downloadId,
         savePath: path,
-        fileName: '$downloadId.${state.mediaType?.name ?? MergerState.defaultConvertType}',
+        fileName: '$downloadId.${state.mediaType?.name}',
       ),
     );
 
     switch (downloadResult) {
       case SuccessDataResult<FailureEntity, String>():
         final downloaderId = downloadResult.data;
+        _currentDownloadPath = path + '/$downloadId.${state.mediaType?.name}';
+
         // emit(state.copyWith(file: downloadingFile.copyWith(downloaderId: downloaderId)));
         break;
       case FailureDataResult<FailureEntity, dynamic>():
@@ -400,7 +400,7 @@ class MergerState extends Equatable {
 
   const MergerState({
     this.files,
-    this.mediaType,
+    this.mediaType = const MediaType(name: defaultConvertType),
     this.status,
   });
 

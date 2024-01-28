@@ -3,7 +3,7 @@ import 'package:equatable/equatable.dart';
 class MediaType extends Equatable implements Comparable<MediaType> {
   final String name;
 
-  MediaType({required this.name});
+  const MediaType({required this.name});
 
   factory MediaType.fromString(String value) {
     return MediaType(name: value);

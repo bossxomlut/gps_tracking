@@ -1,19 +1,25 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mp3_convert/base_presentation/page/base_page.dart';
 import 'package:mp3_convert/base_presentation/view/view.dart';
+import 'package:mp3_convert/feature/convert/data/entity/media_type.dart';
 import 'package:mp3_convert/feature/convert/data/entity/setting_file.dart';
 import 'package:mp3_convert/feature/convert/widget/convert_status_widget.dart';
+import 'package:mp3_convert/feature/convert/widget/file_type_widget.dart';
 import 'package:mp3_convert/feature/merger/cubit/merger_cubit.dart';
 import 'package:mp3_convert/feature/setting/help_and_feedback_page.dart';
 import 'package:mp3_convert/resource/icon_path.dart';
 import 'package:mp3_convert/resource/string.dart';
 import 'package:mp3_convert/util/hardcode_string.dart';
 import 'package:mp3_convert/util/list_util.dart';
+import 'package:mp3_convert/util/show_snack_bar.dart';
+import 'package:mp3_convert/widget/button/button.dart';
 import 'package:mp3_convert/widget/empty_picker_widget.dart';
 import 'package:collection/collection.dart';
 import 'package:mp3_convert/widget/file_picker.dart';
 import 'package:mp3_convert/widget/image.dart';
+import 'package:open_file_plus/open_file_plus.dart';
 import 'package:share_plus/share_plus.dart';
 
 class MergerPage extends StatefulWidget {
@@ -53,17 +59,20 @@ class _MergerPageState extends SingleProviderBasePageState<MergerPage, MergerCub
     return BlocBuilder<MergerCubit, MergerState>(
       builder: (context, state) {
         if (state.files.isNotNullAndNotEmpty) {
-          return FloatingActionButton(
-            onPressed: () {
-              const AnyFilePicker(allowMultiple: true).opeFilePicker().then((files) {
-                if (files != null && files.isNotEmpty) {
-                  cubit.addFiles(files.map((f) => ConfigConvertFile(name: f.name, path: f.path)));
-                }
-              }).catchError((error) {
-                //todo: handle error if necessary
-              });
-            },
-            child: const Icon(Icons.add_circle_outline),
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 80),
+            child: FloatingActionButton(
+              onPressed: () {
+                const AnyFilePicker(allowMultiple: true).opeFilePicker().then((files) {
+                  if (files != null && files.isNotEmpty) {
+                    cubit.addFiles(files.map((f) => ConfigConvertFile(name: f.name, path: f.path)));
+                  }
+                }).catchError((error) {
+                  //todo: handle error if necessary
+                });
+              },
+              child: const Icon(Icons.add_circle_outline),
+            ),
           );
         }
 
@@ -118,14 +127,50 @@ class _ListFilesContentState extends State<_ListFilesContent> {
                 SafeArea(
                     minimum: const EdgeInsets.all(16),
                     child: Center(
-                      child: FilledButton(
-                        // style: FilledButton.styleFrom(
-                        //   backgroundColor: Color(0xfff25d17),
-                        // ),
-                        child: Text("Start merge".hardCode),
-                        onPressed: () {
-                          context.read<MergerCubit>().startMerger();
-                        },
+                      child: Row(
+                        children: [
+                          LoadingButton(
+                            child: Text(state.mediaType != null ? state.mediaType!.name : "Choose"),
+                            onTap: () async {
+                              final listMediaType = await context.read<MergerCubit>().getMappingType('');
+                              if (mounted) {
+                                if (listMediaType == null) {
+                                  ShowSnackBar.showError(context, message: ConvertPageLocalization.haveError.tr());
+
+                                  return;
+                                }
+                                final type = state.mediaType;
+
+                                ListMediaTypeWidget(
+                                  showApplyAll: false,
+                                  typeList: listMediaType!,
+                                  initList: type != null ? [MediaType(name: type.name!.toUpperCase())] : null,
+                                  onApplyAll: (destinationType) {
+                                    // widget.onSelectDestinationTypeForAll(destinationType.first.name);
+                                  },
+                                ).showBottomSheet(context).then((destinationType) {
+                                  if (destinationType != null) {
+                                    if (destinationType.isNotEmpty) {
+                                      context.read<MergerCubit>().setType(destinationType.first.name);
+                                    }
+                                  }
+                                });
+                              }
+                            },
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: FilledButton(
+                              // style: FilledButton.styleFrom(
+                              //   backgroundColor: Color(0xfff25d17),
+                              // ),
+                              child: Text("Start merge".hardCode),
+                              onPressed: () {
+                                context.read<MergerCubit>().startMerger();
+                              },
+                            ),
+                          ),
+                        ],
                       ),
                     )),
               ],
@@ -136,6 +181,7 @@ class _ListFilesContentState extends State<_ListFilesContent> {
           selector: (state) => state.status,
           builder: (context, status) {
             if (status != null) {
+              print('status merge: ${status}');
               return Container(
                 color: Colors.white.withOpacity(0.2),
                 alignment: Alignment.center,
@@ -208,20 +254,14 @@ class _ListFilesContentState extends State<_ListFilesContent> {
             Text(_getProgressString(status)),
           ],
         );
-      case MergeStatus.downloading:
-        return Row(
-          children: [
-            CircularProgressIndicator(strokeWidth: 2),
-            const SizedBox(width: 20),
-            Text(_getProgressString(status)),
-          ],
-        );
       case MergeStatus.downloaded:
         return Row(
           children: [
             Expanded(
               child: ElevatedButton(
-                onPressed: () {},
+                onPressed: () {
+                  OpenFile.open(context.read<MergerCubit>().getDownloadPath());
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Theme.of(context).primaryColor,
                   textStyle: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -249,9 +289,20 @@ class _ListFilesContentState extends State<_ListFilesContent> {
             ),
           ],
         );
+      case MergeStatus.downloading:
+        return Row(
+          children: [
+            CircularProgressIndicator(strokeWidth: 2),
+            const SizedBox(width: 20),
+            Text(_getProgressString(status)),
+          ],
+        );
+
       case MergeStatus.merged:
         return ElevatedButton(
-          onPressed: () {},
+          onPressed: () {
+            context.read<MergerCubit>().startDownload();
+          },
           style: ElevatedButton.styleFrom(
             backgroundColor: Theme.of(context).primaryColor,
             textStyle: Theme.of(context).textTheme.titleMedium?.copyWith(

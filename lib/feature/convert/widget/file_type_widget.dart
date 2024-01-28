@@ -11,11 +11,13 @@ class ListMediaTypeWidget extends StatefulWidget with ShowBottomSheet<List<Media
     required this.typeList,
     this.initList,
     this.onApplyAll,
+    this.showApplyAll = true,
   }) : super(key: key);
 
   final ListMediaType typeList;
   final List<MediaType>? initList;
   final ValueChanged<List<MediaType>>? onApplyAll;
+  final bool showApplyAll;
 
   @override
   State<ListMediaTypeWidget> createState() => _ListMediaTypeWidgetState();
@@ -95,14 +97,15 @@ class _ListMediaTypeWidgetState extends State<ListMediaTypeWidget> {
           child: Row(
             children: [
               const SizedBox(width: 16),
-              Expanded(
-                  child: FilledButton(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                        widget.onApplyAll?.call([...selected]);
-                      },
-                      child: LText(ConvertPageLocalization.applyAll))),
-              const SizedBox(width: 12),
+              if (widget.showApplyAll)
+                Expanded(
+                    child: FilledButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                          widget.onApplyAll?.call([...selected]);
+                        },
+                        child: LText(ConvertPageLocalization.applyAll))),
+              if (widget.showApplyAll) const SizedBox(width: 12),
               Expanded(
                   child: OutlinedButton(
                       onPressed: () {
