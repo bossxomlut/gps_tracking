@@ -277,7 +277,9 @@ class _ListFilesContentState extends State<_ListFilesContent> {
                             color: Colors.transparent,
                             child: LText(
                               MergerPageLocalization.cancel,
-                              style: Theme.of(context).textTheme.labelLarge,
+                              style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                                    color: Theme.of(context).buttonTheme.colorScheme?.primary,
+                                  ),
                             ),
                           ),
                         ),
