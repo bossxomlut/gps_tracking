@@ -42,5 +42,12 @@
         "auto_download": "Auto download",
         "select_convert_type": "Select convert type",
         "apply_all": "Apply all"
+    },
+    "cutter_page": {
+        "start_cut": "Start cut",
+        "remove_selection": "Remove selection",
+        "convert_type": "Convert type",
+        "from": "From",
+        "to": "to"
     }
 }

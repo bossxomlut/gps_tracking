@@ -69,6 +69,9 @@ class MenuPage extends BasePage {
                         backgroundColor: const Color(0xfffd4da8),
                       ),
                       CutMenuButton(
+                        onTap: () {
+                          AppNavigator.to(GetAudioCutterPage());
+                        },
                         icon: IconPath.cut,
                         titleKey: CommonLocalization.cutter,
                         backgroundColor: const Color(0xfff39565),

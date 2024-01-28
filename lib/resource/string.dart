@@ -77,3 +77,13 @@ class ConvertPageLocalization {
 
   static String get applyAll => "${prefix}apply_all";
 }
+
+class CutterPageLocalization {
+  static String get prefix => "cutter_page.";
+
+  static String get startCut => "${prefix}start_cut";
+  static String get removeSelection => "${prefix}remove_selection";
+  static String get convertType => "${prefix}convert_type";
+  static String get from => "${prefix}from";
+  static String get to => "${prefix}to";
+}
