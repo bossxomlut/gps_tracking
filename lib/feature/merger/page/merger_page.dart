@@ -99,18 +99,77 @@ class _ListFilesContentState extends State<_ListFilesContent> {
             return Column(
               mainAxisSize: MainAxisSize.max,
               children: [
+                // Expanded(
+                //   child: Padding(
+                //     padding: const EdgeInsets.all(16),
+                //     child: Column(
+                //       children: [
+                //         ...?state.files?.map((f) => Container(
+                //               padding: EdgeInsets.all(16),
+                //               alignment: Alignment.centerLeft,
+                //               decoration: BoxDecoration(
+                //                 color: Theme.of(context).splashColor,
+                //               ),
+                //               child: ColumnStart(
+                //                 children: [
+                //                   Text(
+                //                     f.name,
+                //                     style: Theme.of(context).textTheme.bodyLarge,
+                //                   ),
+                //                   if (f is ConvertStatusFile) ConvertStatusWidget(convertFile: f, onDownload: (_) {}),
+                //                 ],
+                //               ),
+                //             )),
+                //       ],
+                //     ),
+                //   ),
+                // ),
                 Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      children: [
-                        ...?state.files?.map((f) => Container(
-                              padding: EdgeInsets.all(16),
-                              alignment: Alignment.centerLeft,
-                              decoration: BoxDecoration(
-                                color: Theme.of(context).splashColor,
-                              ),
-                              child: ColumnStart(
+                  child: ReorderableListView.builder(
+                    itemBuilder: (context, index) {
+                      final f = state.files![index];
+                      return Dismissible(
+                        key: ObjectKey(f),
+                        direction: DismissDirection.endToStart,
+                        background: ColoredBox(
+                          color: const Color(0xFFf44234).withOpacity(0.7),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            child: Row(
+                              children: [
+                                const Icon(Icons.delete),
+                                const SizedBox(width: 4),
+                                LText(ConvertPageLocalization.delete),
+                              ],
+                            ),
+                          ),
+                        ),
+                        secondaryBackground: ColoredBox(
+                          color: const Color(0xFFf44234).withOpacity(0.7),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            child: Row(
+                              children: [
+                                const Spacer(),
+                                const Icon(Icons.delete),
+                                const SizedBox(width: 4),
+                                LText(ConvertPageLocalization.delete),
+                              ],
+                            ),
+                          ),
+                        ),
+                        child: Container(
+                          padding: EdgeInsets.all(16),
+                          alignment: Alignment.centerLeft,
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).splashColor,
+                            border: Border(
+                              bottom: BorderSide(width: 1, color: Colors.white12),
+                            ),
+                          ),
+                          child: Column(
+                            children: [
+                              ColumnStart(
                                 children: [
                                   Text(
                                     f.name,
@@ -119,9 +178,18 @@ class _ListFilesContentState extends State<_ListFilesContent> {
                                   if (f is ConvertStatusFile) ConvertStatusWidget(convertFile: f, onDownload: (_) {}),
                                 ],
                               ),
-                            )),
-                      ],
-                    ),
+                            ],
+                          ),
+                        ),
+                        onDismissed: (direction) {
+                          context.read<MergerCubit>().removeFileByIndex(index);
+                        },
+                      );
+                    },
+                    itemCount: state.files?.length ?? 0,
+                    onReorder: (oldIndex, newIndex) {
+                      context.read<MergerCubit>().onReorder(oldIndex, newIndex);
+                    },
                   ),
                 ),
                 SafeArea(
@@ -189,8 +257,8 @@ class _ListFilesContentState extends State<_ListFilesContent> {
                 alignment: Alignment.center,
                 child: Container(
                   width: double.maxFinite,
-                  margin: EdgeInsets.all(32),
-                  padding: EdgeInsets.all(16),
+                  margin: const EdgeInsets.all(32),
+                  padding: const EdgeInsets.all(16),
                   decoration:
                       BoxDecoration(color: Theme.of(context).primaryColorDark, borderRadius: BorderRadius.circular(8)),
                   child: ColumnStart(
@@ -243,7 +311,7 @@ class _ListFilesContentState extends State<_ListFilesContent> {
       case MergeStatus.uploading:
         return Row(
           children: [
-            CircularProgressIndicator(strokeWidth: 2),
+            const CircularProgressIndicator(strokeWidth: 2),
             const SizedBox(width: 20),
             Text(_getProgressString(status)),
           ],
@@ -251,7 +319,7 @@ class _ListFilesContentState extends State<_ListFilesContent> {
       case MergeStatus.converting:
         return Row(
           children: [
-            CircularProgressIndicator(strokeWidth: 2),
+            const CircularProgressIndicator(strokeWidth: 2),
             const SizedBox(width: 20),
             Text(_getProgressString(status)),
           ],
@@ -284,9 +352,9 @@ class _ListFilesContentState extends State<_ListFilesContent> {
               onPressed: () {
                 // Share.shareXFiles([XFile((convertFile as DownloadedFile).downloadPath)]);
               },
-              icon: CircleAvatar(
+              icon: const CircleAvatar(
                 minRadius: 20,
-                child: const Icon(Icons.share),
+                child: Icon(Icons.share),
               ),
             ),
           ],
@@ -294,7 +362,7 @@ class _ListFilesContentState extends State<_ListFilesContent> {
       case MergeStatus.downloading:
         return Row(
           children: [
-            CircularProgressIndicator(strokeWidth: 2),
+            const CircularProgressIndicator(strokeWidth: 2),
             const SizedBox(width: 20),
             Text(_getProgressString(status)),
           ],

@@ -137,6 +137,20 @@ class MergerCubit extends Cubit<MergerState> with SafeEmit implements MappingTyp
   }
 
   String _currentDownloadPath = '';
+
+  void onReorder(int oldIndex, int newIndex) {
+    if (newIndex > oldIndex) {
+      newIndex -= 1;
+    }
+
+    final items = state.files?[oldIndex];
+
+    final reorderedList = List.of(_files)
+      ..removeWhere((element) => element.hashCode == items.hashCode)
+      ..insert(newIndex, items!);
+
+    emit(state.copyWith(files: [...reorderedList]));
+  }
 }
 
 extension ConvertListener on MergerCubit {
