@@ -4,7 +4,14 @@ import 'package:mp3_convert/data/data_result.dart';
 import 'package:mp3_convert/data/entity/failure_entity.dart';
 import 'package:mp3_convert/data/entity/feature.dart';
 import 'package:mp3_convert/feature/convert/data/data_source/file_data_source.dart';
+import 'package:mp3_convert/feature/convert/data/data_source/file_data_source_impl.dart';
 import 'package:mp3_convert/feature/convert/data/repository/convert_file_repository.dart';
+import 'package:mp3_convert/feature/convert/data/repository/convert_file_repository_impl.dart';
+import 'package:mp3_convert/feature/cutter/data/data_source/cuttern_file_data_source_impl.dart';
+
+class CutterFileRepositoryImpl extends ConvertFileRepositoryImpl {
+  CutterFileRepositoryImpl() : super(fileDataSource: CutterFileDataSourceImpl());
+}
 
 class AddRowCutterRequestData extends AddRowRequestData {
   AddRowCutterRequestData({

@@ -17,8 +17,8 @@ import 'package:mp3_convert/feature/convert/data/entity/media_type.dart';
 import 'package:mp3_convert/feature/convert/data/entity/setting_file.dart';
 import 'package:mp3_convert/feature/convert/data/repository/convert_file_repository.dart';
 import 'package:mp3_convert/feature/convert/data/repository/convert_file_repository_impl.dart';
-import 'package:mp3_convert/feature/cutter/data/cutter_file_repository.dart';
-import 'package:mp3_convert/feature/cutter/data/cutter_file_repository_impl.dart';
+import 'package:mp3_convert/feature/cutter/data/repository/cutter_file_repository.dart';
+import 'package:mp3_convert/feature/cutter/data/repository/cutter_file_repository_impl.dart';
 import 'package:mp3_convert/main.dart';
 import 'package:mp3_convert/util/downloader_util.dart';
 import 'package:mp3_convert/util/generate_string.dart';
@@ -33,7 +33,9 @@ class CutterCubit extends Cubit<CutterState> with SafeEmit implements MappingTyp
     //use downloader to listen download progress from internet
     _downloaderHelper.startListen(_downloadListener);
   }
+
   final GetMappingType _getMappingType = GetMappingType();
+
   String get currentFileType => state.file?.type ?? '';
 
   String? get destinationType => state.destinationType;

@@ -60,7 +60,3 @@ class ConvertFileRepositoryImpl extends ConvertFileRepository {
     });
   }
 }
-
-class CutterFileRepositoryImpl extends ConvertFileRepositoryImpl {
-  CutterFileRepositoryImpl() : super(fileDataSource: CutterFileDataSourceImpl());
-}
