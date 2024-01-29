@@ -1,6 +1,7 @@
+import 'dart:developer';
+
 import 'package:mp3_convert/internet_connect/http_request/api.dart';
 import 'package:mp3_convert/internet_connect/http_request/api_response.dart';
-import 'package:mp3_convert/util/parse_util.dart';
 
 class RemoteConfig {
   RemoteConfig._();
@@ -9,26 +10,44 @@ class RemoteConfig {
 
   factory RemoteConfig() => _instance;
 
-  static const String _defaultGateway = "https://cdndl.xyz/media/sv1";
-  static const int _defaultMaxSubmitFile = 5;
-  static const int _defaultMaxSizePerFile = 200000000;
+  static const String _serverKey = 'server';
+  static const String _limitFileKey = 'limitFile';
+  static const String _maxLengthKey = 'maxLength';
 
-  String _server = _defaultGateway;
-  int _limitFile = _defaultMaxSubmitFile;
-  int _maxLength = _defaultMaxSizePerFile;
+  static const Map<String, dynamic> _configDefaultData = {
+    _serverKey: "https://cdndl.xyz/media/sv1",
+    _limitFileKey: 5,
+    _maxLengthKey: 200000000,
+  };
 
-  String get server => _server;
-  int get limitFile => _limitFile;
-  int get maxLength => _maxLength;
+  Map<String, dynamic> _configData = _configDefaultData;
+
+  String get server => _getValue<String>(_serverKey);
+  int get limitFile => _getValue<int>(_limitFileKey);
+  int get maxLength => _getValue<int>(_maxLengthKey);
+
+  T _getValue<T>(String key) {
+    final defaultValue = _configDefaultData[key];
+
+    assert(defaultValue != null);
+    assert(defaultValue.runtimeType != T);
+
+    final configValue = _configData[key];
+
+    if (configValue == null || configValue.runtimeType != T) {
+      _configData[key] = defaultValue;
+      return defaultValue;
+    }
+
+    return configValue;
+  }
 
   Future getRemoteConfig() async {
     try {
-      final response = await _GetRemoteConfigGateway().get('');
-      _updateConfigurations(response);
-      return response;
+      await _GetRemoteConfigGateway().get('').then(_updateConfigurations);
+      log("getRemoteConfig: done");
     } catch (e) {
-      // Handle errors appropriately (e.g., logging, notification).
-      return null;
+      log("getRemoteConfig: have an error");
     }
   }
 
@@ -36,39 +55,15 @@ class RemoteConfig {
     switch (response) {
       case SuccessApiResponse():
         try {
-          final RemoteConfigData responseData = RemoteConfigData.fromMap(response.data as Map);
-          _updateServer(responseData.server);
-          _updateLimitFile(responseData.limitFile);
-          _updateMaxLength(responseData.maxLength);
+          _configData = response.data as Map<String, dynamic>;
         } catch (e) {
-          // Handle parsing errors appropriately (e.g., logging).
+          log("getRemoteConfig - remote config data is not mapping type");
         }
         break;
       case FailureApiResponse():
       case InternetErrorResponse():
-        // Handle failure or internet error cases.
-        break;
       default:
-        // Handle unexpected response cases.
         break;
-    }
-  }
-
-  void _updateServer(String? newServer) {
-    if (newServer != null) {
-      _server = newServer;
-    }
-  }
-
-  void _updateLimitFile(int? newLimitFile) {
-    if (newLimitFile != null) {
-      _limitFile = newLimitFile;
-    }
-  }
-
-  void _updateMaxLength(int? newMaxLength) {
-    if (newMaxLength != null) {
-      _maxLength = newMaxLength;
     }
   }
 }
@@ -76,24 +71,4 @@ class RemoteConfig {
 class _GetRemoteConfigGateway extends ApiRequestWrapper {
   @override
   String get domainName => 'https://cdndl.xyz/config/get-server-yt';
-}
-
-class RemoteConfigData {
-  final String? server;
-  final int? limitFile;
-  final int? maxLength;
-
-  RemoteConfigData({
-    this.server,
-    this.limitFile,
-    this.maxLength,
-  });
-
-  factory RemoteConfigData.fromMap(Map map) {
-    return RemoteConfigData(
-      server: map["server"]?.toString(),
-      limitFile: map["limitFile"]?.toString().parseInt(),
-      maxLength: map["maxLength"]?.toString().parseInt(),
-    );
-  }
 }
