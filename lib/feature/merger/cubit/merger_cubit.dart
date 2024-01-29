@@ -23,6 +23,7 @@ import 'package:mp3_convert/internet_connect/socket/socket.dart';
 import 'package:mp3_convert/main.dart';
 import 'package:mp3_convert/util/downloader_util.dart';
 import 'package:mp3_convert/util/generate_string.dart';
+import 'package:mp3_convert/util/list_util.dart';
 
 class MergerCubit extends Cubit<MergerState> with SafeEmit implements MappingType {
   MergerCubit() : super(const MergerState()) {
@@ -37,20 +38,22 @@ class MergerCubit extends Cubit<MergerState> with SafeEmit implements MappingTyp
     _downloaderHelper.startListen(_downloadListener);
 
     stream.map((event) => event.files).listen((files) {
-      if (files?.every((f) => f is ConvertingFile) ?? false) {
-        emit(state.copyWith(status: MergeStatus.converting));
-        return;
-      }
-
-      if (files?.every((f) => f is UploadingFile) ?? false) {
-        emit(state.copyWith(status: MergeStatus.uploading));
-        return;
-      }
-
-      if ((state.status?.index ?? -1) < MergeStatus.merged.index) {
-        if (files?.every((f) => f is ConvertedFile) ?? false) {
-          emit(state.copyWith(status: MergeStatus.merging));
+      if (files.isNotNullAndNotEmpty && files!.length > 1) {
+        if (files.every((f) => f is ConvertingFile)) {
+          emit(state.copyWith(status: MergeStatus.converting));
           return;
+        }
+
+        if (files.every((f) => f is UploadingFile)) {
+          emit(state.copyWith(status: MergeStatus.uploading));
+          return;
+        }
+
+        if ((state.status?.index ?? -1) < MergeStatus.merged.index) {
+          if (files.every((f) => f is ConvertedFile)) {
+            emit(state.copyWith(status: MergeStatus.merging));
+            return;
+          }
         }
       }
     });

@@ -14,6 +14,7 @@ import 'package:mp3_convert/resource/icon_path.dart';
 import 'package:mp3_convert/resource/string.dart';
 import 'package:mp3_convert/util/hardcode_string.dart';
 import 'package:mp3_convert/util/list_util.dart';
+import 'package:mp3_convert/util/reduce_text.dart';
 import 'package:mp3_convert/util/show_snack_bar.dart';
 import 'package:mp3_convert/widget/button/button.dart';
 import 'package:mp3_convert/widget/empty_picker_widget.dart';
@@ -64,6 +65,9 @@ class _MergerPageState extends SingleProviderBasePageState<MergerPage, MergerCub
     return BlocBuilder<MergerCubit, MergerState>(
       builder: (context, state) {
         if (state.files.isNotNullAndNotEmpty) {
+          if (state.files!.any((f) => f is ConvertStatusFile)) {
+            return const SizedBox();
+          }
           return Padding(
             padding: const EdgeInsets.only(bottom: 80),
             child: FloatingActionButton(
@@ -104,31 +108,6 @@ class _ListFilesContentState extends State<_ListFilesContent> {
             return Column(
               mainAxisSize: MainAxisSize.max,
               children: [
-                // Expanded(
-                //   child: Padding(
-                //     padding: const EdgeInsets.all(16),
-                //     child: Column(
-                //       children: [
-                //         ...?state.files?.map((f) => Container(
-                //               padding: EdgeInsets.all(16),
-                //               alignment: Alignment.centerLeft,
-                //               decoration: BoxDecoration(
-                //                 color: Theme.of(context).splashColor,
-                //               ),
-                //               child: ColumnStart(
-                //                 children: [
-                //                   Text(
-                //                     f.name,
-                //                     style: Theme.of(context).textTheme.bodyLarge,
-                //                   ),
-                //                   if (f is ConvertStatusFile) ConvertStatusWidget(convertFile: f, onDownload: (_) {}),
-                //                 ],
-                //               ),
-                //             )),
-                //       ],
-                //     ),
-                //   ),
-                // ),
                 Expanded(
                   child: ReorderableListView.builder(
                     itemBuilder: (context, index) {
@@ -176,9 +155,16 @@ class _ListFilesContentState extends State<_ListFilesContent> {
                             children: [
                               ColumnStart(
                                 children: [
-                                  Text(
-                                    f.name,
-                                    style: Theme.of(context).textTheme.bodyLarge,
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          reduceText(f.name, maxLength: 20),
+                                          style: Theme.of(context).textTheme.bodyLarge,
+                                        ),
+                                      ),
+                                      const Icon(Icons.drag_handle),
+                                    ],
                                   ),
                                   if (f is ConvertStatusFile) MergerStatusWidget(convertFile: f, onDownload: (_) {}),
                                 ],
