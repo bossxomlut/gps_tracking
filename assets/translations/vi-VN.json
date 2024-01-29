@@ -42,12 +42,22 @@
         "select_convert_type": "Chọn kiểu chuyển đổi",
         "apply_all": "Áp dụng tất cả"
     },
-
     "cutter_page": {
         "start_cut": "Bắt đầu cắt",
         "remove_selection": "Xoá chọn",
         "convert_type": "Kiểu chuyển đổi",
         "from": "Từ",
         "to": "đến"
+    },
+    "merger_page": {
+        "converted": "Đã chuyển đổi",
+        "cancel": "Huỷ",
+        "start_merge": "Bắt đầu hợp nhất",
+        "please_wait": "Vui lòng đợi",
+        "complete": "Hoàn thành",
+        "in_progress_upload": "Đang tải lên...",
+        "in_progress_convert": "Đang chuyển đổi...",
+        "in_progress_download": "Đang tải xuống...",
+        "in_progress_merge": "Đang hợp nhất..."
     }
 }

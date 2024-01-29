@@ -77,6 +77,9 @@ class MenuPage extends BasePage {
                         backgroundColor: const Color(0xfff39565),
                       ),
                       FeatureMenuButton(
+                        onTap: () {
+                          AppNavigator.to(GetMergerPage());
+                        },
                         icon: IconPath.merger,
                         titleKey: CommonLocalization.merger,
                         backgroundColor: const Color(0xff308ad5),
@@ -132,16 +135,16 @@ class CutMenuButton extends FeatureMenuButton {
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         color: color,
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            color,
-            color.withOpacity(0.7),
-            color.withOpacity(0.5),
-            color.withOpacity(0.3),
-          ],
-        ),
+        // gradient: LinearGradient(
+        //   begin: Alignment.topLeft,
+        //   end: Alignment.bottomRight,
+        //   colors: [
+        //     color,
+        //     color.withOpacity(0.7),
+        //     color.withOpacity(0.5),
+        //     color.withOpacity(0.3),
+        //   ],
+        // ),
       ),
       child: const Icon(
         Icons.cut,
@@ -200,16 +203,16 @@ class FeatureMenuButton extends StatelessWidget {
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         color: color,
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            color,
-            color.withOpacity(0.7),
-            color.withOpacity(0.5),
-            color.withOpacity(0.3),
-          ],
-        ),
+        // gradient: LinearGradient(
+        //   begin: Alignment.topLeft,
+        //   end: Alignment.bottomRight,
+        //   colors: [
+        //     color,
+        //     color.withOpacity(0.7),
+        //     color.withOpacity(0.5),
+        //     color.withOpacity(0.3),
+        //   ],
+        // ),
       ),
       child: AppImage.svg(
         icon,

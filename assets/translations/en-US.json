@@ -49,5 +49,16 @@
         "convert_type": "Convert type",
         "from": "From",
         "to": "to"
+    },
+    "merger_page": {
+        "converted": "Converted",
+        "cancel": "Cancel",
+        "start_merge": "Start merge",
+        "please_wait": "Please wait",
+        "complete": "Completed",
+        "in_progress_upload": "Progressing in upload...",
+        "in_progress_convert": "Progressing in convert...",
+        "in_progress_download": "Progressing in download...",
+        "in_progress_merge": "Progressing in merge..."
     }
 }

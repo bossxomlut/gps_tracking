@@ -11,6 +11,8 @@ import 'file_data_source.dart';
 class FileDataSourceImpl extends FileDataSource {
   late final ApiRequestWrapper _apiRequestWrapper;
 
+  ApiRequestWrapper get apiRequestWrapper => _apiRequestWrapper;
+
   FileDataSourceImpl({ApiRequestWrapper? apiRequestWrapper}) {
     _apiRequestWrapper = apiRequestWrapper ?? di.get<UploadApiRequest>();
   }
@@ -46,26 +48,6 @@ class FileDataSourceImpl extends FileDataSource {
 
     return _apiRequestWrapper.post(
       "/api/upload/uploadFile",
-      data: formData,
-      headers: {
-        "Fb-X-Token": dto.uploadId,
-      },
-    );
-  }
-}
-
-class CutterFileDataSourceImpl extends FileDataSourceImpl {
-  @override
-  Future<ApiResponse> uploadFile(UploadFileDto dto) async {
-    FormData formData = FormData.fromMap({
-      'file': await MultipartFile.fromFile(
-        dto.filePath,
-        filename: dto.fileName,
-      ),
-    });
-
-    return _apiRequestWrapper.post(
-      "/api/cutter/upload",
       data: formData,
       headers: {
         "Fb-X-Token": dto.uploadId,

@@ -19,3 +19,17 @@ class ConvertData {
     );
   }
 }
+
+class MergeData {
+  final String sessionId;
+  final double progress;
+
+  MergeData({required this.sessionId, required this.progress});
+
+  factory MergeData.fromMap(Map map) {
+    return MergeData(
+      sessionId: map["sessionId"].toString(),
+      progress: map["percent"].toString().parseDouble() ?? 0.0,
+    );
+  }
+}

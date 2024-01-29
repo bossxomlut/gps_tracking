@@ -57,6 +57,10 @@ class ConvertChannel extends SocketChannel {
   void onConverting(Function(dynamic data) onListen) {
     _socket.on("converting", onListen);
   }
+
+  void onMerging(Function(dynamic data) onListen) {
+    _socket.on("merging", onListen);
+  }
 }
 //
 // socket.onConnect((data) {
