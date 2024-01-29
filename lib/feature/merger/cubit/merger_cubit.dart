@@ -28,11 +28,7 @@ import 'package:mp3_convert/util/list_util.dart';
 class MergerCubit extends Cubit<MergerState> with SafeEmit implements MappingType {
   MergerCubit() : super(const MergerState()) {
     //use socket to listen convert progress from server
-    _socketChannel
-      ..startConnection()
-      ..onConverting(_convertListener)
-      ..onDisconnected(_onConvertingError)
-      ..onMerging(_meringListener);
+    _socketListener();
 
     //use downloader to listen download progress from internet
     _downloaderHelper.startListen(_downloadListener);
@@ -60,6 +56,17 @@ class MergerCubit extends Cubit<MergerState> with SafeEmit implements MappingTyp
   }
 
   final _socketChannel = MergerChannel(convertSocketChannelUrl);
+
+  void _socketListener() {
+    _socketChannel
+      ..startConnection()
+      ..onConverting(_convertListener)
+      ..onDisconnected(_onConvertingError)
+      ..onMerging(_meringListener)
+      ..onConnected((_) {
+        emit(state.copyWith(canMerge: true));
+      });
+  }
 
   final MappingType _getMappingType = MergeMappingType();
 
@@ -141,7 +148,9 @@ class MergerCubit extends Cubit<MergerState> with SafeEmit implements MappingTyp
   }
 
   void cancelMerge() {
+    _socketChannel.clearListenersAndClose();
     emit(state.clearStatus());
+    _socketListener();
   }
 
   void setType(String name) {
@@ -424,11 +433,13 @@ class MergerState extends Equatable {
   final List<ConfigConvertFile>? files;
   final MediaType? mediaType;
   final MergeStatus? status;
+  final bool canMerge;
 
   const MergerState({
     this.files,
     this.mediaType = const MediaType(name: defaultConvertType),
     this.status,
+    this.canMerge = false,
   });
 
   @override
@@ -436,17 +447,20 @@ class MergerState extends Equatable {
         files.hashCode,
         mediaType,
         status,
+        canMerge,
       ];
 
   MergerState copyWith({
     List<ConfigConvertFile>? files,
     MediaType? mediaType,
     MergeStatus? status,
+    bool? canMerge,
   }) {
     return MergerState(
       files: files ?? this.files,
       mediaType: mediaType ?? this.mediaType,
       status: status ?? this.status,
+      canMerge: canMerge ?? this.canMerge,
     );
   }
 
@@ -454,6 +468,7 @@ class MergerState extends Equatable {
     return MergerState(
       files: files?.map((f) => ConfigConvertFile(path: f.path, name: f.name)).toList(),
       mediaType: mediaType,
+      canMerge: false,
     );
   }
 }

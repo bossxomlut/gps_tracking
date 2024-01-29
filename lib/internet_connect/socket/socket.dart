@@ -45,6 +45,24 @@ class SocketChannel {
       callBack(data);
     });
   }
+
+  void onConnected(Function(dynamic data) callBack) {
+    _socket.onConnect((data) {
+      log("socket io.onConnect: ${data}");
+      callBack(data);
+    });
+  }
+
+  void onClose(Function(dynamic data) callBack) {
+    _socket.onclose((data) {
+      log("socket io.onClose: ${data}");
+      callBack(data);
+    });
+  }
+
+  void clearListenersAndClose() {
+    close();
+  }
 }
 
 class ConvertChannel extends SocketChannel {

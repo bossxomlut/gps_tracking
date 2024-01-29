@@ -223,7 +223,7 @@ class _ListFilesContentState extends State<_ListFilesContent> {
                               // style: FilledButton.styleFrom(
                               //   backgroundColor: Color(0xfff25d17),
                               // ),
-                              onPressed: (state.files?.length ?? 0) > 1
+                              onPressed: (state.files?.length ?? 0) > 1 && state.canMerge
                                   ? () {
                                       context.read<MergerCubit>().startMerger();
                                     }
