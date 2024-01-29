@@ -16,12 +16,6 @@ class SocketChannel {
     );
   }
 
-  final _outerStreamSubject = BehaviorSubject<dynamic>();
-
-  Stream<dynamic> get stream => _outerStreamSubject.stream;
-
-  StreamSubscription? _streamSubscription;
-
   void startConnection() {
     _socket.connect();
   }
@@ -32,8 +26,8 @@ class SocketChannel {
 
   void close() {
     log("close connect to socket server");
-    _streamSubscription?.pause();
-    _streamSubscription = null;
+    _socket.clearListeners();
+    _socket.close();
   }
 
   String? get socketId => _getSocketId();
