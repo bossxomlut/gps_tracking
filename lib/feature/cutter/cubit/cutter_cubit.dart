@@ -68,7 +68,7 @@ class CutterCubit extends Cubit<CutterState> with SafeEmit implements MappingTyp
         file: ConfigConvertFile(
           name: file.name,
           path: file.path,
-          destinationType: file.type,
+          destinationType: file.type.toLowerCase(),
         ),
       ),
     );
