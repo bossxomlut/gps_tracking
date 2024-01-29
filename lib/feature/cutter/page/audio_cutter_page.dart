@@ -11,6 +11,7 @@ import 'package:mp3_convert/feature/convert/data/entity/media_type.dart';
 import 'package:mp3_convert/feature/convert/data/entity/setting_file.dart';
 import 'package:mp3_convert/feature/convert/widget/convert_status_widget.dart';
 import 'package:mp3_convert/feature/convert/widget/file_type_widget.dart';
+import 'package:mp3_convert/feature/convert/widget/setting_convert_icon.dart';
 import 'package:mp3_convert/feature/cutter/cubit/cutter_cubit.dart';
 import 'package:mp3_convert/feature/cutter/load_audio_data.dart';
 import 'package:mp3_convert/feature/cutter/waveform/get_wave_form.dart';
@@ -51,6 +52,9 @@ class _AudioCutterPageState extends SingleProviderBasePageState<AudioCutterPage,
           Navigator.of(context).pop();
         },
       ),
+      actions: const [
+        SettingConvertIcon(),
+      ],
     );
   }
 

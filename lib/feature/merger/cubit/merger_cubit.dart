@@ -10,6 +10,7 @@ import 'package:mp3_convert/data/data_result.dart';
 import 'package:mp3_convert/data/entity/app_file.dart';
 import 'package:mp3_convert/data/entity/failure_entity.dart';
 import 'package:mp3_convert/feature/convert/cubit/convert_cubit.dart';
+import 'package:mp3_convert/feature/convert/cubit/convert_setting_cubit.dart';
 import 'package:mp3_convert/feature/convert/data/entity/convert_data.dart';
 import 'package:mp3_convert/feature/convert/data/entity/get_mapping_type.dart';
 import 'package:mp3_convert/feature/convert/data/entity/mapping_type.dart';
@@ -222,7 +223,10 @@ extension ConvertListener on MergerCubit {
     final mergeData = MergeData.fromMap(data);
     if (mergeData.progress == 100 && mergeData.sessionId == _sessionId) {
       emit(state.copyWith(status: MergeStatus.merged));
-      //startDownload();
+
+      if (AutoDownloadSetting().isAutoDownload()) {
+        startDownload();
+      }
     }
   }
 

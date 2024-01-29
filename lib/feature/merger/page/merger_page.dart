@@ -7,6 +7,7 @@ import 'package:mp3_convert/feature/convert/data/entity/media_type.dart';
 import 'package:mp3_convert/feature/convert/data/entity/setting_file.dart';
 import 'package:mp3_convert/feature/convert/widget/convert_status_widget.dart';
 import 'package:mp3_convert/feature/convert/widget/file_type_widget.dart';
+import 'package:mp3_convert/feature/convert/widget/setting_convert_icon.dart';
 import 'package:mp3_convert/feature/merger/cubit/merger_cubit.dart';
 import 'package:mp3_convert/feature/setting/help_and_feedback_page.dart';
 import 'package:mp3_convert/resource/icon_path.dart';
@@ -34,7 +35,11 @@ class _MergerPageState extends SingleProviderBasePageState<MergerPage, MergerCub
 
   @override
   PreferredSizeWidget? buildAppBar(BuildContext context) {
-    return AppBar();
+    return AppBar(
+      actions: const [
+        SettingConvertIcon(),
+      ],
+    );
   }
 
   @override
