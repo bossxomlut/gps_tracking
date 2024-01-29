@@ -7,7 +7,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:mp3_convert/base_presentation/theme/theme.dart';
 import 'package:mp3_convert/firebase/firebase_options.dart';
-import 'package:mp3_convert/internet_connect/socket/socket.dart';
 import 'package:mp3_convert/util/app_life_cycle_mixin.dart';
 import 'package:mp3_convert/util/navigator/app_navigator.dart';
 import 'package:mp3_convert/util/navigator/app_page.dart';

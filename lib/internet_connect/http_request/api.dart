@@ -5,6 +5,8 @@ import 'package:curl_logger_dio_interceptor/curl_logger_dio_interceptor.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:mp3_convert/internet_connect/http_request/api_interceptor.dart';
+import 'package:mp3_convert/remote_config.dart';
+import 'package:mp3_convert/util/parse_util.dart';
 
 import 'api_response.dart';
 
@@ -108,30 +110,6 @@ class Mp3ApiRequest extends ApiRequestWrapper {
 }
 
 class UploadApiRequest extends ApiRequestWrapper {
-  static const String _defaultGateWay = "https://cdndl.xyz/media/sv1";
-
-  static String? _remoteConfigGateWay;
-
-  static void loadRemoteConfig() {
-    _GetRemoteConfigGateway().get('').then((response) {
-      switch (response) {
-        case SuccessApiResponse():
-          try {
-            _remoteConfigGateWay = (response.data as Map)['server']?.toString();
-          } catch (e) {}
-          break;
-        case FailureApiResponse():
-        case InternetErrorResponse():
-      }
-      return response;
-    }).catchError((e) {});
-  }
-
   @override
-  String get domainName => _remoteConfigGateWay ?? _defaultGateWay;
-}
-
-class _GetRemoteConfigGateway extends ApiRequestWrapper {
-  @override
-  String get domainName => 'https://cdndl.xyz/config/get-server-yt';
+  String get domainName => RemoteConfig().server;
 }
