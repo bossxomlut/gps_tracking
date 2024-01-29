@@ -5,17 +5,15 @@ import 'package:mp3_convert/util/parse_util.dart';
 class RemoteConfig {
   RemoteConfig._();
 
-  static final RemoteConfig _i = RemoteConfig._();
+  static final RemoteConfig _instance = RemoteConfig._();
 
-  factory RemoteConfig() {
-    return _i;
-  }
+  factory RemoteConfig() => _instance;
 
-  static const String _defaultGateWay = "https://cdndl.xyz/media/sv1";
+  static const String _defaultGateway = "https://cdndl.xyz/media/sv1";
   static const int _defaultMaxSubmitFile = 5;
   static const int _defaultMaxSizePerFile = 200000000;
 
-  String _server = _defaultGateWay;
+  String _server = _defaultGateway;
   int _limitFile = _defaultMaxSubmitFile;
   int _maxLength = _defaultMaxSizePerFile;
 
@@ -24,27 +22,54 @@ class RemoteConfig {
   int get maxLength => _maxLength;
 
   Future getRemoteConfig() async {
-    return _GetRemoteConfigGateway().get('').then((response) {
-      switch (response) {
-        case SuccessApiResponse():
-          try {
-            final RemoteConfigData responseData = RemoteConfigData.fromMap(response.data as Map);
-            if (responseData.server != null) {
-              _server = responseData.server!;
-            }
-            if (responseData.server != null) {
-              _limitFile = responseData.limitFile!;
-            }
-            if (responseData.server != null) {
-              _maxLength = responseData.maxLength!;
-            }
-          } catch (e) {}
-          break;
-        case FailureApiResponse():
-        case InternetErrorResponse():
-      }
+    try {
+      final response = await _GetRemoteConfigGateway().get('');
+      _updateConfigurations(response);
       return response;
-    }).catchError((e) {});
+    } catch (e) {
+      // Handle errors appropriately (e.g., logging, notification).
+      return null;
+    }
+  }
+
+  void _updateConfigurations(dynamic response) {
+    switch (response) {
+      case SuccessApiResponse():
+        try {
+          final RemoteConfigData responseData = RemoteConfigData.fromMap(response.data as Map);
+          _updateServer(responseData.server);
+          _updateLimitFile(responseData.limitFile);
+          _updateMaxLength(responseData.maxLength);
+        } catch (e) {
+          // Handle parsing errors appropriately (e.g., logging).
+        }
+        break;
+      case FailureApiResponse():
+      case InternetErrorResponse():
+        // Handle failure or internet error cases.
+        break;
+      default:
+        // Handle unexpected response cases.
+        break;
+    }
+  }
+
+  void _updateServer(String? newServer) {
+    if (newServer != null) {
+      _server = newServer;
+    }
+  }
+
+  void _updateLimitFile(int? newLimitFile) {
+    if (newLimitFile != null) {
+      _limitFile = newLimitFile;
+    }
+  }
+
+  void _updateMaxLength(int? newMaxLength) {
+    if (newMaxLength != null) {
+      _maxLength = newMaxLength;
+    }
   }
 }
 
