@@ -30,7 +30,7 @@ class RemoteConfig {
     final defaultValue = _configDefaultData[key];
 
     assert(defaultValue != null);
-    assert(defaultValue.runtimeType != T);
+    assert(defaultValue.runtimeType == T);
 
     final configValue = _configData[key];
 
