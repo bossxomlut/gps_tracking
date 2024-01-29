@@ -18,6 +18,7 @@ import 'package:mp3_convert/feature/convert/data/entity/setting_file.dart';
 import 'package:mp3_convert/feature/convert/data/repository/convert_file_repository.dart';
 import 'package:mp3_convert/feature/convert/data/repository/convert_file_repository_impl.dart';
 import 'package:mp3_convert/feature/merger/data/repository/merger_repository_impl.dart';
+import 'package:mp3_convert/internet_connect/socket/socket.dart';
 import 'package:mp3_convert/main.dart';
 import 'package:mp3_convert/util/downloader_util.dart';
 import 'package:mp3_convert/util/generate_string.dart';
@@ -25,7 +26,8 @@ import 'package:mp3_convert/util/generate_string.dart';
 class MergerCubit extends Cubit<MergerState> with SafeEmit implements MappingType {
   MergerCubit() : super(const MergerState()) {
     //use socket to listen convert progress from server
-    socketChannel
+    _socketChannel
+      ..startConnection()
       ..onConverting(_convertListener)
       ..onDisconnected(_onConvertingError)
       ..onMerging(_meringListener);
@@ -53,6 +55,8 @@ class MergerCubit extends Cubit<MergerState> with SafeEmit implements MappingTyp
     });
   }
 
+  final _socketChannel = MergerChannel(convertSocketChannelUrl);
+
   final MappingType _getMappingType = MergeMappingType();
 
   final DownloaderHelper _downloaderHelper = DownloaderHelper();
@@ -66,6 +70,7 @@ class MergerCubit extends Cubit<MergerState> with SafeEmit implements MappingTyp
   String get getFileName => _sessionId + '.${state.mediaType?.name}';
   @override
   Future<void> close() {
+    _socketChannel.close();
     _downloaderHelper.dispose();
     return super.close();
   }
@@ -268,7 +273,7 @@ extension DownloadListener on MergerCubit {
 }
 
 extension MergerFileProcess on MergerCubit {
-  String? get socketId => socketChannel.socketId;
+  String? get socketId => _socketChannel.socketId;
 
   List<ConfigConvertFile> get _files => state.files ?? [];
 

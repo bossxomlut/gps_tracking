@@ -19,6 +19,7 @@ import 'package:mp3_convert/feature/convert/data/repository/convert_file_reposit
 import 'package:mp3_convert/feature/convert/data/repository/convert_file_repository_impl.dart';
 import 'package:mp3_convert/feature/cutter/data/repository/cutter_file_repository.dart';
 import 'package:mp3_convert/feature/cutter/data/repository/cutter_file_repository_impl.dart';
+import 'package:mp3_convert/internet_connect/socket/socket.dart';
 import 'package:mp3_convert/main.dart';
 import 'package:mp3_convert/util/downloader_util.dart';
 import 'package:mp3_convert/util/generate_string.dart';
@@ -26,13 +27,16 @@ import 'package:mp3_convert/util/generate_string.dart';
 class CutterCubit extends Cubit<CutterState> with SafeEmit implements MappingType {
   CutterCubit() : super(const CutterState()) {
     //use socket to listen convert progress from server
-    socketChannel
+    _socketChannel
+      ..startConnection()
       ..onConverting(_convertListener)
       ..onDisconnected(_onConvertingError);
 
     //use downloader to listen download progress from internet
     _downloaderHelper.startListen(_downloadListener);
   }
+
+  final ConvertChannel _socketChannel = ConvertChannel(convertSocketChannelUrl);
 
   final GetMappingType _getMappingType = GetMappingType();
 
@@ -48,6 +52,7 @@ class CutterCubit extends Cubit<CutterState> with SafeEmit implements MappingTyp
 
   @override
   Future<void> close() {
+    _socketChannel.close();
     _downloaderHelper.dispose();
     return super.close();
   }
@@ -104,7 +109,7 @@ class CutterCubit extends Cubit<CutterState> with SafeEmit implements MappingTyp
 }
 
 extension CutterFileProcess on CutterCubit {
-  String? get socketId => socketChannel.socketId;
+  String? get socketId => _socketChannel.socketId;
 
   void startCut() {
     onAddRow(state.file!);

@@ -23,6 +23,7 @@ import 'package:mp3_convert/feature/convert/data/entity/setting_file.dart';
 import 'package:mp3_convert/feature/convert/data/repository/convert_file_repository.dart';
 import 'package:mp3_convert/feature/convert/data/repository/convert_file_repository_impl.dart';
 import 'package:mp3_convert/feature/convert/data/entity/pick_multiple_file.dart';
+import 'package:mp3_convert/internet_connect/socket/socket.dart';
 import 'package:mp3_convert/main.dart';
 import 'package:mp3_convert/util/downloader_util.dart';
 import 'package:mp3_convert/util/generate_string.dart';
@@ -31,6 +32,8 @@ import 'package:path_provider/path_provider.dart';
 class ConvertCubit extends Cubit<ConvertState>
     with SafeEmit, EventMixin<HomeEvent>
     implements PickMultipleFile, MappingType {
+  final ConvertChannel _socketChannel = ConvertChannel(convertSocketChannelUrl);
+
   final GetMappingType _getMappingType = GetMappingType();
 
   final ConvertFileRepository convertFileRepository = ConvertFileRepositoryImpl();
@@ -43,7 +46,8 @@ class ConvertCubit extends Cubit<ConvertState>
 
   ConvertCubit() : super(const ConvertEmptyState(maxFiles: 2)) {
     //use socket to listen convert progress from server
-    socketChannel
+    _socketChannel
+      ..startConnection()
       ..onConverting(_convertListener)
       ..onDisconnected(_onConvertingError);
 
@@ -53,6 +57,7 @@ class ConvertCubit extends Cubit<ConvertState>
 
   @override
   Future<void> close() {
+    _socketChannel.close();
     _downloaderHelper.dispose();
     return super.close();
   }
@@ -341,7 +346,7 @@ extension FileManager on ConvertCubit {
 class UnknownDestinationFileType implements Exception {}
 
 extension ConvertingFileProcess on ConvertCubit {
-  String? get socketId => socketChannel.socketId;
+  String? get socketId => _socketChannel.socketId;
 
   Future onConvertAll() async {
     if (state.files?.isEmpty ?? true) {

@@ -14,8 +14,6 @@ import 'package:mp3_convert/util/navigator/app_page.dart';
 
 import 'main_setting/app_setting.dart';
 
-final ConvertChannel socketChannel = ConvertChannel("https://syt.cdndl.xyz");
-
 class AppLocale {
   final List<Locale> supportedLocales = [
     const Locale('en', 'US'),

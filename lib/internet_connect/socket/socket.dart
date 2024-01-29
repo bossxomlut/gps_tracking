@@ -4,6 +4,8 @@ import 'dart:developer';
 import 'package:rxdart/rxdart.dart';
 import 'package:socket_io_client/socket_io_client.dart';
 
+const String convertSocketChannelUrl = "https://syt.cdndl.xyz";
+
 class SocketChannel {
   final String url;
   late final Socket _socket;
@@ -57,6 +59,10 @@ class ConvertChannel extends SocketChannel {
   void onConverting(Function(dynamic data) onListen) {
     _socket.on("converting", onListen);
   }
+}
+
+class MergerChannel extends ConvertChannel {
+  MergerChannel(super.url);
 
   void onMerging(Function(dynamic data) onListen) {
     _socket.on("merging", onListen);
