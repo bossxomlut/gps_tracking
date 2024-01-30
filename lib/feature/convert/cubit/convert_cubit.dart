@@ -480,7 +480,7 @@ extension ConvertingFileProcess on ConvertCubit {
     final String path = await _getPath();
 
     final ConvertedFile file = state.files![index] as ConvertedFile;
-    final fileName = '${file.generateConvertFileName()}';
+    final fileName = 'convert_${file.generateConvertFileName()}';
     final downloadPath = '$path/$fileName';
 
     final downloadingFile = DownloadingFile(

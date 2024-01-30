@@ -221,7 +221,7 @@ extension CutterFileProcess on CutterCubit {
     final String path = await _getPath();
 
     final ConvertedFile file = state.file as ConvertedFile;
-    final fileName = '${file.generateConvertFileName()}';
+    final fileName = 'cutter_${file.generateConvertFileName()}';
     final downloadPath = '$path/$fileName';
 
     final downloadingFile = DownloadingFile(

@@ -401,19 +401,20 @@ extension MergerFileProcess on MergerCubit {
     emit(state.copyWith(status: MergeStatus.downloading));
 
     final String path = await _getPath();
+    final fileName = 'merger_$downloadId.${state.mediaType?.name}';
 
     final downloadResult = await convertFileRepository.download(
       DownloadRequestData(
         downloadId: downloadId,
         savePath: path,
-        fileName: '$downloadId.${state.mediaType?.name}',
+        fileName: fileName,
       ),
     );
 
     switch (downloadResult) {
       case SuccessDataResult<FailureEntity, String>():
         final downloaderId = downloadResult.data;
-        _currentDownloadPath = path + '/$downloadId.${state.mediaType?.name}';
+        _currentDownloadPath = '$path/$fileName';
 
         // emit(state.copyWith(file: downloadingFile.copyWith(downloaderId: downloaderId)));
         break;

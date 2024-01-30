@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mp3_convert/base_presentation/page/base_page.dart';
 import 'package:mp3_convert/base_presentation/view/view.dart';
+import 'package:mp3_convert/data/entity/app_file.dart';
 import 'package:mp3_convert/feature/convert/data/entity/media_type.dart';
 import 'package:mp3_convert/feature/convert/data/entity/setting_file.dart';
 import 'package:mp3_convert/feature/convert/widget/convert_status_widget.dart';
@@ -364,6 +365,7 @@ class _ListFilesContentState extends State<_ListFilesContent> {
           ],
         );
       case MergeStatus.downloaded:
+        return OpenFileWidget(file: AppFile(name: '', path: context.read<MergerCubit>().getDownloadPath() ?? ''));
         return Row(
           children: [
             Expanded(
