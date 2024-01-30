@@ -318,13 +318,11 @@ extension DownloadListener on CutterCubit {
     ///4: error
     int status = data[1];
     int progress = data[2];
-    log("LOL: download listener progress: ${progress}");
     final f = state.file!;
     if (f is DownloadedFile) {
       emit(state.copyWith(file: f));
       return;
     }
-    print('LOl: ${_checkIsDownloadingFile(f, id) || _checkIsDownloadingFileFromError(f, id)}');
 
     if (_checkIsDownloadingFile(f, id) || _checkIsDownloadingFileFromError(f, id)) {
       final DownloadingFile file = _getDownloadingFile(f);
