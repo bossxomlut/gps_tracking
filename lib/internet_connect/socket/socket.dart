@@ -4,6 +4,8 @@ import 'dart:developer';
 import 'package:rxdart/rxdart.dart';
 import 'package:socket_io_client/socket_io_client.dart';
 
+const String convertSocketChannelUrl = "https://syt.cdndl.xyz";
+
 class SocketChannel {
   final String url;
   late final Socket _socket;
@@ -13,12 +15,6 @@ class SocketChannel {
       OptionBuilder().setTransports(['websocket']).disableAutoConnect().setTimeout(3000).build(),
     );
   }
-
-  final _outerStreamSubject = BehaviorSubject<dynamic>();
-
-  Stream<dynamic> get stream => _outerStreamSubject.stream;
-
-  StreamSubscription? _streamSubscription;
 
   void startConnection() {
     _socket.connect();
@@ -30,8 +26,8 @@ class SocketChannel {
 
   void close() {
     log("close connect to socket server");
-    _streamSubscription?.pause();
-    _streamSubscription = null;
+    _socket.clearListeners();
+    _socket.close();
   }
 
   String? get socketId => _getSocketId();
@@ -49,6 +45,24 @@ class SocketChannel {
       callBack(data);
     });
   }
+
+  void onConnected(Function(dynamic data) callBack) {
+    _socket.onConnect((data) {
+      log("socket io.onConnect: ${data}");
+      callBack(data);
+    });
+  }
+
+  void onClose(Function(dynamic data) callBack) {
+    _socket.onclose((data) {
+      log("socket io.onClose: ${data}");
+      callBack(data);
+    });
+  }
+
+  void clearListenersAndClose() {
+    close();
+  }
 }
 
 class ConvertChannel extends SocketChannel {
@@ -57,6 +71,10 @@ class ConvertChannel extends SocketChannel {
   void onConverting(Function(dynamic data) onListen) {
     _socket.on("converting", onListen);
   }
+}
+
+class MergerChannel extends ConvertChannel {
+  MergerChannel(super.url);
 
   void onMerging(Function(dynamic data) onListen) {
     _socket.on("merging", onListen);

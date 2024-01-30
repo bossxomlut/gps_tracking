@@ -51,9 +51,7 @@ class ConfigConvertFile extends AppFile {
   }
 
   String generateConvertFileName() {
-    return name.substring(0, (name.length - type.length) - 1) +
-        '${DateTime.now().millisecondsSinceEpoch}.' +
-        destinationType!;
+    return '${name.substring(0, (name.length - type.length) - 1)}_${DateTime.now().millisecondsSinceEpoch}.${destinationType!}';
   }
 }
 

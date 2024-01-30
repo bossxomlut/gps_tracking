@@ -7,22 +7,25 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:mp3_convert/base_presentation/theme/theme.dart';
 import 'package:mp3_convert/firebase/firebase_options.dart';
-import 'package:mp3_convert/internet_connect/socket/socket.dart';
 import 'package:mp3_convert/util/app_life_cycle_mixin.dart';
 import 'package:mp3_convert/util/navigator/app_navigator.dart';
 import 'package:mp3_convert/util/navigator/app_page.dart';
 
 import 'main_setting/app_setting.dart';
 
-final ConvertChannel socketChannel = ConvertChannel("https://syt.cdndl.xyz");
-
 class AppLocale {
   final List<Locale> supportedLocales = [
+    const Locale('ar', 'EG'),
     const Locale('en', 'US'),
+    const Locale('es', 'ES'),
+    const Locale('hi', 'IN'),
+    const Locale('ja', 'JP'),
+    const Locale('pt', 'BR'),
     const Locale('vi', 'VN'),
+    const Locale('zh', 'CN'),
   ];
 
-  Locale get defaultLocale => supportedLocales.first;
+  Locale get defaultLocale => const Locale('en', 'US');
 
   String get path => 'assets/translations';
 }

@@ -250,8 +250,6 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    socketChannel.startConnection();
-
     _connectInternetHelper.startListen();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {

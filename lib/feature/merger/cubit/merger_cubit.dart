@@ -10,6 +10,7 @@ import 'package:mp3_convert/data/data_result.dart';
 import 'package:mp3_convert/data/entity/app_file.dart';
 import 'package:mp3_convert/data/entity/failure_entity.dart';
 import 'package:mp3_convert/feature/convert/cubit/convert_cubit.dart';
+import 'package:mp3_convert/feature/convert/cubit/convert_setting_cubit.dart';
 import 'package:mp3_convert/feature/convert/data/entity/convert_data.dart';
 import 'package:mp3_convert/feature/convert/data/entity/get_mapping_type.dart';
 import 'package:mp3_convert/feature/convert/data/entity/mapping_type.dart';
@@ -18,39 +19,53 @@ import 'package:mp3_convert/feature/convert/data/entity/setting_file.dart';
 import 'package:mp3_convert/feature/convert/data/repository/convert_file_repository.dart';
 import 'package:mp3_convert/feature/convert/data/repository/convert_file_repository_impl.dart';
 import 'package:mp3_convert/feature/merger/data/repository/merger_repository_impl.dart';
+import 'package:mp3_convert/internet_connect/socket/socket.dart';
 import 'package:mp3_convert/main.dart';
 import 'package:mp3_convert/util/downloader_util.dart';
 import 'package:mp3_convert/util/generate_string.dart';
+import 'package:mp3_convert/util/list_util.dart';
 
 class MergerCubit extends Cubit<MergerState> with SafeEmit implements MappingType {
   MergerCubit() : super(const MergerState()) {
     //use socket to listen convert progress from server
-    socketChannel
-      ..onConverting(_convertListener)
-      ..onDisconnected(_onConvertingError)
-      ..onMerging(_meringListener);
+    _socketListener();
 
     //use downloader to listen download progress from internet
     _downloaderHelper.startListen(_downloadListener);
 
     stream.map((event) => event.files).listen((files) {
-      if (files?.every((f) => f is ConvertingFile) ?? false) {
-        emit(state.copyWith(status: MergeStatus.converting));
-        return;
-      }
-
-      if (files?.every((f) => f is UploadingFile) ?? false) {
-        emit(state.copyWith(status: MergeStatus.uploading));
-        return;
-      }
-
-      if ((state.status?.index ?? -1) < MergeStatus.merged.index) {
-        if (files?.every((f) => f is ConvertedFile) ?? false) {
-          emit(state.copyWith(status: MergeStatus.merging));
+      if (files.isNotNullAndNotEmpty && files!.length > 1) {
+        if (files.every((f) => f is ConvertingFile)) {
+          emit(state.copyWith(status: MergeStatus.converting));
           return;
+        }
+
+        if (files.every((f) => f is UploadingFile)) {
+          emit(state.copyWith(status: MergeStatus.uploading));
+          return;
+        }
+
+        if ((state.status?.index ?? -1) < MergeStatus.merged.index) {
+          if (files.every((f) => f is ConvertedFile)) {
+            emit(state.copyWith(status: MergeStatus.merging));
+            return;
+          }
         }
       }
     });
+  }
+
+  final _socketChannel = MergerChannel(convertSocketChannelUrl);
+
+  void _socketListener() {
+    _socketChannel
+      ..startConnection()
+      ..onConverting(_convertListener)
+      ..onDisconnected(_onConvertingError)
+      ..onMerging(_meringListener)
+      ..onConnected((_) {
+        emit(state.copyWith(canMerge: true));
+      });
   }
 
   final MappingType _getMappingType = MergeMappingType();
@@ -66,6 +81,7 @@ class MergerCubit extends Cubit<MergerState> with SafeEmit implements MappingTyp
   String get getFileName => _sessionId + '.${state.mediaType?.name}';
   @override
   Future<void> close() {
+    _socketChannel.close();
     _downloaderHelper.dispose();
     return super.close();
   }
@@ -132,7 +148,9 @@ class MergerCubit extends Cubit<MergerState> with SafeEmit implements MappingTyp
   }
 
   void cancelMerge() {
+    _socketChannel.clearListenersAndClose();
     emit(state.clearStatus());
+    _socketListener();
   }
 
   void setType(String name) {
@@ -217,7 +235,10 @@ extension ConvertListener on MergerCubit {
     final mergeData = MergeData.fromMap(data);
     if (mergeData.progress == 100 && mergeData.sessionId == _sessionId) {
       emit(state.copyWith(status: MergeStatus.merged));
-      //startDownload();
+
+      if (AutoDownloadSetting().isAutoDownload()) {
+        startDownload();
+      }
     }
   }
 
@@ -268,7 +289,7 @@ extension DownloadListener on MergerCubit {
 }
 
 extension MergerFileProcess on MergerCubit {
-  String? get socketId => socketChannel.socketId;
+  String? get socketId => _socketChannel.socketId;
 
   List<ConfigConvertFile> get _files => state.files ?? [];
 
@@ -380,19 +401,20 @@ extension MergerFileProcess on MergerCubit {
     emit(state.copyWith(status: MergeStatus.downloading));
 
     final String path = await _getPath();
+    final fileName = 'merger_$downloadId.${state.mediaType?.name}';
 
     final downloadResult = await convertFileRepository.download(
       DownloadRequestData(
         downloadId: downloadId,
         savePath: path,
-        fileName: '$downloadId.${state.mediaType?.name}',
+        fileName: fileName,
       ),
     );
 
     switch (downloadResult) {
       case SuccessDataResult<FailureEntity, String>():
         final downloaderId = downloadResult.data;
-        _currentDownloadPath = path + '/$downloadId.${state.mediaType?.name}';
+        _currentDownloadPath = '$path/$fileName';
 
         // emit(state.copyWith(file: downloadingFile.copyWith(downloaderId: downloaderId)));
         break;
@@ -412,11 +434,13 @@ class MergerState extends Equatable {
   final List<ConfigConvertFile>? files;
   final MediaType? mediaType;
   final MergeStatus? status;
+  final bool canMerge;
 
   const MergerState({
     this.files,
     this.mediaType = const MediaType(name: defaultConvertType),
     this.status,
+    this.canMerge = false,
   });
 
   @override
@@ -424,17 +448,20 @@ class MergerState extends Equatable {
         files.hashCode,
         mediaType,
         status,
+        canMerge,
       ];
 
   MergerState copyWith({
     List<ConfigConvertFile>? files,
     MediaType? mediaType,
     MergeStatus? status,
+    bool? canMerge,
   }) {
     return MergerState(
       files: files ?? this.files,
       mediaType: mediaType ?? this.mediaType,
       status: status ?? this.status,
+      canMerge: canMerge ?? this.canMerge,
     );
   }
 
@@ -442,6 +469,7 @@ class MergerState extends Equatable {
     return MergerState(
       files: files?.map((f) => ConfigConvertFile(path: f.path, name: f.name)).toList(),
       mediaType: mediaType,
+      canMerge: false,
     );
   }
 }

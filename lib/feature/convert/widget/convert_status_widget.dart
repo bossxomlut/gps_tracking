@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mp3_convert/base_presentation/view/view.dart';
+import 'package:mp3_convert/data/entity/app_file.dart';
 import 'package:mp3_convert/feature/convert/cubit/convert_cubit.dart';
 import 'package:mp3_convert/feature/convert/data/entity/setting_file.dart';
 import 'package:mp3_convert/feature/convert/widget/uploading_progress_bar.dart';
@@ -69,6 +70,12 @@ class ConvertStatusWidget extends StatelessWidget {
         final double? downloadProgress = (convertFile as DownloadingFile).downloadProgress;
         return DownloadingProgressBar(progress: downloadProgress);
       case ConvertStatus.downloaded:
+        return OpenFileWidget(
+          file: AppFile(
+            path: (convertFile as DownloadedFile).downloadPath,
+            name: '',
+          ),
+        );
         return Row(
           children: [
             Expanded(
@@ -106,6 +113,75 @@ class ConvertStatusWidget extends StatelessWidget {
           ],
         );
     }
+  }
+}
+
+class OpenFileWidget extends StatefulWidget {
+  const OpenFileWidget({super.key, required this.file});
+  final AppFile file;
+
+  @override
+  State<OpenFileWidget> createState() => _OpenFileWidgetState();
+}
+
+class _OpenFileWidgetState extends State<OpenFileWidget> {
+  bool showInfo = false;
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: ElevatedButton(
+                onPressed: () {
+                  OpenFile.open(widget.file.path);
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).primaryColor,
+                  textStyle: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        color: Colors.white,
+                      ),
+                ),
+                child: Center(
+                  child: LText(
+                    ConvertPageLocalization.openFile,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          color: Colors.white,
+                        ),
+                  ),
+                ),
+              ),
+            ),
+            IconButton(
+              onPressed: () {
+                Share.shareXFiles([XFile(widget.file.path)]);
+              },
+              icon: const CircleAvatar(
+                minRadius: 20,
+                child: Icon(Icons.share),
+              ),
+            ),
+            IconButton(
+              onPressed: () {
+                showInfo = !showInfo;
+                setState(() {});
+              },
+              icon: CircleAvatar(
+                minRadius: 20,
+                child: Icon(Icons.info_outline),
+                backgroundColor: showInfo ? null : Colors.white12,
+              ),
+            ),
+          ],
+        ),
+        if (showInfo)
+          Text(
+            widget.file.path,
+            style: Theme.of(context).textTheme.labelMedium,
+          ),
+      ],
+    );
   }
 }
 

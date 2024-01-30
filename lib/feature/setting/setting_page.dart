@@ -63,7 +63,7 @@ class Loca extends StatelessWidget {
                         context.setLocale(l);
                       },
                     ),
-                    LText("language.${l.languageCode}"),
+                    LText("${l.languageCode}"),
                   ],
                 ),
               ),

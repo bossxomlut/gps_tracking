@@ -3,16 +3,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mp3_convert/base_presentation/page/base_page.dart';
 import 'package:mp3_convert/base_presentation/view/view.dart';
+import 'package:mp3_convert/data/entity/app_file.dart';
 import 'package:mp3_convert/feature/convert/data/entity/media_type.dart';
 import 'package:mp3_convert/feature/convert/data/entity/setting_file.dart';
 import 'package:mp3_convert/feature/convert/widget/convert_status_widget.dart';
 import 'package:mp3_convert/feature/convert/widget/file_type_widget.dart';
+import 'package:mp3_convert/feature/convert/widget/setting_convert_icon.dart';
 import 'package:mp3_convert/feature/merger/cubit/merger_cubit.dart';
 import 'package:mp3_convert/feature/setting/help_and_feedback_page.dart';
 import 'package:mp3_convert/resource/icon_path.dart';
 import 'package:mp3_convert/resource/string.dart';
 import 'package:mp3_convert/util/hardcode_string.dart';
 import 'package:mp3_convert/util/list_util.dart';
+import 'package:mp3_convert/util/reduce_text.dart';
 import 'package:mp3_convert/util/show_snack_bar.dart';
 import 'package:mp3_convert/widget/button/button.dart';
 import 'package:mp3_convert/widget/empty_picker_widget.dart';
@@ -34,7 +37,11 @@ class _MergerPageState extends SingleProviderBasePageState<MergerPage, MergerCub
 
   @override
   PreferredSizeWidget? buildAppBar(BuildContext context) {
-    return AppBar();
+    return AppBar(
+      actions: const [
+        SettingConvertIcon(),
+      ],
+    );
   }
 
   @override
@@ -59,6 +66,9 @@ class _MergerPageState extends SingleProviderBasePageState<MergerPage, MergerCub
     return BlocBuilder<MergerCubit, MergerState>(
       builder: (context, state) {
         if (state.files.isNotNullAndNotEmpty) {
+          if (state.files!.any((f) => f is ConvertStatusFile)) {
+            return const SizedBox();
+          }
           return Padding(
             padding: const EdgeInsets.only(bottom: 80),
             child: FloatingActionButton(
@@ -99,31 +109,6 @@ class _ListFilesContentState extends State<_ListFilesContent> {
             return Column(
               mainAxisSize: MainAxisSize.max,
               children: [
-                // Expanded(
-                //   child: Padding(
-                //     padding: const EdgeInsets.all(16),
-                //     child: Column(
-                //       children: [
-                //         ...?state.files?.map((f) => Container(
-                //               padding: EdgeInsets.all(16),
-                //               alignment: Alignment.centerLeft,
-                //               decoration: BoxDecoration(
-                //                 color: Theme.of(context).splashColor,
-                //               ),
-                //               child: ColumnStart(
-                //                 children: [
-                //                   Text(
-                //                     f.name,
-                //                     style: Theme.of(context).textTheme.bodyLarge,
-                //                   ),
-                //                   if (f is ConvertStatusFile) ConvertStatusWidget(convertFile: f, onDownload: (_) {}),
-                //                 ],
-                //               ),
-                //             )),
-                //       ],
-                //     ),
-                //   ),
-                // ),
                 Expanded(
                   child: ReorderableListView.builder(
                     itemBuilder: (context, index) {
@@ -171,9 +156,16 @@ class _ListFilesContentState extends State<_ListFilesContent> {
                             children: [
                               ColumnStart(
                                 children: [
-                                  Text(
-                                    f.name,
-                                    style: Theme.of(context).textTheme.bodyLarge,
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          reduceText(f.name, maxLength: 20),
+                                          style: Theme.of(context).textTheme.bodyLarge,
+                                        ),
+                                      ),
+                                      const Icon(Icons.drag_handle),
+                                    ],
                                   ),
                                   if (f is ConvertStatusFile) MergerStatusWidget(convertFile: f, onDownload: (_) {}),
                                 ],
@@ -232,7 +224,7 @@ class _ListFilesContentState extends State<_ListFilesContent> {
                               // style: FilledButton.styleFrom(
                               //   backgroundColor: Color(0xfff25d17),
                               // ),
-                              onPressed: (state.files?.length ?? 0) > 1
+                              onPressed: (state.files?.length ?? 0) > 1 && state.canMerge
                                   ? () {
                                       context.read<MergerCubit>().startMerger();
                                     }
@@ -373,6 +365,7 @@ class _ListFilesContentState extends State<_ListFilesContent> {
           ],
         );
       case MergeStatus.downloaded:
+        return OpenFileWidget(file: AppFile(name: '', path: context.read<MergerCubit>().getDownloadPath() ?? ''));
         return Row(
           children: [
             Expanded(

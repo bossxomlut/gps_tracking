@@ -130,8 +130,14 @@ flutter:
 
   assets:
     - assets/translations/
+    - assets/translations/ar-EG.json
     - assets/translations/en-US.json
+    - assets/translations/es-ES.json
+    - assets/translations/hi-IN.json
+    - assets/translations/ja-JP.json
+    - assets/translations/pt-BR.json
     - assets/translations/vi-VN.json
+    - assets/translations/zh-CN.json
 
     - assets/icons/
     - assets/images/
