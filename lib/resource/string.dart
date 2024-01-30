@@ -1,7 +1,7 @@
 abstract class Localization {}
 
 class SettingLocalization {
-  static String get prefix => "setting.";
+  static String get prefix => "";
 
   static String get setting => "${prefix}setting";
 
@@ -17,7 +17,7 @@ class SettingLocalization {
 }
 
 class CommonLocalization {
-  static String get prefix => "common.";
+  static String get prefix => "";
 
   static String get lostConnectInternet => "${prefix}lost_connect_internet";
 
@@ -31,7 +31,7 @@ class CommonLocalization {
 }
 
 class HomePageLocalization {
-  static String get prefix => "home_page.";
+  static String get prefix => "";
 
   static String get features => "${prefix}features";
 
@@ -39,7 +39,7 @@ class HomePageLocalization {
 }
 
 class ConvertPageLocalization {
-  static String get prefix => "convert_page.";
+  static String get prefix => "";
 
   static String get tapToSelectFiles => "${prefix}tap_to_select_files";
 
@@ -79,7 +79,7 @@ class ConvertPageLocalization {
 }
 
 class CutterPageLocalization {
-  static String get prefix => "cutter_page.";
+  static String get prefix => "";
 
   static String get startCut => "${prefix}start_cut";
 
@@ -93,7 +93,7 @@ class CutterPageLocalization {
 }
 
 class MergerPageLocalization {
-  static String get prefix => "merger_page.";
+  static String get prefix => "";
 
   static String get converted => "${prefix}converted";
 
