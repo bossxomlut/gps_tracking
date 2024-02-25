@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mp3_convert/base_presentation/page/base_page.dart';
 import 'package:mp3_convert/base_presentation/view/view.dart';
+import 'package:mp3_convert/feature/tracking_speed/speed_page.dart';
 import 'package:mp3_convert/resource/icon_path.dart';
 import 'package:mp3_convert/resource/string.dart';
 import 'package:mp3_convert/util/navigator/app_navigator.dart';

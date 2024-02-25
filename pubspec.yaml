@@ -85,6 +85,9 @@ dependencies:
   #show snack bar
   another_flushbar: 1.12.30
 
+  #gps
+  geolocator: 11.0.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
