@@ -59,32 +59,7 @@ class MenuPage extends BasePage {
                   const SizedBox(height: 20),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      FeatureMenuButton(
-                        onTap: () {
-                          AppNavigator.to(GetConvertPage());
-                        },
-                        icon: IconPath.exchange,
-                        titleKey: CommonLocalization.convert,
-                        backgroundColor: const Color(0xfffd4da8),
-                      ),
-                      CutMenuButton(
-                        onTap: () {
-                          AppNavigator.to(GetAudioCutterPage());
-                        },
-                        icon: IconPath.cut,
-                        titleKey: CommonLocalization.cutter,
-                        backgroundColor: const Color(0xfff39565),
-                      ),
-                      FeatureMenuButton(
-                        onTap: () {
-                          AppNavigator.to(GetMergerPage());
-                        },
-                        icon: IconPath.merger,
-                        titleKey: CommonLocalization.merger,
-                        backgroundColor: const Color(0xff308ad5),
-                      ),
-                    ],
+                    children: [],
                   ),
                 ],
               ),
@@ -105,7 +80,6 @@ class MenuPage extends BasePage {
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                   const SizedBox(height: 4),
-                  const HistoryDownloadWidget(),
                 ],
               ),
             ),

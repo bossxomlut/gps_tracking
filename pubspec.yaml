@@ -38,29 +38,17 @@ dependencies:
   #compare object
   equatable: 2.0.5
 
-  #pick file from device
-  file_picker: 6.1.1
-
   #http request
   dio: 5.4.0
 
   #curl log http request
   curl_logger_dio_interceptor: 1.0.0
 
-  #socket
-  socket_io_client: 2.0.3+1
-
   #uuid
   uuid: 4.3.3
 
   #stream extension
   rxdart: 0.27.7
-
-  #file location
-  path_provider: 2.1.2
-
-  #downloader
-  flutter_downloader: 1.11.6
 
   #permission
   permission_handler: 11.1.0
@@ -70,9 +58,6 @@ dependencies:
 
   #svg
   flutter_svg: 2.0.9
-
-  #open file
-  open_file_plus: 3.4.1
 
   #internet connection checker
   internet_connection_checker: 1.0.0+1
@@ -99,18 +84,6 @@ dependencies:
 
   #show snack bar
   another_flushbar: 1.12.30
-
-  #audio
-  ##play audio
-  just_audio: 0.9.36
-  ##show waveform
-  flutter_audio_waveforms: 1.2.1+8
-  ##get waveform data
-  just_waveform: 0.0.5
-
-  #reorder list
-  flutter_reorderable_list: 1.3.1
-
 
 dev_dependencies:
   flutter_test:

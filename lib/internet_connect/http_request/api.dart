@@ -5,8 +5,6 @@ import 'package:curl_logger_dio_interceptor/curl_logger_dio_interceptor.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:mp3_convert/internet_connect/http_request/api_interceptor.dart';
-import 'package:mp3_convert/remote_config.dart';
-import 'package:mp3_convert/util/parse_util.dart';
 
 import 'api_response.dart';
 
@@ -102,14 +100,4 @@ abstract class Request {
         .then(getDataResponse)
         .onError(handleError);
   }
-}
-
-class Mp3ApiRequest extends ApiRequestWrapper {
-  @override
-  String get domainName => "https://cdndl.xyz";
-}
-
-class UploadApiRequest extends ApiRequestWrapper {
-  @override
-  String get domainName => RemoteConfig().server;
 }
