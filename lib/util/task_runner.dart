@@ -19,12 +19,6 @@ class FunctionModel {
 }
 
 class TaskRunner {
-  static final TaskRunner _i = TaskRunner._();
-
-  TaskRunner._();
-
-  factory TaskRunner() => _i;
-
   final PriorityQueue<FunctionModel> _priorityQueue = PriorityQueue((p0, p1) => p0.priority.compareTo(p1.priority));
 
   bool _isRunning = false;

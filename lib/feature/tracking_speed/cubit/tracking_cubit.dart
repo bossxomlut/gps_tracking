@@ -14,6 +14,7 @@ import 'package:mp3_convert/base_presentation/cubit/base_cubit.dart';
 import 'package:mp3_convert/util/gps/gps.dart';
 import 'package:mp3_convert/util/gps/gps_util.dart';
 import 'package:mp3_convert/util/gps/speed_util.dart';
+import 'package:mp3_convert/util/task_runner.dart';
 
 abstract class CalculateDistance {
   //meter
@@ -75,14 +76,15 @@ class PositionTrackingMovingCubit extends SpeedTrackingMovingCubit {
     super.start();
     _positionStreamSubscription = gps.listenGPSChanged().listen((gps) {
       _calDistance.setPosition(gps);
-
-      emit(
-        InProgressTrackingMovingState(
-          speed: speedState,
-          distance: distanceState.copyWith(
-            totalDistance: _calDistance.distance,
+      _queueTask.addTask(
+        FunctionModel(emit, priority: 1, positionalArguments: [
+          InProgressTrackingMovingState(
+            speed: state.speed,
+            distance: distanceState.copyWith(
+              totalDistance: _calDistance.distance,
+            ),
           ),
-        ),
+        ]),
       );
     });
   }
@@ -110,6 +112,8 @@ class SpeedTrackingMovingCubit extends Cubit<TrackingMovingState>
     with SafeEmit<TrackingMovingState>
     implements MovingControl {
   SpeedTrackingMovingCubit() : super(TrackingMovingState.ready());
+
+  final TaskRunner _queueTask = TaskRunner();
 
   final GPSUtil gps = GPSUtil.instance;
 
@@ -151,15 +155,17 @@ class SpeedTrackingMovingCubit extends Cubit<TrackingMovingState>
   @mustCallSuper
   void start() {
     _speedStreamSubscription = speedListener.listenSpeedChanged().listen((v) {
-      emit(
-        InProgressTrackingMovingState(
-          speed: SpeedEntity(
-            currentSpeed: v,
-            maxSpeed: (_calMaxSpeed..setSpeed(v)).speed,
-            averageSpeed: (_calAverageSpeed..setSpeed(v)).speed,
-          ),
-          distance: distanceState,
-        ),
+      _queueTask.addTask(
+        FunctionModel(emit, priority: 1, positionalArguments: [
+          InProgressTrackingMovingState(
+            speed: SpeedEntity(
+              currentSpeed: v,
+              maxSpeed: (_calMaxSpeed..setSpeed(v)).speed,
+              averageSpeed: (_calAverageSpeed..setSpeed(v)).speed,
+            ),
+            distance: distanceState,
+          )
+        ]),
       );
     });
   }
