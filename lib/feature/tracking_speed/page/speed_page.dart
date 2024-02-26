@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mp3_convert/base_presentation/page/base_page.dart';
 import 'package:mp3_convert/feature/tracking_speed/cubit/tracking_cubit.dart';
+import 'package:mp3_convert/feature/tracking_speed/widgets/button.dart';
+import 'package:mp3_convert/feature/tracking_speed/widgets/cycling_background.dart';
 
 class SpeedPage extends StatefulWidget {
   const SpeedPage({super.key});
@@ -35,17 +37,21 @@ class _SpeedPageState extends BasePageState<SpeedPage> {
       child: Column(
         children: [
           Expanded(
-            child: BlocSelector<PositionTrackingMovingCubit, TrackingMovingState, double>(
-              selector: (state) => state.currentSpeed,
-              builder: (context, speed) {
-                return Text(
-                  "$speed",
-                  maxLines: 1,
-                  style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                        fontSize: 180,
-                      ),
-                );
-              },
+            child: CyclingBackground(
+              child: Center(
+                child: BlocSelector<PositionTrackingMovingCubit, TrackingMovingState, double>(
+                  selector: (state) => state.currentSpeed,
+                  builder: (context, speed) {
+                    return Text(
+                      "$speed",
+                      maxLines: 1,
+                      style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                            fontSize: 180,
+                          ),
+                    );
+                  },
+                ),
+              ),
             ),
           ),
           StreamBuilder(
@@ -97,49 +103,50 @@ class _MovingController extends StatelessWidget {
       builder: (context, state) {
         switch (state) {
           case ReadyTrackingMovingState():
-            return GestureDetector(
-              onTap: () {
+            return PlayButton(
+              onTap: () async {
                 context.read<PositionTrackingMovingCubit>().start();
               },
-              child: Text("Start"),
             );
+
           case InProgressTrackingMovingState():
             return Row(
               children: [
-                GestureDetector(
+                PauseButton(
                   onTap: () {
                     context.read<PositionTrackingMovingCubit>().pause();
                   },
-                  child: Text("Pause"),
                 ),
-                GestureDetector(
+                StopButton(
                   onTap: () {
                     context.read<PositionTrackingMovingCubit>().stop();
                   },
-                  child: Text("Stop"),
                 ),
               ],
             );
           case PauseTrackingMovingState():
             return Row(
               children: [
-                GestureDetector(
-                  onTap: () {
+                PlayButton(
+                  onTap: () async {
                     context.read<PositionTrackingMovingCubit>().resume();
                   },
-                  child: Text("Resume"),
                 ),
-                GestureDetector(
+                StopButton(
                   onTap: () {
                     context.read<PositionTrackingMovingCubit>().stop();
                   },
-                  child: Text("Stop"),
                 ),
               ],
             );
 
           case StopTrackingMovingState():
-            return Text(" Stopped");
+            return CycleButton(
+              child: Text("OKE"),
+              onTap: () {
+                context.read<PositionTrackingMovingCubit>().reset();
+              },
+            );
         }
       },
     );

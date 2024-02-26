@@ -36,4 +36,9 @@ class MovingTime implements MovingControl {
   void pause() {
     _timer.stop();
   }
+
+  @override
+  void reset() {
+    _timer.reset();
+  }
 }

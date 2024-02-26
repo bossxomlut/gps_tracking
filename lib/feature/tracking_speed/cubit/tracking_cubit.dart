@@ -73,8 +73,15 @@ class PositionTrackingMovingCubit extends SpeedTrackingMovingCubit {
   final CalculateDistance _calDistance = CalculateDistanceImpl();
 
   @override
+  void reset() {
+    _calDistance.reset();
+    super.reset();
+  }
+
+  @override
   void start() {
     super.start();
+
     _positionStreamSubscription = gps.listenGPSChanged().listen((gps) {
       _calDistance.setPosition(gps);
       _queueTask.addTask(
@@ -138,6 +145,14 @@ class SpeedTrackingMovingCubit extends Cubit<TrackingMovingState>
   }
 
   @override
+  void reset() {
+    emit(TrackingMovingState.ready());
+    _movingTime.reset();
+    _calMaxSpeed.reset();
+    _calAverageSpeed.reset();
+  }
+
+  @override
   Future<void> close() {
     _cancelSpeedListener();
     return super.close();
@@ -161,6 +176,11 @@ class SpeedTrackingMovingCubit extends Cubit<TrackingMovingState>
   @override
   @mustCallSuper
   void start() {
+    emit(InProgressTrackingMovingState(
+      speed: state.speed,
+      distance: state.distance,
+    ));
+
     _movingTime.start();
     _speedStreamSubscription = speedListener.listenSpeedChanged().listen((v) {
       _queueTask.addTask(
@@ -201,6 +221,7 @@ extension _CancelSpeedListener on SpeedTrackingMovingCubit {
 }
 
 abstract class MovingControl {
+  void reset();
   void start();
   void pause();
   void stop();
