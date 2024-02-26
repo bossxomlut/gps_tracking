@@ -48,6 +48,14 @@ class _SpeedPageState extends BasePageState<SpeedPage> {
               },
             ),
           ),
+          StreamBuilder(
+              stream: trackingMovingCubit.timerStream,
+              builder: (c, d) {
+                if (d.hasData) {
+                  return Text(d.toString());
+                }
+                return const SizedBox();
+              }),
           _MovingInfo(),
           _MovingController(),
         ],

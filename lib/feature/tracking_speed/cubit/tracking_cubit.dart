@@ -15,6 +15,7 @@ import 'package:mp3_convert/util/gps/gps.dart';
 import 'package:mp3_convert/util/gps/gps_util.dart';
 import 'package:mp3_convert/util/gps/speed_util.dart';
 import 'package:mp3_convert/util/task_runner.dart';
+import 'package:mp3_convert/util/timer/moving_time.dart';
 
 abstract class CalculateDistance {
   //meter
@@ -125,6 +126,10 @@ class SpeedTrackingMovingCubit extends Cubit<TrackingMovingState>
 
   final CalculateSpeed _calAverageSpeed = CalculateAverageSpeed();
 
+  final MovingTime _movingTime = MovingTime();
+
+  Stream<Duration> get timerStream => _movingTime.timerStream;
+
   @mustCallSuper
   void init() {
     gps.requestLocationPermission().then((value) {
@@ -140,12 +145,14 @@ class SpeedTrackingMovingCubit extends Cubit<TrackingMovingState>
 
   @override
   void pause() {
+    _movingTime.pause();
     _cancelSpeedListener();
     emit(state.pause());
   }
 
   @override
   void resume() {
+    _movingTime.resume();
     emit(state.resume());
 
     start();
@@ -154,6 +161,7 @@ class SpeedTrackingMovingCubit extends Cubit<TrackingMovingState>
   @override
   @mustCallSuper
   void start() {
+    _movingTime.start();
     _speedStreamSubscription = speedListener.listenSpeedChanged().listen((v) {
       _queueTask.addTask(
         FunctionModel(emit, priority: 1, positionalArguments: [
@@ -172,6 +180,7 @@ class SpeedTrackingMovingCubit extends Cubit<TrackingMovingState>
 
   @override
   void stop() {
+    _movingTime.stop();
     _cancelSpeedListener();
     emit(state.stop());
   }
