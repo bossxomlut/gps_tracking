@@ -1,7 +1,9 @@
 import 'dart:async';
-import 'dart:developer';
 
+import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart';
+
+import 'gps.dart';
 
 GPSUtil getGPSUtilInstance() => _GPSUtilImpl();
 
@@ -21,34 +23,6 @@ abstract class GPSUtil {
   Stream<GPSEntity> listenGPSChanged();
 }
 
-class SpeedUtil {
-  StreamController<double> _streamController = StreamController();
-
-  GPSEntity? _lastLocation;
-  Timer? _timer;
-
-  Stream<double> listenSpeedChanged() {
-    GPSUtil.instance.listenGPSChanged().listen((gps) {
-      _lastLocation = gps;
-      _streamController.add(gps.kmh());
-
-      if (_timer != null) {
-        log("cancel exist timer");
-        _timer?.cancel();
-      }
-      log("created timer");
-      _timer = Timer.periodic(const Duration(seconds: 5), (timer) {
-        log("timer reset speed");
-        _streamController.add(0.0);
-        _timer?.cancel();
-        _timer = null;
-      });
-    });
-
-    return _streamController.stream;
-  }
-}
-
 class _GPSUtilImpl extends GPSUtil {
   @override
   Future<GPSEntity> getCurrentLocation() {
@@ -57,7 +31,35 @@ class _GPSUtilImpl extends GPSUtil {
 
   @override
   Stream<GPSEntity> listenGPSChanged() {
-    return Geolocator.getPositionStream().map(_fromPosition);
+    late LocationSettings locationSettings;
+
+    if (defaultTargetPlatform == TargetPlatform.android) {
+      locationSettings = AndroidSettings(
+        accuracy: LocationAccuracy.best,
+        distanceFilter: 4,
+        intervalDuration: const Duration(seconds: 1),
+        foregroundNotificationConfig: const ForegroundNotificationConfig(
+          notificationText: "Example app will continue to receive your location even when you aren't using it",
+          notificationTitle: "Running in Background",
+          enableWakeLock: true,
+        ),
+      );
+    } else if (defaultTargetPlatform == TargetPlatform.iOS) {
+      locationSettings = AppleSettings(
+        accuracy: LocationAccuracy.best,
+        activityType: ActivityType.fitness,
+        distanceFilter: 1,
+        pauseLocationUpdatesAutomatically: true,
+        // Only set to true if our app will be started up in the background.
+        showBackgroundLocationIndicator: false,
+      );
+    } else {
+      locationSettings = const LocationSettings(
+        accuracy: LocationAccuracy.best,
+        distanceFilter: 1,
+      );
+    }
+    return Geolocator.getPositionStream(locationSettings: locationSettings).map(_fromPosition);
   }
 
   @override
@@ -87,28 +89,6 @@ class _GPSUtilImpl extends GPSUtil {
     return true;
   }
 }
-
-class GPSEntity {
-  final double latitude;
-  final double longitude;
-
-  //[speed] (m/s)
-  final double speed;
-  final DateTime time;
-
-  GPSEntity({
-    required this.latitude,
-    required this.longitude,
-    required this.speed,
-    required this.time,
-  });
-
-  double kmh() {
-    return speed * 3.6;
-  }
-}
-
-enum SpeedUnit { mps, kph }
 
 GPSEntity _fromPosition(Position position) {
   return GPSEntity(
