@@ -7,28 +7,124 @@
 import 'dart:async';
 
 import 'package:equatable/equatable.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:mp3_convert/base_presentation/cubit/base_cubit.dart';
+import 'package:mp3_convert/util/gps/gps.dart';
 import 'package:mp3_convert/util/gps/gps_util.dart';
 import 'package:mp3_convert/util/gps/speed_util.dart';
 
-class TrackingMovingCubit extends Cubit<TrackingMovingState>
+abstract class CalculateDistance {
+  //meter
+  double get distance;
+
+  void setPosition(GPSEntity position);
+
+  void reset();
+}
+
+class CalculateDistanceImpl extends CalculateDistance {
+  GPSEntity? _position;
+
+  @override
+  void setPosition(GPSEntity position) {
+    _totalDistance += _calNewDistance(position);
+    _position = position;
+  }
+
+  double _totalDistance = 0;
+
+  @override
+  void reset() {
+    _position = null;
+    _totalDistance = 0;
+  }
+
+  double _calNewDistance(GPSEntity position) {
+    if (_position == null) {
+      return 0;
+    }
+
+    return Geolocator.distanceBetween(
+      _position!.latitude,
+      _position!.longitude,
+      position.latitude,
+      position.longitude,
+    );
+  }
+
+  @override
+  double get distance => _totalDistance;
+}
+
+extension _CancelPositionTrackingMovingCubit on PositionTrackingMovingCubit {
+  void _cancelGPSListener() {
+    _positionStreamSubscription?.cancel();
+    _positionStreamSubscription = null;
+  }
+}
+
+class PositionTrackingMovingCubit extends SpeedTrackingMovingCubit {
+  StreamSubscription? _positionStreamSubscription;
+
+  final CalculateDistance _calDistance = CalculateDistanceImpl();
+
+  @override
+  void start() {
+    super.start();
+    _positionStreamSubscription = gps.listenGPSChanged().listen((gps) {
+      _calDistance.setPosition(gps);
+
+      emit(
+        InProgressTrackingMovingState(
+          speed: speedState,
+          distance: distanceState.copyWith(
+            totalDistance: _calDistance.distance,
+          ),
+        ),
+      );
+    });
+  }
+
+  @override
+  void stop() {
+    super.stop();
+    _cancelGPSListener();
+  }
+
+  @override
+  void pause() {
+    super.pause();
+    _cancelGPSListener();
+  }
+
+  @override
+  Future<void> close() {
+    _cancelGPSListener();
+    return super.close();
+  }
+}
+
+class SpeedTrackingMovingCubit extends Cubit<TrackingMovingState>
     with SafeEmit<TrackingMovingState>
     implements MovingControl {
-  TrackingMovingCubit() : super(TrackingMovingState.ready());
+  SpeedTrackingMovingCubit() : super(TrackingMovingState.ready());
 
   final GPSUtil gps = GPSUtil.instance;
 
   final SpeedListener speedListener = SpeedListener();
 
-  StreamSubscription? speedStreamSubscription;
+  StreamSubscription? _speedStreamSubscription;
 
+  final CalculateSpeed _calMaxSpeed = CalculateMaxSpeed();
+
+  final CalculateSpeed _calAverageSpeed = CalculateAverageSpeed();
+
+  @mustCallSuper
   void init() {
     gps.requestLocationPermission().then((value) {
-      gps.checkEnableLocationService().then((value) {
-        //todo:
-        //gps.listenGPSChanged().listen((event) { });
-      });
+      gps.checkEnableLocationService().then((value) {});
     });
   }
 
@@ -52,12 +148,16 @@ class TrackingMovingCubit extends Cubit<TrackingMovingState>
   }
 
   @override
+  @mustCallSuper
   void start() {
-    speedStreamSubscription = speedListener.listenSpeedChanged().listen((v) {
-      // emit(state.copyWith(speed: state.speed.copyWith(averageSpeed: v)));
+    _speedStreamSubscription = speedListener.listenSpeedChanged().listen((v) {
       emit(
         InProgressTrackingMovingState(
-          speed: SpeedEntity(currentSpeed: v, maxSpeed: 2, averageSpeed: 2),
+          speed: SpeedEntity(
+            currentSpeed: v,
+            maxSpeed: (_calMaxSpeed..setSpeed(v)).speed,
+            averageSpeed: (_calAverageSpeed..setSpeed(v)).speed,
+          ),
           distance: distanceState,
         ),
       );
@@ -71,17 +171,17 @@ class TrackingMovingCubit extends Cubit<TrackingMovingState>
   }
 }
 
-extension _GetStateData on TrackingMovingCubit {
+extension _GetStateData on SpeedTrackingMovingCubit {
   SpeedEntity get speedState => state.speed;
 
   DistanceEntity get distanceState => state.distance;
 }
 
-extension _CancelSpeedListener on TrackingMovingCubit {
+extension _CancelSpeedListener on SpeedTrackingMovingCubit {
   void _cancelSpeedListener() {
     speedListener.cancel();
-    speedStreamSubscription?.cancel();
-    speedStreamSubscription = null;
+    _speedStreamSubscription?.cancel();
+    _speedStreamSubscription = null;
   }
 }
 
@@ -207,6 +307,7 @@ class SpeedEntity extends Equatable {
 }
 
 class DistanceEntity extends Equatable {
+  //meter
   final double totalDistance;
 
   const DistanceEntity({required this.totalDistance});

@@ -13,7 +13,7 @@ class SpeedPage extends StatefulWidget {
 class _SpeedPageState extends BasePageState<SpeedPage> {
   bool isInit = false;
 
-  final TrackingMovingCubit trackingMovingCubit = TrackingMovingCubit();
+  final PositionTrackingMovingCubit trackingMovingCubit = PositionTrackingMovingCubit();
 
   @override
   void initState() {
@@ -35,7 +35,7 @@ class _SpeedPageState extends BasePageState<SpeedPage> {
       child: Column(
         children: [
           Expanded(
-            child: BlocSelector<TrackingMovingCubit, TrackingMovingState, double>(
+            child: BlocSelector<PositionTrackingMovingCubit, TrackingMovingState, double>(
               selector: (state) => state.currentSpeed,
               builder: (context, speed) {
                 return Text(
@@ -48,10 +48,35 @@ class _SpeedPageState extends BasePageState<SpeedPage> {
               },
             ),
           ),
+          _MovingInfo(),
           _MovingController(),
         ],
       ),
     );
+  }
+}
+
+class _MovingInfo extends StatelessWidget {
+  const _MovingInfo({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<PositionTrackingMovingCubit, TrackingMovingState>(builder: (context, state) {
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          Column(
+            children: [Text("Avarage"), Text("${state.speed.averageSpeed}")],
+          ),
+          Column(
+            children: [Text("Distance"), Text("${state.distance.totalDistance}")],
+          ),
+          Column(
+            children: [Text("Max Speed"), Text("${state.speed.maxSpeed}")],
+          ),
+        ],
+      );
+    });
   }
 }
 
@@ -60,13 +85,13 @@ class _MovingController extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<TrackingMovingCubit, TrackingMovingState>(
+    return BlocBuilder<PositionTrackingMovingCubit, TrackingMovingState>(
       builder: (context, state) {
         switch (state) {
           case ReadyTrackingMovingState():
             return GestureDetector(
               onTap: () {
-                context.read<TrackingMovingCubit>().start();
+                context.read<PositionTrackingMovingCubit>().start();
               },
               child: Text("Start"),
             );
@@ -75,13 +100,13 @@ class _MovingController extends StatelessWidget {
               children: [
                 GestureDetector(
                   onTap: () {
-                    context.read<TrackingMovingCubit>().pause();
+                    context.read<PositionTrackingMovingCubit>().pause();
                   },
                   child: Text("Pause"),
                 ),
                 GestureDetector(
                   onTap: () {
-                    context.read<TrackingMovingCubit>().stop();
+                    context.read<PositionTrackingMovingCubit>().stop();
                   },
                   child: Text("Stop"),
                 ),
@@ -92,13 +117,13 @@ class _MovingController extends StatelessWidget {
               children: [
                 GestureDetector(
                   onTap: () {
-                    context.read<TrackingMovingCubit>().resume();
+                    context.read<PositionTrackingMovingCubit>().resume();
                   },
                   child: Text("Resume"),
                 ),
                 GestureDetector(
                   onTap: () {
-                    context.read<TrackingMovingCubit>().stop();
+                    context.read<PositionTrackingMovingCubit>().stop();
                   },
                   child: Text("Stop"),
                 ),

@@ -49,3 +49,50 @@ class SpeedListener {
     _timer = null;
   }
 }
+
+abstract class CalculateSpeed {
+  double? _speed;
+  double get speed => _speed ?? 0;
+  void setSpeed(double speed);
+
+  void reset() {
+    _speed = null;
+  }
+}
+
+class CalculateMaxSpeed extends CalculateSpeed {
+  @override
+  void setSpeed(double speed) {
+    if (_speed == null) {
+      _speed = speed;
+      return;
+    }
+
+    if (_speed! < speed) {
+      _speed = speed;
+    }
+  }
+}
+
+class CalculateAverageSpeed extends CalculateSpeed {
+  int _count = 0;
+
+  @override
+  void setSpeed(double speed) {
+    if (_speed == null) {
+      _speed = speed;
+      _count++;
+      return;
+    }
+
+    _speed = _speed! * _count + speed;
+    _count++;
+    _speed = _speed! / _count;
+  }
+
+  @override
+  void reset() {
+    super.reset();
+    _count = 0;
+  }
+}
