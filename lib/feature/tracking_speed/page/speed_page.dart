@@ -4,6 +4,7 @@ import 'package:mp3_convert/base_presentation/page/base_page.dart';
 import 'package:mp3_convert/feature/tracking_speed/cubit/tracking_cubit.dart';
 import 'package:mp3_convert/feature/tracking_speed/widgets/button.dart';
 import 'package:mp3_convert/feature/tracking_speed/widgets/cycling_background.dart';
+import 'package:mp3_convert/widget/button/go_button.dart';
 
 extension TimeFormat on Duration {
   String getMinuteFormat() {
@@ -22,6 +23,8 @@ class SpeedPage extends StatefulWidget {
   State<SpeedPage> createState() => _SpeedPageState();
 }
 
+const Duration _switcherDuration = Duration(milliseconds: 800);
+
 class _SpeedPageState extends BasePageState<SpeedPage> {
   bool isInit = false;
 
@@ -31,6 +34,43 @@ class _SpeedPageState extends BasePageState<SpeedPage> {
   void initState() {
     super.initState();
     trackingMovingCubit.init();
+  }
+
+  bool _buildWhen(TrackingMovingState p, TrackingMovingState c) {
+    return (p is ReadyTrackingMovingState && c is! ReadyTrackingMovingState) ||
+        (c is ReadyTrackingMovingState && p is! ReadyTrackingMovingState);
+  }
+
+  @override
+  PreferredSizeWidget? buildAppBar(BuildContext context) {
+    return AppBar(
+      centerTitle: true,
+      title: Builder(builder: (context) {
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // Text("Start at: ${DateTime.now()}"),
+            BlocBuilder<PositionTrackingMovingCubit, TrackingMovingState>(
+                buildWhen: _buildWhen,
+                builder: (c, s) {
+                  if (s is ReadyTrackingMovingState) {
+                    return const SizedBox();
+                  }
+                  return StreamBuilder(
+                      stream: context.read<PositionTrackingMovingCubit>().timerStream,
+                      builder: (c, d) {
+                        if (d.hasData) {
+                          final duration = d.data!;
+
+                          return Text(duration.getMinuteFormat());
+                        }
+                        return const SizedBox();
+                      });
+                }),
+          ],
+        );
+      }),
+    );
   }
 
   @override
@@ -46,29 +86,52 @@ class _SpeedPageState extends BasePageState<SpeedPage> {
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            Expanded(
-              child: CyclingBackground(
-                child: Center(
-                  child: BlocSelector<PositionTrackingMovingCubit, TrackingMovingState, double>(
-                    selector: (state) => state.currentSpeed,
-                    builder: (context, speed) {
-                      return Text(
-                        "${speed.toStringAsFixed(0)}",
-                        maxLines: 1,
-                        style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                              fontSize: 180,
-                            ),
-                      );
-                    },
+        child: BlocBuilder<PositionTrackingMovingCubit, TrackingMovingState>(
+          buildWhen: _buildWhen,
+          builder: (context, state) {
+            if (state is ReadyTrackingMovingState) {
+              return AnimatedSwitcher(
+                duration: _switcherDuration,
+                child: CyclingBackground(
+                  child: Center(
+                    child: GoButton(
+                      onTap: () {
+                        trackingMovingCubit.start();
+                      },
+                    ),
                   ),
                 ),
+              );
+            }
+
+            return AnimatedSwitcher(
+              duration: _switcherDuration,
+              child: Column(
+                children: [
+                  Expanded(
+                    child: CyclingBackground(
+                      child: Center(
+                        child: BlocSelector<PositionTrackingMovingCubit, TrackingMovingState, double>(
+                          selector: (state) => state.currentSpeed,
+                          builder: (context, speed) {
+                            return Text(
+                              "${speed.toStringAsFixed(0)}",
+                              maxLines: 1,
+                              style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                                    fontSize: 180,
+                                  ),
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                  ),
+                  _MovingInfo(),
+                  _MovingController(),
+                ],
               ),
-            ),
-            _MovingInfo(),
-            _MovingController(),
-          ],
+            );
+          },
         ),
       ),
     );
@@ -92,19 +155,6 @@ class _MovingInfo extends StatelessWidget {
       child: BlocBuilder<PositionTrackingMovingCubit, TrackingMovingState>(builder: (context, state) {
         return Column(
           children: [
-            Row(
-              children: [
-                Text("Start at: ${DateTime.now()}"),
-                StreamBuilder(
-                    stream: context.read<PositionTrackingMovingCubit>().timerStream,
-                    builder: (c, d) {
-                      if (d.hasData) {
-                        return Text("Duration: ${d.data?.getMinuteFormat()}");
-                      }
-                      return const SizedBox();
-                    }),
-              ],
-            ),
             Row(
               children: [
                 Expanded(
