@@ -137,6 +137,23 @@ class SpeedTrackingMovingCubit extends Cubit<TrackingMovingState>
 
   Stream<Duration> get timerStream => _movingTime.timerStream;
 
+  @override
+  void emit(TrackingMovingState newState) {
+    switch (state) {
+      case ReadyTrackingMovingState():
+        break;
+      case InProgressTrackingMovingState():
+        break;
+      case PauseTrackingMovingState():
+        break;
+      case StopTrackingMovingState():
+        if (newState is! ReadyTrackingMovingState) {
+          return;
+        }
+    }
+    super.emit(newState);
+  }
+
   @mustCallSuper
   void init() {
     gps.requestLocationPermission().then((value) {
@@ -200,8 +217,9 @@ class SpeedTrackingMovingCubit extends Cubit<TrackingMovingState>
 
   @override
   void stop() {
-    _movingTime.stop();
     _cancelSpeedListener();
+    _movingTime.stop();
+    _queueTask.clearAll();
     emit(state.stop());
   }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mp3_convert/base_presentation/page/base_page.dart';
+import 'package:mp3_convert/feature/setting/cubit/unit_cubit.dart';
 import 'package:mp3_convert/feature/tracking_speed/cubit/tracking_cubit.dart';
 import 'package:mp3_convert/feature/tracking_speed/widgets/button.dart';
 import 'package:mp3_convert/feature/tracking_speed/widgets/cycling_background.dart';
@@ -43,34 +44,37 @@ class _SpeedPageState extends BasePageState<SpeedPage> {
 
   @override
   PreferredSizeWidget? buildAppBar(BuildContext context) {
-    return AppBar(
-      centerTitle: true,
-      title: Builder(builder: (context) {
-        return Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Text("Start at: ${DateTime.now()}"),
-            BlocBuilder<PositionTrackingMovingCubit, TrackingMovingState>(
-                buildWhen: _buildWhen,
-                builder: (c, s) {
-                  if (s is ReadyTrackingMovingState) {
-                    return const SizedBox();
-                  }
-                  return StreamBuilder(
-                      stream: context.read<PositionTrackingMovingCubit>().timerStream,
-                      builder: (c, d) {
-                        if (d.hasData) {
-                          final duration = d.data!;
+    if (MediaQuery.of(context).orientation == Orientation.portrait) {
+      return AppBar(
+        centerTitle: true,
+        title: Builder(builder: (context) {
+          return Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Text("Start at: ${DateTime.now()}"),
+              BlocBuilder<PositionTrackingMovingCubit, TrackingMovingState>(
+                  buildWhen: _buildWhen,
+                  builder: (c, s) {
+                    if (s is ReadyTrackingMovingState) {
+                      return const SizedBox();
+                    }
+                    return StreamBuilder(
+                        stream: context.read<PositionTrackingMovingCubit>().timerStream,
+                        builder: (c, d) {
+                          if (d.hasData) {
+                            final duration = d.data!;
 
-                          return Text(duration.getMinuteFormat());
-                        }
-                        return const SizedBox();
-                      });
-                }),
-          ],
-        );
-      }),
-    );
+                            return Text(duration.getMinuteFormat());
+                          }
+                          return const SizedBox();
+                        });
+                  }),
+            ],
+          );
+        }),
+      );
+    }
+    return null;
   }
 
   @override
@@ -106,30 +110,115 @@ class _SpeedPageState extends BasePageState<SpeedPage> {
 
             return AnimatedSwitcher(
               duration: _switcherDuration,
-              child: Column(
-                children: [
-                  Expanded(
-                    child: CyclingBackground(
-                      child: Center(
-                        child: BlocSelector<PositionTrackingMovingCubit, TrackingMovingState, double>(
-                          selector: (state) => state.currentSpeed,
-                          builder: (context, speed) {
-                            return Text(
-                              "${speed.toStringAsFixed(0)}",
-                              maxLines: 1,
-                              style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                                    fontSize: 180,
-                                  ),
-                            );
-                          },
+              child: OrientationBuilder(builder: (context, orientation) {
+                switch (orientation) {
+                  case Orientation.portrait:
+                    return Column(
+                      children: [
+                        Expanded(
+                          child: CyclingBackground(
+                            child: Center(
+                              child: BlocSelector<PositionTrackingMovingCubit, TrackingMovingState, double>(
+                                selector: (state) => state.currentSpeed,
+                                builder: (context, speed) {
+                                  return Stack(
+                                    alignment: Alignment.center,
+                                    children: [
+                                      Align(
+                                        child: Text(
+                                          "${context.read<UnitCubit>().getSpeedSymbol()}",
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .headlineLarge
+                                              ?.copyWith(fontSize: 40, color: Colors.grey.withOpacity(0.3)),
+                                        ),
+                                        alignment: FractionalOffset(0.5, 0.8),
+                                      ),
+                                      RichText(
+                                        text: TextSpan(
+                                          style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                                                fontSize: 180,
+                                              ),
+                                          text: "${speed.toStringAsFixed(0)}",
+                                          children: [
+                                            // TextSpan(
+                                            //   text: "${context.read<UnitCubit>().getSpeedSymbol()}",
+                                            //   style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                                            //         fontSize: 20,
+                                            //       ),
+                                            // ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              ),
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
-                  ),
-                  _MovingInfo(),
-                  _MovingController(),
-                ],
-              ),
+                        _MovingInfo(),
+                        _MovingController(),
+                      ],
+                    );
+                  case Orientation.landscape:
+                    return Row(
+                      children: [
+                        Expanded(
+                          flex: 3,
+                          child: CyclingBackground(
+                            child: Center(
+                              child: BlocSelector<PositionTrackingMovingCubit, TrackingMovingState, double>(
+                                selector: (state) => state.currentSpeed,
+                                builder: (context, speed) {
+                                  return Stack(
+                                    alignment: Alignment.center,
+                                    children: [
+                                      Align(
+                                        child: Text(
+                                          "${context.read<UnitCubit>().getSpeedSymbol()}",
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .headlineLarge
+                                              ?.copyWith(fontSize: 40, color: Colors.grey.withOpacity(0.3)),
+                                        ),
+                                        alignment: FractionalOffset(0.5, 0.8),
+                                      ),
+                                      RichText(
+                                        text: TextSpan(
+                                          style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                                                fontSize: 180,
+                                              ),
+                                          text: "${speed.toStringAsFixed(0)}",
+                                          children: [
+                                            // TextSpan(
+                                            //   text: "${context.read<UnitCubit>().getSpeedSymbol()}",
+                                            //   style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                                            //         fontSize: 20,
+                                            //       ),
+                                            // ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              ),
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                            flex: 2,
+                            child: Column(
+                              children: [
+                                _HMovingInfo(),
+                                _MovingController(),
+                              ],
+                            )),
+                      ],
+                    );
+                }
+              }),
             );
           },
         ),
@@ -145,6 +234,8 @@ class _MovingInfo extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
+    final UnitCubit unitCubit = context.read<UnitCubit>();
+
     return Container(
       margin: EdgeInsets.all(16),
       padding: EdgeInsets.all(16),
@@ -159,8 +250,8 @@ class _MovingInfo extends StatelessWidget {
               children: [
                 Expanded(
                   child: _TitleAndContent(
-                    title: "Avarage",
-                    content: "${state.speed.averageSpeed.toStringAsFixed(1)}",
+                    title: "Avg Speed",
+                    content: unitCubit.getSpeedString(state.averageSpeed, fractionDigits: 1),
                   ),
                 ),
                 Container(
@@ -170,8 +261,8 @@ class _MovingInfo extends StatelessWidget {
                 ),
                 Expanded(
                   child: _TitleAndContent(
-                    title: "Distance",
-                    content: "${state.distance.totalDistance.toStringAsFixed(1)}",
+                    title: "Distance (${unitCubit.getDistanceSymbol()})",
+                    content: unitCubit.getDistanceString(state.totalDistance),
                   ),
                 ),
                 Container(
@@ -182,7 +273,7 @@ class _MovingInfo extends StatelessWidget {
                 Expanded(
                   child: _TitleAndContent(
                     title: "Max Speed",
-                    content: "${state.speed.maxSpeed.toStringAsFixed(1)}",
+                    content: unitCubit.getSpeedString(state.maxSpeed, fractionDigits: 1),
                   ),
                 ),
               ],
@@ -191,6 +282,66 @@ class _MovingInfo extends StatelessWidget {
         );
       }),
     );
+  }
+}
+
+class _HMovingInfo extends StatelessWidget {
+  const _HMovingInfo({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    final UnitCubit unitCubit = context.read<UnitCubit>();
+
+    return BlocBuilder<PositionTrackingMovingCubit, TrackingMovingState>(builder: (context, state) {
+      return Column(
+        children: [
+          Container(
+            margin: EdgeInsets.all(16),
+            padding: EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: theme.highlightColor,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: _TitleAndContent(
+                    title: "Avg Speed",
+                    content: unitCubit.getSpeedString(state.averageSpeed, fractionDigits: 1),
+                  ),
+                ),
+                Container(
+                  height: 40,
+                  width: 1,
+                  color: Colors.white12,
+                ),
+                Expanded(
+                  child: _TitleAndContent(
+                    title: "Max Speed",
+                    content: unitCubit.getSpeedString(state.maxSpeed, fractionDigits: 1),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Container(
+            margin: EdgeInsets.all(16),
+            padding: EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: theme.highlightColor,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            alignment: Alignment.center,
+            child: _TitleAndContent(
+              title: "Distance (${unitCubit.getDistanceSymbol()})",
+              content: unitCubit.getDistanceString(state.totalDistance),
+            ),
+          ),
+        ],
+      );
+    });
   }
 }
 
@@ -245,11 +396,11 @@ class _MovingController extends StatelessWidget {
             );
 
           case StopTrackingMovingState():
-            return CycleButton(
-              child: Text("OKE"),
-              onTap: () {
+            return ElevatedButton(
+              onPressed: () {
                 context.read<PositionTrackingMovingCubit>().reset();
               },
+              child: Text("Reset"),
             );
         }
       },

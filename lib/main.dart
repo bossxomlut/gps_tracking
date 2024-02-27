@@ -5,7 +5,9 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mp3_convert/base_presentation/theme/theme.dart';
+import 'package:mp3_convert/feature/setting/cubit/unit_cubit.dart';
 import 'package:mp3_convert/firebase/firebase_options.dart';
 import 'package:mp3_convert/util/app_life_cycle_mixin.dart';
 import 'package:mp3_convert/util/navigator/app_navigator.dart';
@@ -63,29 +65,36 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     AppTheme.initFromRootContext(context);
-    return ListenableBuilder(
-      listenable: AppTheme.instance,
-      builder: (context, _) {
-        return MaterialApp(
-          localizationsDelegates: context.localizationDelegates,
-          supportedLocales: context.supportedLocales,
-          locale: context.locale,
-          themeMode: AppTheme.instance.mode,
-          theme: ThemeData.dark(),
-          debugShowCheckedModeBanner: false,
-          // theme: ThemeData(
-          //   useMaterial3: true,
-          // ),
-          // darkTheme: ThemeData(
-          //   useMaterial3: true,
-          // ),
-          home: GetHomePage().getPage(null),
-          navigatorKey: AppNavigator.navigatorKey,
-          navigatorObservers: [
-            AppLifeCycleMixin.routeObserver,
-          ],
-        );
-      },
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<UnitCubit>(
+          create: (BuildContext context) => UnitCubit(),
+        ),
+      ],
+      child: ListenableBuilder(
+        listenable: AppTheme.instance,
+        builder: (context, _) {
+          return MaterialApp(
+            localizationsDelegates: context.localizationDelegates,
+            supportedLocales: context.supportedLocales,
+            locale: context.locale,
+            themeMode: AppTheme.instance.mode,
+            theme: ThemeData.dark(),
+            debugShowCheckedModeBanner: false,
+            // theme: ThemeData(
+            //   useMaterial3: true,
+            // ),
+            // darkTheme: ThemeData(
+            //   useMaterial3: true,
+            // ),
+            home: GetHomePage().getPage(null),
+            navigatorKey: AppNavigator.navigatorKey,
+            navigatorObservers: [
+              AppLifeCycleMixin.routeObserver,
+            ],
+          );
+        },
+      ),
     );
   }
 }

@@ -17,5 +17,3 @@ class GPSEntity {
     return speed * 3.6;
   }
 }
-
-enum SpeedUnit { mps, kph }
