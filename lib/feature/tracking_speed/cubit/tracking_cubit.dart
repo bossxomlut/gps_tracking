@@ -10,12 +10,12 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:mp3_convert/base_presentation/cubit/base_cubit.dart';
-import 'package:mp3_convert/util/gps/gps.dart';
-import 'package:mp3_convert/util/gps/gps_util.dart';
-import 'package:mp3_convert/util/gps/speed_util.dart';
-import 'package:mp3_convert/util/task_runner.dart';
-import 'package:mp3_convert/util/timer/moving_time.dart';
+import 'package:gps_speed/base_presentation/cubit/base_cubit.dart';
+import 'package:gps_speed/util/gps/gps.dart';
+import 'package:gps_speed/util/gps/gps_util.dart';
+import 'package:gps_speed/util/gps/speed_util.dart';
+import 'package:gps_speed/util/task_runner.dart';
+import 'package:gps_speed/util/timer/moving_time.dart';
 
 abstract class CalculateDistance {
   //meter

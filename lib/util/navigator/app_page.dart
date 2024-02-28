@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:mp3_convert/feature/home/page/home.dart';
-import 'package:mp3_convert/feature/setting/help_and_feedback_page.dart';
-import 'package:mp3_convert/feature/setting/setting_page.dart';
-import 'package:mp3_convert/feature/tracking_speed/page/speed_page.dart';
-import 'package:mp3_convert/widget/button/go_button.dart';
+import 'package:gps_speed/feature/home/page/home.dart';
+import 'package:gps_speed/feature/setting/help_and_feedback_page.dart';
+import 'package:gps_speed/feature/setting/setting_page.dart';
+import 'package:gps_speed/feature/tracking_speed/page/speed_page.dart';
+import 'package:gps_speed/widget/button/go_button.dart';
 
 class GetHelpAndFeedbackPage extends AppPage {
   GetHelpAndFeedbackPage() : super('/help-and-feedback');

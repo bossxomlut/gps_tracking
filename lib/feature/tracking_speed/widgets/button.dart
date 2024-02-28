@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:mp3_convert/resource/icon_path.dart';
-import 'package:mp3_convert/widget/image.dart';
+import 'package:gps_speed/resource/icon_path.dart';
+import 'package:gps_speed/widget/image.dart';
 
 class PauseButton extends StatelessWidget {
   const PauseButton({Key? key, this.onTap}) : super(key: key);

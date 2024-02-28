@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
-import 'package:mp3_convert/widget/lost_connect_internet_widget.dart';
+import 'package:gps_speed/widget/lost_connect_internet_widget.dart';
 
 class ShowLostConnectInternetHelper {
   ShowLostConnectInternetHelper(this.context);

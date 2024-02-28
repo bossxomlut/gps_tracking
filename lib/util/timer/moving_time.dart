@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:mp3_convert/feature/tracking_speed/cubit/tracking_cubit.dart';
+import 'package:gps_speed/feature/tracking_speed/cubit/tracking_cubit.dart';
 
 import 'custom_timer.dart';
 

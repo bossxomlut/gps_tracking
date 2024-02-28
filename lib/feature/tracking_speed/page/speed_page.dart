@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:mp3_convert/base_presentation/page/base_page.dart';
-import 'package:mp3_convert/feature/setting/cubit/unit_cubit.dart';
-import 'package:mp3_convert/feature/tracking_speed/cubit/tracking_cubit.dart';
-import 'package:mp3_convert/feature/tracking_speed/widgets/button.dart';
-import 'package:mp3_convert/feature/tracking_speed/widgets/cycling_background.dart';
-import 'package:mp3_convert/widget/button/go_button.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:gps_speed/base_presentation/page/base_page.dart';
+import 'package:gps_speed/feature/setting/cubit/unit_cubit.dart';
+import 'package:gps_speed/feature/tracking_speed/cubit/tracking_cubit.dart';
+import 'package:gps_speed/feature/tracking_speed/widgets/button.dart';
+import 'package:gps_speed/feature/tracking_speed/widgets/cycling_background.dart';
+import 'package:gps_speed/util/gps/gps.dart';
+import 'package:gps_speed/widget/button/go_button.dart';
+import 'package:gps_speed/widget/request_permission_dialog/request_location_service_dialog.dart';
 
 extension TimeFormat on Duration {
   String getMinuteFormat() {

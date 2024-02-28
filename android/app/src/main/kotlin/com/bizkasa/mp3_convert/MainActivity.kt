@@ -1,4 +1,4 @@
-package com.bizkasa.mp3_convert
+package com.vinhnt.gps_speed
 
 import io.flutter.embedding.android.FlutterActivity
 

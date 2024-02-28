@@ -1,7 +1,7 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
-import 'package:mp3_convert/util/navigator/app_page.dart';
+import 'package:gps_speed/util/navigator/app_page.dart';
 
 abstract class AppNavigator {
   static final navigatorKey = GlobalKey<NavigatorState>();

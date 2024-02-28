@@ -1,6 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
-import 'package:mp3_convert/di/di.dart';
-import 'package:mp3_convert/util/downloader_util.dart';
+import 'package:gps_speed/di/di.dart';
+import 'package:gps_speed/util/downloader_util.dart';
 
 class AppSetting {
   Future initApp() async {

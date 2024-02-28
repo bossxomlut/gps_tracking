@@ -4,7 +4,7 @@ import 'dart:developer';
 import 'package:curl_logger_dio_interceptor/curl_logger_dio_interceptor.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import 'package:mp3_convert/internet_connect/http_request/api_interceptor.dart';
+import 'package:gps_speed/internet_connect/http_request/api_interceptor.dart';
 
 import 'api_response.dart';
 

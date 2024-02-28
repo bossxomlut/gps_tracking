@@ -1,8 +1,8 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:mp3_convert/base_presentation/page/base_page.dart';
-import 'package:mp3_convert/base_presentation/view/view.dart';
-import 'package:mp3_convert/resource/string.dart';
+import 'package:gps_speed/base_presentation/page/base_page.dart';
+import 'package:gps_speed/base_presentation/view/view.dart';
+import 'package:gps_speed/resource/string.dart';
 
 class SettingPage extends StatefulWidget {
   const SettingPage({Key? key}) : super(key: key);

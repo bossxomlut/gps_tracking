@@ -1,7 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:mp3_convert/base_presentation/cubit/base_cubit.dart';
-import 'package:mp3_convert/data/unit.dart';
+import 'package:gps_speed/base_presentation/cubit/base_cubit.dart';
+import 'package:gps_speed/data/unit.dart';
 
 const speedFractionDigits = 0;
 const distanceFractionDigits = 1;

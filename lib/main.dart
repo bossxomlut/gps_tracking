@@ -6,12 +6,12 @@ import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:mp3_convert/base_presentation/theme/theme.dart';
-import 'package:mp3_convert/feature/setting/cubit/unit_cubit.dart';
-import 'package:mp3_convert/firebase/firebase_options.dart';
-import 'package:mp3_convert/util/app_life_cycle_mixin.dart';
-import 'package:mp3_convert/util/navigator/app_navigator.dart';
-import 'package:mp3_convert/util/navigator/app_page.dart';
+import 'package:gps_speed/base_presentation/theme/theme.dart';
+import 'package:gps_speed/feature/setting/cubit/unit_cubit.dart';
+import 'package:gps_speed/firebase/firebase_options.dart';
+import 'package:gps_speed/util/app_life_cycle_mixin.dart';
+import 'package:gps_speed/util/navigator/app_navigator.dart';
+import 'package:gps_speed/util/navigator/app_page.dart';
 
 import 'main_setting/app_setting.dart';
 

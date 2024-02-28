@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:mp3_convert/base_presentation/page/base_page.dart';
-import 'package:mp3_convert/base_presentation/view/safe_set_state.dart';
-import 'package:mp3_convert/base_presentation/view/view.dart';
-import 'package:mp3_convert/resource/string.dart';
-import 'package:mp3_convert/util/hardcode_string.dart';
+import 'package:gps_speed/base_presentation/page/base_page.dart';
+import 'package:gps_speed/base_presentation/view/safe_set_state.dart';
+import 'package:gps_speed/base_presentation/view/view.dart';
+import 'package:gps_speed/resource/string.dart';
+import 'package:gps_speed/util/hardcode_string.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/link.dart';
 import 'package:url_launcher/url_launcher.dart';

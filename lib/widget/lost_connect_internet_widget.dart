@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:mp3_convert/base_presentation/view/view.dart';
-import 'package:mp3_convert/resource/icon_path.dart';
-import 'package:mp3_convert/resource/string.dart';
-import 'package:mp3_convert/widget/image.dart';
+import 'package:gps_speed/base_presentation/view/view.dart';
+import 'package:gps_speed/resource/icon_path.dart';
+import 'package:gps_speed/resource/string.dart';
+import 'package:gps_speed/widget/image.dart';
 
 class LostConnectInternetWidget extends StatelessWidget {
   const LostConnectInternetWidget({super.key});

@@ -1,5 +1,5 @@
-name: mp3_convert
-description: "A mp3 convert application"
+name: gps_speed
+description: "A tracking moving application"
 
 # The following defines the version and build number for your application.
 # A version number is three numbers separated by dots, like 1.2.43
