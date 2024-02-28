@@ -14,6 +14,8 @@ abstract class GPSUtil {
 
   Future<bool> requestLocationPermission();
 
+  Future<bool> openSettingLocationPermission();
+
   Future<bool> openSettingLocationService();
 
   Future<bool> checkEnableLocationService();
@@ -94,6 +96,11 @@ class _GPSUtilImpl extends GPSUtil {
   @override
   Future<bool> openSettingLocationService() {
     return Geolocator.openLocationSettings();
+  }
+
+  @override
+  Future<bool> openSettingLocationPermission() {
+    return Geolocator.openAppSettings();
   }
 }
 

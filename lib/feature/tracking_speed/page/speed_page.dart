@@ -1,24 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:geolocator/geolocator.dart';
+import 'package:gps_speed/base_presentation/cubit/event_mixin.dart';
 import 'package:gps_speed/base_presentation/page/base_page.dart';
 import 'package:gps_speed/feature/setting/cubit/unit_cubit.dart';
+import 'package:gps_speed/feature/tracking_speed/cubit/location_service_cubit.dart';
 import 'package:gps_speed/feature/tracking_speed/cubit/tracking_cubit.dart';
+import 'package:gps_speed/feature/tracking_speed/cubit/tracking_event.dart';
+import 'package:gps_speed/feature/tracking_speed/cubit/tracking_state.dart';
 import 'package:gps_speed/feature/tracking_speed/widgets/button.dart';
 import 'package:gps_speed/feature/tracking_speed/widgets/cycling_background.dart';
 import 'package:gps_speed/util/gps/gps.dart';
+import 'package:gps_speed/util/timer/custom_timer.dart';
 import 'package:gps_speed/widget/button/go_button.dart';
+import 'package:gps_speed/widget/gps_icon_widget.dart';
+import 'package:gps_speed/widget/request_permission_dialog/request_location_permission_dialog.dart';
 import 'package:gps_speed/widget/request_permission_dialog/request_location_service_dialog.dart';
 
-extension TimeFormat on Duration {
-  String getMinuteFormat() {
-    int sec = inSeconds % 60;
-    int min = (inSeconds / 60).floor();
-    String minute = min.toString().length <= 1 ? "0$min" : "$min";
-    String second = sec.toString().length <= 1 ? "0$sec" : "$sec";
-    return '$minute’ $second‘’';
-  }
-}
+const Duration _switcherDuration = Duration(milliseconds: 800);
 
 class SpeedPage extends StatefulWidget {
   const SpeedPage({super.key});
@@ -27,11 +25,7 @@ class SpeedPage extends StatefulWidget {
   State<SpeedPage> createState() => _SpeedPageState();
 }
 
-const Duration _switcherDuration = Duration(milliseconds: 800);
-
 class _SpeedPageState extends BasePageState<SpeedPage> {
-  bool isInit = false;
-
   final PositionTrackingMovingCubit trackingMovingCubit = PositionTrackingMovingCubit();
 
   @override
@@ -42,52 +36,53 @@ class _SpeedPageState extends BasePageState<SpeedPage> {
     });
   }
 
+  @override
+  Widget build(BuildContext context) {
+    return LocationServiceWrapper(
+      child: BlocProvider(
+        create: (_) => trackingMovingCubit,
+        child: super.build(context),
+      ),
+    );
+  }
+
+  // @override
+  // PreferredSizeWidget? buildAppBar(BuildContext context) {
+  //   if (MediaQuery.of(context).orientation == Orientation.portrait) {
+  //     return AppBar(
+  //       centerTitle: true,
+  //       title: Builder(builder: (context) {
+  //         return Row(
+  //           mainAxisAlignment: MainAxisAlignment.center,
+  //           children: [
+  //             BlocBuilder<PositionTrackingMovingCubit, TrackingMovingState>(
+  //                 buildWhen: _buildWhen,
+  //                 builder: (c, s) {
+  //                   if (s is ReadyTrackingMovingState) {
+  //                     return const SizedBox();
+  //                   }
+  //                   return StreamBuilder(
+  //                       stream: context.read<PositionTrackingMovingCubit>().timerStream,
+  //                       builder: (c, d) {
+  //                         if (d.hasData) {
+  //                           final duration = d.data!;
+  //
+  //                           return Text(duration.getMinuteFormat());
+  //                         }
+  //                         return const SizedBox();
+  //                       });
+  //                 }),
+  //           ],
+  //         );
+  //       }),
+  //     );
+  //   }
+  //   return null;
+  // }
+
   bool _buildWhen(TrackingMovingState p, TrackingMovingState c) {
     return (p is ReadyTrackingMovingState && c is! ReadyTrackingMovingState) ||
         (c is ReadyTrackingMovingState && p is! ReadyTrackingMovingState);
-  }
-
-  @override
-  PreferredSizeWidget? buildAppBar(BuildContext context) {
-    if (MediaQuery.of(context).orientation == Orientation.portrait) {
-      return AppBar(
-        centerTitle: true,
-        title: Builder(builder: (context) {
-          return Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              // Text("Start at: ${DateTime.now()}"),
-              BlocBuilder<PositionTrackingMovingCubit, TrackingMovingState>(
-                  buildWhen: _buildWhen,
-                  builder: (c, s) {
-                    if (s is ReadyTrackingMovingState) {
-                      return const SizedBox();
-                    }
-                    return StreamBuilder(
-                        stream: context.read<PositionTrackingMovingCubit>().timerStream,
-                        builder: (c, d) {
-                          if (d.hasData) {
-                            final duration = d.data!;
-
-                            return Text(duration.getMinuteFormat());
-                          }
-                          return const SizedBox();
-                        });
-                  }),
-            ],
-          );
-        }),
-      );
-    }
-    return null;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => trackingMovingCubit,
-      child: super.build(context),
-    );
   }
 
   @override
@@ -99,160 +94,203 @@ class _SpeedPageState extends BasePageState<SpeedPage> {
           buildWhen: _buildWhen,
           builder: (context, state) {
             if (state is ReadyTrackingMovingState) {
-              return AnimatedSwitcher(
-                duration: _switcherDuration,
-                child: CyclingBackground(
-                  child: Center(
-                    child: GoButton(
-                      onTap: () {
-                        trackingMovingCubit.init().then((value) {
-                          trackingMovingCubit.start();
-                        }).catchError((error) {
-                          if (error is GPSException) {
-                            switch (error) {
-                              case DisableLocationServiceException():
-                                RequestLocationServiceDialog(
-                                  onEnableLocationService: (bool isEnable) {
-                                    if (isEnable) {
-                                      trackingMovingCubit.start();
-                                    }
-                                  },
-                                ).show(context);
-                                break;
-                              case DeniedLocationPermissionException():
-                                GPSUtil.instance.requestLocationPermission().then((value) {}).catchError((error) {
-                                  print('error: ${error}');
-                                });
-                                break;
-                              case DeniedForeverLocationPermissionException():
-                                Geolocator.openAppSettings();
-                                break;
-                            }
-                          }
-                        });
-                      },
-                    ),
-                  ),
-                ),
-              );
+              return buildGoButton(context);
             }
 
-            return AnimatedSwitcher(
-              duration: _switcherDuration,
-              child: OrientationBuilder(builder: (context, orientation) {
-                switch (orientation) {
-                  case Orientation.portrait:
-                    return Column(
-                      children: [
-                        Expanded(
-                          child: CyclingBackground(
-                            child: Center(
-                              child: BlocSelector<PositionTrackingMovingCubit, TrackingMovingState, double>(
-                                selector: (state) => state.currentSpeed,
-                                builder: (context, speed) {
-                                  return Stack(
-                                    alignment: Alignment.center,
-                                    children: [
-                                      Align(
-                                        child: Text(
-                                          "${context.read<UnitCubit>().getSpeedSymbol()}",
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .headlineLarge
-                                              ?.copyWith(fontSize: 40, color: Colors.grey.withOpacity(0.3)),
-                                        ),
-                                        alignment: FractionalOffset(0.5, 0.8),
-                                      ),
-                                      RichText(
-                                        text: TextSpan(
-                                          style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                                                fontSize: 180,
-                                              ),
-                                          text: "${speed.toStringAsFixed(0)}",
-                                          children: [
-                                            // TextSpan(
-                                            //   text: "${context.read<UnitCubit>().getSpeedSymbol()}",
-                                            //   style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                                            //         fontSize: 20,
-                                            //       ),
-                                            // ),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  );
-                                },
-                              ),
-                            ),
-                          ),
-                        ),
-                        _MovingInfo(),
-                        _MovingController(),
-                      ],
-                    );
-                  case Orientation.landscape:
-                    return Row(
-                      children: [
-                        Expanded(
-                          flex: 3,
-                          child: CyclingBackground(
-                            child: Center(
-                              child: BlocSelector<PositionTrackingMovingCubit, TrackingMovingState, double>(
-                                selector: (state) => state.currentSpeed,
-                                builder: (context, speed) {
-                                  return Stack(
-                                    alignment: Alignment.center,
-                                    children: [
-                                      Align(
-                                        child: Text(
-                                          "${context.read<UnitCubit>().getSpeedSymbol()}",
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .headlineLarge
-                                              ?.copyWith(fontSize: 40, color: Colors.grey.withOpacity(0.3)),
-                                        ),
-                                        alignment: FractionalOffset(0.5, 0.8),
-                                      ),
-                                      RichText(
-                                        text: TextSpan(
-                                          style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                                                fontSize: 180,
-                                              ),
-                                          text: "${speed.toStringAsFixed(0)}",
-                                          children: [
-                                            // TextSpan(
-                                            //   text: "${context.read<UnitCubit>().getSpeedSymbol()}",
-                                            //   style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                                            //         fontSize: 20,
-                                            //       ),
-                                            // ),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  );
-                                },
-                              ),
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                            flex: 2,
-                            child: Column(
-                              children: [
-                                _HMovingInfo(),
-                                _MovingController(),
-                              ],
-                            )),
-                      ],
-                    );
-                }
-              }),
-            );
+            return buildTrackingView();
           },
         ),
       ),
     );
+  }
+
+  AnimatedSwitcher buildGoButton(BuildContext context) {
+    return AnimatedSwitcher(
+      duration: _switcherDuration,
+      child: Stack(
+        children: [
+          CyclingBackground(
+            child: Center(
+              child: GoButton(
+                onTap: () {
+                  final LocationServiceCubit locationServiceCubit = context.read<LocationServiceCubit>();
+                  if (locationServiceCubit.canStart()) {
+                    trackingMovingCubit.start();
+                  } else {
+                    locationServiceCubit.requestPermissions();
+                  }
+                },
+              ),
+            ),
+          ),
+          const LocationServiceInfoWidget(),
+        ],
+      ),
+    );
+  }
+
+  AnimatedSwitcher buildTrackingView() {
+    return AnimatedSwitcher(
+      duration: _switcherDuration,
+      child: OrientationBuilder(builder: (context, orientation) {
+        switch (orientation) {
+          case Orientation.portrait:
+            return Column(
+              children: [
+                Expanded(
+                  child: Stack(
+                    children: [
+                      CyclingBackground(
+                        child: Center(
+                          child: BlocSelector<PositionTrackingMovingCubit, TrackingMovingState, double>(
+                            selector: (state) => state.currentSpeed,
+                            builder: (context, speed) {
+                              return Stack(
+                                alignment: Alignment.center,
+                                children: [
+                                  Align(
+                                    child: Text(
+                                      "${context.read<UnitCubit>().getSpeedSymbol()}",
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .headlineLarge
+                                          ?.copyWith(fontSize: 40, color: Colors.grey.withOpacity(0.3)),
+                                    ),
+                                    alignment: FractionalOffset(0.5, 0.8),
+                                  ),
+                                  RichText(
+                                    text: TextSpan(
+                                      style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                                            fontSize: 180,
+                                          ),
+                                      text: "${speed.toStringAsFixed(0)}",
+                                      children: [
+                                        // TextSpan(
+                                        //   text: "${context.read<UnitCubit>().getSpeedSymbol()}",
+                                        //   style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                                        //         fontSize: 20,
+                                        //       ),
+                                        // ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                      const LocationServiceInfoWidget(),
+                    ],
+                  ),
+                ),
+                _MovingInfo(),
+                _MovingController(),
+              ],
+            );
+          case Orientation.landscape:
+            return Row(
+              children: [
+                Expanded(
+                  flex: 3,
+                  child: CyclingBackground(
+                    child: Center(
+                      child: BlocSelector<PositionTrackingMovingCubit, TrackingMovingState, double>(
+                        selector: (state) => state.currentSpeed,
+                        builder: (context, speed) {
+                          return Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              Align(
+                                child: Text(
+                                  "${context.read<UnitCubit>().getSpeedSymbol()}",
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .headlineLarge
+                                      ?.copyWith(fontSize: 40, color: Colors.grey.withOpacity(0.3)),
+                                ),
+                                alignment: FractionalOffset(0.5, 0.8),
+                              ),
+                              RichText(
+                                text: TextSpan(
+                                  style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                                        fontSize: 180,
+                                      ),
+                                  text: "${speed.toStringAsFixed(0)}",
+                                  children: [
+                                    // TextSpan(
+                                    //   text: "${context.read<UnitCubit>().getSpeedSymbol()}",
+                                    //   style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                                    //         fontSize: 20,
+                                    //       ),
+                                    // ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                ),
+                Expanded(
+                    flex: 2,
+                    child: Column(
+                      children: [
+                        _HMovingInfo(),
+                        _MovingController(),
+                      ],
+                    )),
+              ],
+            );
+        }
+      }),
+    );
+  }
+}
+
+class LocationServiceWrapper extends StatefulWidget {
+  const LocationServiceWrapper({super.key, required this.child});
+
+  final Widget child;
+
+  @override
+  State<LocationServiceWrapper> createState() => _LocationServiceWrapperState();
+}
+
+class _LocationServiceWrapperState extends State<LocationServiceWrapper>
+    with EventStateMixin<LocationServiceWrapper, LocationServiceEvent> {
+  @override
+  Stream<LocationServiceEvent> get eventStream => context.read<LocationServiceCubit>().$eventStream;
+
+  @override
+  void eventListener(LocationServiceEvent event) {
+    switch (event) {
+      case DisableLocationServiceEvent():
+        RequestLocationServiceDialog(
+          onEnableLocationService: (bool isEnable) {},
+        ).show(context);
+        break;
+
+      case DeniedLocationPermissionEvent():
+        GPSUtil.instance.requestLocationPermission().then((value) {}).catchError((error) {
+          print('error: ${error}');
+        });
+        break;
+
+      case DeniedForeverLocationPermissionEvent():
+        RequestLocationPermissionDialog(
+          onEnableLocationPermission: (value) {},
+        ).show(context).then((value) {});
+
+        break;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return widget.child;
   }
 }
 

@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gps_speed/base_presentation/theme/theme.dart';
 import 'package:gps_speed/feature/setting/cubit/unit_cubit.dart';
+import 'package:gps_speed/feature/tracking_speed/cubit/location_service_cubit.dart';
 import 'package:gps_speed/firebase/firebase_options.dart';
 import 'package:gps_speed/util/app_life_cycle_mixin.dart';
 import 'package:gps_speed/util/navigator/app_navigator.dart';
@@ -69,6 +70,9 @@ class MyApp extends StatelessWidget {
       providers: [
         BlocProvider<UnitCubit>(
           create: (BuildContext context) => UnitCubit(),
+        ),
+        BlocProvider<LocationServiceCubit>(
+          create: (BuildContext context) => LocationServiceCubit(),
         ),
       ],
       child: ListenableBuilder(
