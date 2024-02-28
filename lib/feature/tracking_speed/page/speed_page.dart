@@ -39,9 +39,23 @@ class _SpeedPageState extends BasePageState<SpeedPage> {
   @override
   Widget build(BuildContext context) {
     return LocationServiceWrapper(
-      child: BlocProvider(
-        create: (_) => trackingMovingCubit,
-        child: super.build(context),
+      child: BlocListener<LocationServiceCubit, LocationServiceState>(
+        listener: (context, state) {
+          if (!state.isGranted || !state.isEnableService) {
+            switch (trackingMovingCubit.state) {
+              case InProgressTrackingMovingState():
+                trackingMovingCubit.pause();
+                break;
+              case ReadyTrackingMovingState():
+              case PauseTrackingMovingState():
+              case StopTrackingMovingState():
+            }
+          }
+        },
+        child: BlocProvider(
+          create: (_) => trackingMovingCubit,
+          child: super.build(context),
+        ),
       ),
     );
   }
@@ -423,7 +437,11 @@ class _MovingController extends StatelessWidget {
           case ReadyTrackingMovingState():
             return PlayButton(
               onTap: () async {
-                context.read<PositionTrackingMovingCubit>().start();
+                if (context.read<LocationServiceCubit>().canStart()) {
+                  context.read<PositionTrackingMovingCubit>().start();
+                } else {
+                  context.read<LocationServiceCubit>().requestPermissions();
+                }
               },
             );
 
@@ -450,7 +468,11 @@ class _MovingController extends StatelessWidget {
               children: [
                 PlayButton(
                   onTap: () async {
-                    context.read<PositionTrackingMovingCubit>().resume();
+                    if (context.read<LocationServiceCubit>().canStart()) {
+                      context.read<PositionTrackingMovingCubit>().resume();
+                    } else {
+                      context.read<LocationServiceCubit>().requestPermissions();
+                    }
                   },
                 ),
                 const SizedBox(width: 16),
