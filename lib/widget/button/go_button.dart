@@ -51,6 +51,7 @@ class _GoButtonState extends State<GoButton> with SingleTickerProviderStateMixin
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return GestureDetector(
       onTap: widget.onTap,
       child: Stack(
@@ -68,11 +69,11 @@ class _GoButtonState extends State<GoButton> with SingleTickerProviderStateMixin
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  border: Border.all(color: Colors.greenAccent, width: 2),
+                  border: Border.all(color: theme.primaryColor, width: 2),
                 ),
                 child: Text(
                   "GO",
-                  style: Theme.of(context).textTheme.headlineLarge?.copyWith(fontSize: 40, color: Colors.greenAccent),
+                  style: theme.textTheme.headlineLarge?.copyWith(fontSize: 40, color: theme.primaryColor),
                 ),
               );
             },

@@ -37,7 +37,9 @@ class _SpeedPageState extends BasePageState<SpeedPage> {
   @override
   void initState() {
     super.initState();
-    trackingMovingCubit.init();
+    trackingMovingCubit.init().then((value) {}).catchError((error) {
+      if (error is GPSException) {}
+    });
   }
 
   bool _buildWhen(TrackingMovingState p, TrackingMovingState c) {
@@ -103,7 +105,31 @@ class _SpeedPageState extends BasePageState<SpeedPage> {
                   child: Center(
                     child: GoButton(
                       onTap: () {
-                        trackingMovingCubit.start();
+                        trackingMovingCubit.init().then((value) {
+                          trackingMovingCubit.start();
+                        }).catchError((error) {
+                          if (error is GPSException) {
+                            switch (error) {
+                              case DisableLocationServiceException():
+                                RequestLocationServiceDialog(
+                                  onEnableLocationService: (bool isEnable) {
+                                    if (isEnable) {
+                                      trackingMovingCubit.start();
+                                    }
+                                  },
+                                ).show(context);
+                                break;
+                              case DeniedLocationPermissionException():
+                                GPSUtil.instance.requestLocationPermission().then((value) {}).catchError((error) {
+                                  print('error: ${error}');
+                                });
+                                break;
+                              case DeniedForeverLocationPermissionException():
+                                Geolocator.openAppSettings();
+                                break;
+                            }
+                          }
+                        });
                       },
                     ),
                   ),

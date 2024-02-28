@@ -14,6 +14,8 @@ abstract class GPSUtil {
 
   Future<bool> requestLocationPermission();
 
+  Future<bool> openSettingLocationService();
+
   Future<bool> checkEnableLocationService();
 
   Stream<bool> listenLocationServiceChanged();
@@ -78,15 +80,20 @@ class _GPSUtilImpl extends GPSUtil {
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
-        throw Exception('Location permissions are denied');
+        throw DeniedLocationPermissionException();
       }
     }
 
     if (permission == LocationPermission.deniedForever) {
-      throw Exception('Location permissions are permanently denied, we cannot request permissions.');
+      throw DeniedForeverLocationPermissionException();
     }
 
     return true;
+  }
+
+  @override
+  Future<bool> openSettingLocationService() {
+    return Geolocator.openLocationSettings();
   }
 }
 
@@ -98,3 +105,11 @@ GPSEntity _fromPosition(Position position) {
     time: position.timestamp,
   );
 }
+
+sealed class GPSException implements Exception {}
+
+class DisableLocationServiceException extends GPSException {}
+
+class DeniedLocationPermissionException extends GPSException {}
+
+class DeniedForeverLocationPermissionException extends GPSException {}

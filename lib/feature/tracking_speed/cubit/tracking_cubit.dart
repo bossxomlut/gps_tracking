@@ -155,10 +155,20 @@ class SpeedTrackingMovingCubit extends Cubit<TrackingMovingState>
   }
 
   @mustCallSuper
-  void init() {
-    gps.requestLocationPermission().then((value) {
-      gps.checkEnableLocationService().then((value) {});
+  Future init() async {
+    final isGrantedLocationPermission = await gps.requestLocationPermission().catchError((error) {
+      throw error;
     });
+
+    if (!isGrantedLocationPermission) {
+      throw DeniedLocationPermissionException();
+    }
+
+    final isEnableLocationService = await gps.checkEnableLocationService().catchError((error) {});
+
+    if (!isEnableLocationService) {
+      throw DisableLocationServiceException();
+    }
   }
 
   @override

@@ -79,7 +79,9 @@ class MyApp extends StatelessWidget {
             supportedLocales: context.supportedLocales,
             locale: context.locale,
             themeMode: AppTheme.instance.mode,
-            theme: ThemeData.dark(),
+            theme: ThemeData.dark().copyWith(
+              primaryColor: Colors.greenAccent,
+            ),
             debugShowCheckedModeBanner: false,
             // theme: ThemeData(
             //   useMaterial3: true,
