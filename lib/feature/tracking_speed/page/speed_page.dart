@@ -484,6 +484,21 @@ class _MovingController extends StatelessWidget {
             );
 
           case StopTrackingMovingState():
+            return CycleButton(
+              backgroundColor: Theme.of(context).highlightColor,
+              onTap: () {
+                context.read<PositionTrackingMovingCubit>().reset();
+              },
+              child: Container(
+                width: 76,
+                height: 76,
+                alignment: Alignment.center,
+                child: Text(
+                  "Reset",
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+              ),
+            );
             return ElevatedButton(
               onPressed: () {
                 context.read<PositionTrackingMovingCubit>().reset();
