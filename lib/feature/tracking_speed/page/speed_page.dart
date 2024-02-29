@@ -69,7 +69,7 @@ class _SpeedPageState extends BasePageState<SpeedPage> {
   //         return Row(
   //           mainAxisAlignment: MainAxisAlignment.center,
   //           children: [
-  //             BlocBuilder<PositionTrackingMovingCubit, TrackingMovingState>(
+  //             BlocBuilder<PositionTrackingMovingCubGPS_SPEED__1_-removebg-preview.pngit, TrackingMovingState>(
   //                 buildWhen: _buildWhen,
   //                 builder: (c, s) {
   //                   if (s is ReadyTrackingMovingState) {
@@ -121,24 +121,19 @@ class _SpeedPageState extends BasePageState<SpeedPage> {
   AnimatedSwitcher buildGoButton(BuildContext context) {
     return AnimatedSwitcher(
       duration: _switcherDuration,
-      child: Stack(
-        children: [
-          CyclingBackground(
-            child: Center(
-              child: GoButton(
-                onTap: () {
-                  final LocationServiceCubit locationServiceCubit = context.read<LocationServiceCubit>();
-                  if (locationServiceCubit.canStart()) {
-                    trackingMovingCubit.start();
-                  } else {
-                    locationServiceCubit.requestPermissions();
-                  }
-                },
-              ),
-            ),
+      child: CyclingBackground(
+        child: Center(
+          child: GoButton(
+            onTap: () {
+              final LocationServiceCubit locationServiceCubit = context.read<LocationServiceCubit>();
+              if (locationServiceCubit.canStart()) {
+                trackingMovingCubit.start();
+              } else {
+                locationServiceCubit.requestPermissions();
+              }
+            },
           ),
-          const LocationServiceInfoWidget(),
-        ],
+        ),
       ),
     );
   }
@@ -152,50 +147,45 @@ class _SpeedPageState extends BasePageState<SpeedPage> {
             return Column(
               children: [
                 Expanded(
-                  child: Stack(
-                    children: [
-                      CyclingBackground(
-                        child: Center(
-                          child: BlocSelector<PositionTrackingMovingCubit, TrackingMovingState, double>(
-                            selector: (state) => state.currentSpeed,
-                            builder: (context, speed) {
-                              return Stack(
-                                alignment: Alignment.center,
-                                children: [
-                                  Align(
-                                    child: Text(
-                                      "${context.read<UnitCubit>().getSpeedSymbol()}",
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .headlineLarge
-                                          ?.copyWith(fontSize: 40, color: Colors.grey.withOpacity(0.3)),
-                                    ),
-                                    alignment: FractionalOffset(0.5, 0.8),
-                                  ),
-                                  RichText(
-                                    text: TextSpan(
-                                      style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                                            fontSize: 180,
-                                          ),
-                                      text: "${speed.toStringAsFixed(0)}",
-                                      children: [
-                                        // TextSpan(
-                                        //   text: "${context.read<UnitCubit>().getSpeedSymbol()}",
-                                        //   style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                                        //         fontSize: 20,
-                                        //       ),
-                                        // ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              );
-                            },
-                          ),
-                        ),
+                  child: CyclingBackground(
+                    child: Center(
+                      child: BlocSelector<PositionTrackingMovingCubit, TrackingMovingState, double>(
+                        selector: (state) => state.currentSpeed,
+                        builder: (context, speed) {
+                          return Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              Align(
+                                child: Text(
+                                  "${context.read<UnitCubit>().getSpeedSymbol()}",
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .headlineLarge
+                                      ?.copyWith(fontSize: 40, color: Colors.grey.withOpacity(0.3)),
+                                ),
+                                alignment: FractionalOffset(0.5, 0.8),
+                              ),
+                              RichText(
+                                text: TextSpan(
+                                  style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                                        fontSize: 180,
+                                      ),
+                                  text: "${speed.toStringAsFixed(0)}",
+                                  children: [
+                                    // TextSpan(
+                                    //   text: "${context.read<UnitCubit>().getSpeedSymbol()}",
+                                    //   style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                                    //         fontSize: 20,
+                                    //       ),
+                                    // ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          );
+                        },
                       ),
-                      const LocationServiceInfoWidget(),
-                    ],
+                    ),
                   ),
                 ),
                 _MovingInfo(),
@@ -304,7 +294,16 @@ class _LocationServiceWrapperState extends State<LocationServiceWrapper>
 
   @override
   Widget build(BuildContext context) {
-    return widget.child;
+    return Stack(
+      children: [
+        widget.child,
+        const SafeArea(
+            child: Padding(
+          padding: EdgeInsets.all(8.0),
+          child: LocationServiceInfoWidget(),
+        )),
+      ],
+    );
   }
 }
 

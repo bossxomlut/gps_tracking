@@ -35,10 +35,10 @@ class GPSIconWidget extends StatelessWidget {
     final theme = Theme.of(context);
     final color = isEnabled ? theme.primaryColor : theme.disabledColor;
     return Container(
-      padding: EdgeInsets.all(8),
+      padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        border: Border.all(color: color),
-        // borderRadius: BorderRadius.circular(20),
+        color: theme.highlightColor,
+        borderRadius: BorderRadius.circular(20),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -69,10 +69,10 @@ class GPSPermissionWidget extends StatelessWidget {
     final theme = Theme.of(context);
     final color = isEnabled ? theme.primaryColor : theme.disabledColor;
     return Container(
-      padding: EdgeInsets.all(8),
+      padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        border: Border.all(color: color),
-        // borderRadius: BorderRadius.circular(20),
+        color: theme.highlightColor,
+        borderRadius: BorderRadius.circular(20),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
