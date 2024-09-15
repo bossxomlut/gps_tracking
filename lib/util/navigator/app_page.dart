@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:gps_speed/feature/home/page/home.dart';
 import 'package:gps_speed/feature/setting/help_and_feedback_page.dart';
 import 'package:gps_speed/feature/setting/setting_page.dart';
 import 'package:gps_speed/feature/tracking_speed/page/speed_page.dart';
-import 'package:gps_speed/widget/button/go_button.dart';
+
+import '../../feature/onboard/page/onboarding_page.dart';
 
 class GetHelpAndFeedbackPage extends AppPage {
   GetHelpAndFeedbackPage() : super('/help-and-feedback');
@@ -32,10 +32,29 @@ class GetHomePage extends AppPage {
   }
 }
 
+class GetOnboardingPage extends AppPage {
+  GetOnboardingPage() : super('/onboarding');
+
+  @override
+  Widget? getPage(Object? arguments) {
+    return const OnboardingPage();
+  }
+}
+
 sealed class AppPage {
   final String path;
 
   AppPage(this.path);
 
   Widget? getPage(Object? arguments);
+
+  static AppPage? _initPage;
+
+  static void setInitPage(AppPage initPage) {
+    _initPage = initPage;
+  }
+
+  static AppPage getInitialPage() {
+    return _initPage ?? GetOnboardingPage();
+  }
 }

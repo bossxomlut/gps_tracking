@@ -35,9 +35,17 @@ abstract class AppNavigator {
     }
   }
 
-  static Future goOff(String name) {
+  static Future goOff(AppPage appPage, [dynamic arguments]) {
     if (navigatorKey.currentContext != null) {
-      return Navigator.of(navigatorKey.currentContext!).pushNamedAndRemoveUntil(name, (route) => false);
+      return Navigator.of(navigatorKey.currentContext!).pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => appPage.getPage(arguments)!,
+          settings: RouteSettings(
+            name: appPage.path,
+            arguments: arguments,
+          ),
+        ),
+      );
     }
     return Future.value();
   }

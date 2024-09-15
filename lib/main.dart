@@ -86,15 +86,9 @@ class MyApp extends StatelessWidget {
             theme: ThemeData.dark().copyWith(
               primaryColor: Colors.greenAccent,
             ),
-            debugShowCheckedModeBanner: false,
-            // theme: ThemeData(
-            //   useMaterial3: true,
-            // ),
-            // darkTheme: ThemeData(
-            //   useMaterial3: true,
-            // ),
-            home: GetHomePage().getPage(null),
+            home: AppPage.getInitialPage().getPage(null),
             navigatorKey: AppNavigator.navigatorKey,
+            debugShowCheckedModeBanner: false,
             navigatorObservers: [
               AppLifeCycleMixin.routeObserver,
             ],
