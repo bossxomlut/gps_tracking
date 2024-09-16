@@ -7,10 +7,11 @@ import 'package:gps_speed/feature/tracking_speed/cubit/location_service_cubit.da
 import 'package:gps_speed/feature/tracking_speed/cubit/tracking_cubit.dart';
 import 'package:gps_speed/feature/tracking_speed/cubit/tracking_event.dart';
 import 'package:gps_speed/feature/tracking_speed/cubit/tracking_state.dart';
+import 'package:gps_speed/feature/tracking_speed/cubit/warning_speed_bloc.dart';
+import 'package:gps_speed/feature/tracking_speed/page/max_speed_layout_widget.dart';
 import 'package:gps_speed/feature/tracking_speed/widgets/button.dart';
 import 'package:gps_speed/feature/tracking_speed/widgets/cycling_background.dart';
 import 'package:gps_speed/util/gps/gps.dart';
-import 'package:gps_speed/util/timer/custom_timer.dart';
 import 'package:gps_speed/widget/button/go_button.dart';
 import 'package:gps_speed/widget/gps_icon_widget.dart';
 import 'package:gps_speed/widget/request_permission_dialog/request_location_permission_dialog.dart';
@@ -52,9 +53,21 @@ class _SpeedPageState extends BasePageState<SpeedPage> {
             }
           }
         },
-        child: BlocProvider(
-          create: (_) => trackingMovingCubit,
-          child: super.build(context),
+        child: MultiBlocProvider(
+          providers: [
+            BlocProvider<PositionTrackingMovingCubit>(
+              create: (BuildContext context) => trackingMovingCubit,
+            ),
+            BlocProvider<WarningSpeedBloc>(
+              create: (BuildContext context) => WarningSpeedBloc(
+                trackingMovingCubit,
+                context.read(),
+              ),
+            ),
+          ],
+          child: MaxSpeedLayoutWidget(
+            child: super.build(context),
+          ),
         ),
       ),
     );

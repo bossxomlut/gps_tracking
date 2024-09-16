@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gps_speed/feature/tracking_speed/cubit/location_service_cubit.dart';
+import 'package:gps_speed/widget/setting_icon_widget.dart';
 
 class LocationServiceInfoWidget extends StatelessWidget {
   const LocationServiceInfoWidget({super.key});
@@ -18,6 +19,8 @@ class LocationServiceInfoWidget extends StatelessWidget {
             GPSPermissionWidget(
               isEnabled: state.isGranted,
             ),
+            const Spacer(),
+            const SettingIconWidget(),
           ],
         );
       },

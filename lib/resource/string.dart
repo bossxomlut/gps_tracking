@@ -14,6 +14,8 @@ class SettingLocalization {
   static String get version => "${prefix}version";
 
   static String get developerTeam => "${prefix}developer_team";
+
+  static String get maxSpeed => "${prefix}max_speed";
 }
 
 class CommonLocalization {
