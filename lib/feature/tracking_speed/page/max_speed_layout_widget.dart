@@ -42,6 +42,13 @@ class WarningWidget extends StatefulWidget {
 }
 
 class _WarningWidgetState extends State<WarningWidget> {
+  @override
+  void setState(VoidCallback fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
+  }
+
   late final Timer _timer;
 
   List<Color> warningColor = [Colors.transparent];
