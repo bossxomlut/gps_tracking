@@ -1,25 +1,29 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gps_speed/base_presentation/cubit/base_cubit.dart';
+import 'package:gps_speed/storage/key_value_storage.dart';
+import 'package:gps_speed/storage/storage_key.dart';
 
 class MaxSpeedCubit extends Cubit<MaxSpeedState> with SafeEmit {
   MaxSpeedCubit() : super(const MaxSpeedState());
 
+  final KeyValueStorage _keyValueStorage = KeyValueStorage.i();
+
   Future init() async {
-    //load max speed list
-    emit(
-      state.copyWith(
-        maxSpeedList: [50, 60],
-        maxSpeed: 50,
-      ),
-    );
-
-    //load max speed
-
-    //emit state
+    _keyValueStorage.get<double>(StorageKey.maxSpeed, tryParse: (value) {
+      return double.tryParse(value);
+    }).then((maxSpeed) {
+      emit(
+        state.copyWith(
+          maxSpeedList: [50, 60],
+          maxSpeed: maxSpeed ?? 50,
+        ),
+      );
+    });
   }
 
   void setMaxSpeed(double d) {
+    _keyValueStorage.set(StorageKey.maxSpeed, d);
     emit(state.copyWith(maxSpeed: d));
   }
 }
