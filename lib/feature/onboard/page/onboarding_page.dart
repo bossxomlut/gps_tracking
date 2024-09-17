@@ -6,7 +6,9 @@ import 'package:gps_speed/storage/storage_key.dart';
 import 'package:gps_speed/util/gps/gps_util.dart';
 import 'package:gps_speed/util/navigator/app_navigator.dart';
 import 'package:gps_speed/util/navigator/app_page.dart';
+import 'package:gps_speed/util/show_snack_bar.dart';
 import 'package:gps_speed/widget/image.dart';
+import 'package:gps_speed/widget/request_permission_dialog/show_open_setting_dialog.dart';
 
 class OnboardingPage extends StatefulWidget {
   const OnboardingPage({super.key});
@@ -33,7 +35,7 @@ class _OnboardingPageState extends BasePageState<OnboardingPage> with WidgetsBin
       case AppLifecycleState.paused:
         break;
       case AppLifecycleState.resumed:
-        GPSUtil.instance.checkEnableLocationService().then((isGranted) {
+        GPSUtil.instance.requestLocationPermission().then((isGranted) {
           if (isGranted) {
             _storage.set(StorageKey.firstInit, false);
             AppNavigator.goOff(GetHomePage());
@@ -74,9 +76,17 @@ class _OnboardingPageState extends BasePageState<OnboardingPage> with WidgetsBin
                   _storage.set(StorageKey.firstInit, false);
                   AppNavigator.goOff(GetHomePage());
                 }
-                AppNavigator.goOff(GetHomePage());
               }).onError((error, stackTrace) {
-                GPSUtil.instance.openSettingLocationPermission();
+                if (error is DeniedForeverLocationPermissionException) {
+                  OpenSettingDialog(
+                    onConfirm: () {
+                      GPSUtil.instance.openSettingLocationPermission();
+                    },
+                  ).show(context);
+                } else {
+                  //show message not granted location permission
+                  ShowSnackBar.show(context, message: "This permission is required");
+                }
               });
             },
             child: const Text('Allow location permission'),
