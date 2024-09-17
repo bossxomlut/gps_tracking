@@ -18,14 +18,14 @@ import 'main_setting/app_setting.dart';
 
 class AppLocale {
   final List<Locale> supportedLocales = [
-    const Locale('ar', 'EG'),
+    // const Locale('ar', 'EG'),
     const Locale('en', 'US'),
-    const Locale('es', 'ES'),
-    const Locale('hi', 'IN'),
-    const Locale('ja', 'JP'),
-    const Locale('pt', 'BR'),
-    const Locale('vi', 'VN'),
-    const Locale('zh', 'CN'),
+    // const Locale('es', 'ES'),
+    // const Locale('hi', 'IN'),
+    // const Locale('ja', 'JP'),
+    // const Locale('pt', 'BR'),
+    // const Locale('vi', 'VN'),
+    // const Locale('zh', 'CN'),
   ];
 
   Locale get defaultLocale => const Locale('en', 'US');
