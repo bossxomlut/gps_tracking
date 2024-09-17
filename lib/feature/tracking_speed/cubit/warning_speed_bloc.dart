@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gps_speed/base_presentation/cubit/base_cubit.dart';
@@ -7,19 +9,43 @@ import 'package:rxdart/rxdart.dart';
 
 class WarningSpeedBloc extends Cubit<WarningSpeedState> with SafeEmit {
   WarningSpeedBloc(
-    PositionTrackingMovingCubit positionTrackingMovingCubit,
-    MaxSpeedCubit maxSpeedCubit,
-  ) : super(WarningSpeedState(showWarning: false)) {
-    Rx.combineLatest2(positionTrackingMovingCubit.stream, maxSpeedCubit.stream, (a, b) {
-      if (b.haveMaxSpeed) {
-        if (a.currentSpeed > b.maxSpeed!) {
-          emit(state.copyWith(showWarning: true));
-          return;
-        }
-      }
+    this.positionTrackingMovingCubit,
+    this.maxSpeedCubit,
+  ) : super(const WarningSpeedState(showWarning: false)) {
+    init();
+  }
 
-      emit(state.copyWith(showWarning: true));
-    });
+  final PositionTrackingMovingCubit positionTrackingMovingCubit;
+  final MaxSpeedCubit maxSpeedCubit;
+
+  late final StreamSubscription _streamSubscription;
+
+  void init() {
+    _streamSubscription = Rx.merge([
+      positionTrackingMovingCubit.stream,
+      maxSpeedCubit.stream,
+    ])
+        .map((event) {
+          final a = positionTrackingMovingCubit.state;
+          final b = maxSpeedCubit.state;
+          if (b.haveMaxSpeed) {
+            if (a.currentSpeed > b.maxSpeed!) {
+              return true;
+            }
+          }
+
+          return false;
+        })
+        .distinct()
+        .listen((showWarning) {
+          emit(state.copyWith(showWarning: showWarning));
+        });
+  }
+
+  @override
+  Future<void> close() {
+    _streamSubscription.cancel();
+    return super.close();
   }
 }
 

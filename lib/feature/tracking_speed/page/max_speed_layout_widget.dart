@@ -42,6 +42,12 @@ class WarningWidget extends StatefulWidget {
 }
 
 class _WarningWidgetState extends State<WarningWidget> {
+  static final List<Color> warningColorTransparent = [Colors.transparent];
+  static final List<Color> warningColorList = [
+    const Color(0xFFF5222D).withOpacity(0.02),
+    const Color(0xFFF5222D).withOpacity(0.2),
+  ];
+
   @override
   void setState(VoidCallback fn) {
     if (mounted) {
@@ -51,19 +57,16 @@ class _WarningWidgetState extends State<WarningWidget> {
 
   late final Timer _timer;
 
-  List<Color> warningColor = [Colors.transparent];
+  List<Color> warningColor = warningColorTransparent;
 
   @override
   void initState() {
     super.initState();
     _timer = Timer.periodic(Duration(milliseconds: 1200), (timer) {
-      if (warningColor.length == 1) {
-        warningColor = [
-          const Color(0xFFF5222D).withOpacity(0.02),
-          const Color(0xFFF5222D).withOpacity(0.2),
-        ];
+      if (warningColor == warningColorTransparent) {
+        warningColor = warningColorList;
       } else {
-        warningColor = [Colors.transparent];
+        warningColor = warningColorTransparent;
       }
 
       setState(() {});
