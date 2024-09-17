@@ -14,6 +14,8 @@ abstract class GPSUtil {
 
   Future<bool> requestLocationPermission();
 
+  Future<bool> checkLocationPermission();
+
   Future<bool> openSettingLocationPermission();
 
   Future<bool> openSettingLocationService();
@@ -101,6 +103,13 @@ class _GPSUtilImpl extends GPSUtil {
   @override
   Future<bool> openSettingLocationPermission() {
     return Geolocator.openAppSettings();
+  }
+
+  @override
+  Future<bool> checkLocationPermission() {
+    return Geolocator.checkPermission().then((value) {
+      return value == LocationPermission.always || value == LocationPermission.whileInUse;
+    });
   }
 }
 

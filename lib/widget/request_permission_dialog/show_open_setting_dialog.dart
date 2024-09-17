@@ -16,9 +16,9 @@ class OpenSettingDialog extends StatelessWidget with ShowDialog {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      backgroundColor: Colors.white,
-      title: Text(titleString ?? 'Open setting'),
-      content: Text(contentString ?? 'This function need granted permission'),
+      title: Text(titleString ?? 'Settings'),
+      content: Text(contentString ?? 'Do you want to open the settings to configure the app?'),
+      actionsPadding: EdgeInsets.zero,
       actions: [
         TextButton(
           onPressed: () {

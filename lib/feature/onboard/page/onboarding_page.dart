@@ -35,7 +35,7 @@ class _OnboardingPageState extends BasePageState<OnboardingPage> with WidgetsBin
       case AppLifecycleState.paused:
         break;
       case AppLifecycleState.resumed:
-        GPSUtil.instance.requestLocationPermission().then((isGranted) {
+        GPSUtil.instance.checkLocationPermission().then((isGranted) {
           if (isGranted) {
             _storage.set(StorageKey.firstInit, false);
             AppNavigator.goOff(GetHomePage());
