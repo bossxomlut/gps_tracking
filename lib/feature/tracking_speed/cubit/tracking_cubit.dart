@@ -6,20 +6,16 @@
 
 import 'dart:async';
 
-import 'package:equatable/equatable.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gps_speed/base_presentation/cubit/base_cubit.dart';
-import 'package:gps_speed/base_presentation/cubit/event_mixin.dart';
 import 'package:gps_speed/data/entity/moving_entity.dart';
 import 'package:gps_speed/data/moving_control.dart';
 import 'package:gps_speed/util/gps/distance_util.dart';
 import 'package:gps_speed/util/gps/gps.dart';
-
 import 'package:gps_speed/util/task_runner.dart';
 import 'package:gps_speed/util/timer/moving_time.dart';
 
-import 'tracking_event.dart';
 import 'tracking_state.dart';
 
 class PositionTrackingMovingCubit extends SpeedTrackingMovingCubit {
