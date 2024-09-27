@@ -1,7 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:gps_speed/resource/icon_path.dart';
-import 'package:gps_speed/widget/image.dart';
 
 class PauseButton extends StatelessWidget {
   const PauseButton({Key? key, this.onTap}) : super(key: key);
@@ -20,7 +17,14 @@ class PauseButton extends StatelessWidget {
         decoration: const BoxDecoration(
           shape: BoxShape.circle,
         ),
-        child: AppImage.svg(IconPath.pause),
+        child: Text(
+          'Pause',
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+        ),
+        // child: AppImage.svg(IconPath.pause),
       ),
     );
   }
@@ -40,10 +44,16 @@ class PlayButton extends StatelessWidget {
         width: 76,
         height: 76,
         alignment: Alignment.center,
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           shape: BoxShape.circle,
         ),
-        child: AppImage.svg(IconPath.start),
+        child: Text(
+          'Start',
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+        ),
       ),
     );
   }
@@ -63,10 +73,18 @@ class StopButton extends StatelessWidget {
         width: 76,
         height: 76,
         alignment: Alignment.center,
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           shape: BoxShape.circle,
+          color: Theme.of(context).colorScheme.inversePrimary,
         ),
-        child: AppImage.svg(IconPath.finish),
+        child: Text(
+          'Stop',
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+        ),
+        // child: AppImage.svg(IconPath.finish),
       ),
     );
   }

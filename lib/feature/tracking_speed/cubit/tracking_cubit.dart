@@ -173,6 +173,8 @@ class SpeedTrackingMovingCubit extends Cubit<TrackingMovingState>
     _movingTime.stop();
     _queueTask.clearAll();
     emit(state.stop());
+
+    reset();
   }
 }
 

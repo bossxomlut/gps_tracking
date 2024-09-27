@@ -64,7 +64,7 @@ class _OnboardingPageState extends BasePageState<OnboardingPage> with WidgetsBin
             ),
           ),
           Text(
-            'This app required location permission',
+            'This app requires location permission to track your movements and calculate speed.',
             style: Theme.of(context).textTheme.titleLarge,
             textAlign: TextAlign.center,
           ),

@@ -508,7 +508,10 @@ class _MovingController extends StatelessWidget {
                 alignment: Alignment.center,
                 child: Text(
                   "Reset",
-                  style: Theme.of(context).textTheme.titleLarge,
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
                 ),
               ),
             );
