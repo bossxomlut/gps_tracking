@@ -51,5 +51,8 @@
     "in_progress_convert": "Progressing in convert...",
     "in_progress_download": "Progressing in download...",
     "in_progress_merge": "Progressing in merge...",
-    "max_speed": "Max speed"
+    "max_speed": "Max speed",
+    "dangerous_marker": "Dangerous marker",
+    "enable_dangerous_marker": "Enable dangerous marker",
+    "dangerous_marker_list": "Dangerous marker list"
 }

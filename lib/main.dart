@@ -6,13 +6,19 @@ import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gps_speed/base_presentation/theme/theme.dart';
+import 'package:gps_speed/data/gps/dangerous_entity.dart';
+import 'package:gps_speed/feature/dangerous_mark/cubit/dangerous_cubit.dart';
 import 'package:gps_speed/feature/setting/setting.dart';
 import 'package:gps_speed/feature/tracking_speed/cubit/location_service_cubit.dart';
 import 'package:gps_speed/firebase/firebase_options.dart';
 import 'package:gps_speed/util/app_life_cycle_mixin.dart';
+import 'package:gps_speed/util/gps/gps.dart';
 import 'package:gps_speed/util/navigator/app_navigator.dart';
 import 'package:gps_speed/util/navigator/app_page.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:path_provider/path_provider.dart';
 
 import 'main_setting/app_setting.dart';
 
@@ -45,6 +51,11 @@ Future main() async {
     return true;
   };
 
+  final dir = await getApplicationDocumentsDirectory();
+
+  Hive.initFlutter(dir.path);
+  Hive.registerAdapter(DangerousEntityAdapter());
+
   await AppSetting().initApp();
 
   final AppLocale appLocale = AppLocale();
@@ -60,9 +71,14 @@ Future main() async {
   );
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     AppTheme.initFromRootContext(context);
@@ -76,6 +92,9 @@ class MyApp extends StatelessWidget {
         ),
         BlocProvider<LocationServiceCubit>(
           create: (BuildContext context) => LocationServiceCubit(),
+        ),
+        BlocProvider<DangerousCubit>(
+          create: (BuildContext context) => DangerousCubit(getGPSUtilInstance()),
         ),
       ],
       child: ListenableBuilder(
@@ -95,9 +114,16 @@ class MyApp extends StatelessWidget {
             navigatorObservers: [
               AppLifeCycleMixin.routeObserver,
             ],
+            builder: FToastBuilder(),
           );
         },
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    Hive.close();
+    super.dispose();
   }
 }

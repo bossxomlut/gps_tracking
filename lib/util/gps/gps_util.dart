@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 
 import 'gps.dart';
@@ -27,6 +28,8 @@ abstract class GPSUtil {
   Future<GPSEntity> getCurrentLocation();
 
   Stream<GPSEntity> listenGPSChanged();
+
+  Future<String> getGPSInfo(GPSEntity gps);
 }
 
 abstract class _GPSUtilImpl extends GPSUtil {
@@ -90,6 +93,20 @@ abstract class _GPSUtilImpl extends GPSUtil {
     return Geolocator.checkPermission().then((value) {
       return value == LocationPermission.always || value == LocationPermission.whileInUse;
     });
+  }
+
+  @override
+  Future<String> getGPSInfo(GPSEntity gps) async {
+    try {
+      final placeMarks = await placemarkFromCoordinates(gps.latitude, gps.longitude);
+
+      if (placeMarks.isNotEmpty) {
+        final place = placeMarks.first;
+        return 'name: ${place.name}, street: ${place.street}, locality: ${place.locality}, administrativeArea: ${place.administrativeArea}, country: ${place.country}';
+      }
+    } catch (e) {}
+
+    return 'not_found';
   }
 }
 

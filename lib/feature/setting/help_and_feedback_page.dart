@@ -5,7 +5,6 @@ import 'package:gps_speed/base_presentation/view/view.dart';
 import 'package:gps_speed/resource/string.dart';
 import 'package:gps_speed/util/hardcode_string.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:url_launcher/link.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ColumnStart extends Column {
@@ -79,22 +78,6 @@ class ReportWidget extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 12),
-        Text(
-          "Hải Lê - lehaile37@gmail.com".hardCode,
-          style: textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w500),
-        ),
-        const SizedBox(height: 8),
-        InkWell(
-          onTap: () {
-            try {
-              launchUrl(Uri.parse('https://github.com'));
-            } catch (e) {}
-          },
-          child: Text(
-            'Github: ---'.hardCode,
-            style: textTheme.bodyLarge?.copyWith(color: Colors.blue),
-          ),
-        ),
       ],
     );
   }

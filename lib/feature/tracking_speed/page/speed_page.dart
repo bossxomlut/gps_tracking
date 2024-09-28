@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gps_speed/base_presentation/cubit/event_mixin.dart';
 import 'package:gps_speed/base_presentation/page/base_page.dart';
+import 'package:gps_speed/feature/dangerous_mark/dangerous_mark_layout.dart';
 import 'package:gps_speed/feature/setting/cubit/unit_cubit.dart';
 import 'package:gps_speed/feature/tracking_speed/cubit/location_service_cubit.dart';
 import 'package:gps_speed/feature/tracking_speed/cubit/tracking_cubit.dart';
@@ -124,7 +126,7 @@ class _SpeedPageState extends BasePageState<SpeedPage> {
               return buildGoButton(context);
             }
 
-            return buildTrackingView();
+            return DangerousMarkLayout(child: buildTrackingView());
           },
         ),
       ),
@@ -450,6 +452,15 @@ class _MovingController extends StatelessWidget {
             return PlayButton(
               onTap: () async {
                 if (context.read<LocationServiceCubit>().canStart()) {
+                  Fluttertoast.showToast(
+                    msg: "Start",
+                    toastLength: Toast.LENGTH_SHORT,
+                    gravity: ToastGravity.CENTER,
+                    timeInSecForIosWeb: 1,
+                    backgroundColor: Colors.grey.withOpacity(0.5),
+                    textColor: Colors.white,
+                    fontSize: 16.0,
+                  );
                   context.read<PositionTrackingMovingCubit>().start();
                 } else {
                   context.read<LocationServiceCubit>().requestPermissions();
@@ -463,12 +474,25 @@ class _MovingController extends StatelessWidget {
               children: [
                 PauseButton(
                   onTap: () {
+                    Fluttertoast.showToast(
+                      msg: "Pause",
+                      toastLength: Toast.LENGTH_SHORT,
+                      gravity: ToastGravity.CENTER,
+                      timeInSecForIosWeb: 1,
+                      backgroundColor: Colors.grey.withOpacity(0.5),
+                      textColor: Colors.white,
+                      fontSize: 16.0,
+                    );
+
                     context.read<PositionTrackingMovingCubit>().pause();
                   },
                 ),
                 const SizedBox(width: 16),
                 StopButton(
                   onTap: () {
+                    ScaffoldMessenger.of(context)
+                      ..clearSnackBars()
+                      ..removeCurrentSnackBar();
                     context.read<PositionTrackingMovingCubit>().stop();
                   },
                 ),
@@ -481,6 +505,15 @@ class _MovingController extends StatelessWidget {
                 PlayButton(
                   onTap: () async {
                     if (context.read<LocationServiceCubit>().canStart()) {
+                      Fluttertoast.showToast(
+                        msg: "Resume",
+                        toastLength: Toast.LENGTH_SHORT,
+                        gravity: ToastGravity.CENTER,
+                        timeInSecForIosWeb: 1,
+                        backgroundColor: Colors.grey.withOpacity(0.5),
+                        textColor: Colors.white,
+                        fontSize: 16.0,
+                      );
                       context.read<PositionTrackingMovingCubit>().resume();
                     } else {
                       context.read<LocationServiceCubit>().requestPermissions();
@@ -490,6 +523,10 @@ class _MovingController extends StatelessWidget {
                 const SizedBox(width: 16),
                 StopButton(
                   onTap: () {
+                    ScaffoldMessenger.of(context)
+                      ..clearSnackBars()
+                      ..removeCurrentSnackBar();
+
                     context.read<PositionTrackingMovingCubit>().stop();
                   },
                 ),

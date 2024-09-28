@@ -16,6 +16,12 @@ class SettingLocalization {
   static String get developerTeam => "${prefix}developer_team";
 
   static String get maxSpeed => "${prefix}max_speed";
+
+  static String get dangerousMarker => "${prefix}dangerous_marker";
+
+  static String get enableDangerousMarker => "${prefix}enable_dangerous_marker";
+
+  static String get listingDangerousMarker => "${prefix}dangerous_marker_list";
 }
 
 class CommonLocalization {

@@ -82,11 +82,31 @@ dependencies:
   #local storage
   shared_preferences: ^2.3.2
 
+  hive:
+  hive_flutter:
+
+  path_provider:
+
   #show snack bar
   another_flushbar: 1.12.30
 
   #gps
   geolocator: 11.0.0
+
+  #geocoding
+  geocoding:
+
+  #google map
+  google_maps_flutter: ^2.9.0
+
+  #snack bar
+  awesome_snackbar_content: ^0.1.4
+
+  #toast
+  fluttertoast: ^8.2.8
+
+  #
+  flutter_slidable: ^3.1.1
 
 dev_dependencies:
   flutter_test:
@@ -95,6 +115,8 @@ dev_dependencies:
   flutter_lints: ^4.0.0
 
   flutter_launcher_icons: 0.13.1
+  hive_generator:
+  build_runner:
 
 flutter_launcher_icons:
   android: "ic_launcher"

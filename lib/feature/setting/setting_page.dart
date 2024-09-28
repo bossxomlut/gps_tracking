@@ -3,8 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gps_speed/base_presentation/page/base_page.dart';
 import 'package:gps_speed/base_presentation/view/view.dart';
+import 'package:gps_speed/feature/dangerous_mark/dangerous_mark_setting.dart';
 import 'package:gps_speed/feature/setting/cubit/cubit.dart';
 import 'package:gps_speed/resource/string.dart';
+import 'package:gps_speed/util/navigator/app_navigator.dart';
+import 'package:gps_speed/util/navigator/app_page.dart';
 
 class SettingPage extends StatefulWidget {
   const SettingPage({Key? key}) : super(key: key);
@@ -28,6 +31,8 @@ class _SettingPageState extends BasePageState<SettingPage> {
         children: [
           Loca(),
           MaxSpeedSetting(),
+          DangerousMarkSetting(),
+          HelpAndFeedback(),
         ],
       ),
     );
@@ -105,6 +110,24 @@ class MaxSpeedSetting extends StatelessWidget {
         },
       ),
       contentPadding: EdgeInsets.zero,
+    );
+  }
+}
+
+class HelpAndFeedback extends StatelessWidget {
+  const HelpAndFeedback({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      title: LText(
+        SettingLocalization.helpAndFeedback,
+        style: Theme.of(context).textTheme.titleLarge,
+      ),
+      onTap: () {
+        AppNavigator.to(GetHelpAndFeedbackPage());
+      },
+      trailing: const Icon(Icons.navigate_next),
     );
   }
 }
