@@ -1,6 +1,7 @@
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gps_speed/feature/dangerous_mark/cubit/dangerous_cubit.dart';
 
 class DangerousMarkLayout extends StatefulWidget {
@@ -31,6 +32,8 @@ class _DangerousMarkLayoutState extends State<DangerousMarkLayout> {
     buttonX = screenWidth - 40 - buttonWidth;
     buttonY = (screenHeight - buttonHeight) / 2;
   }
+
+  bool isLoading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -68,8 +71,37 @@ class _DangerousMarkLayoutState extends State<DangerousMarkLayout> {
                     buttonY = (buttonY + details.delta.dy).clamp(0.0, screenHeight - 40 - buttonHeight);
                   });
                 },
-                onTap: () {
-                  context.read<DangerousCubit>().markAsDangerous();
+                onTap: () async {
+                  if (isLoading) {
+                    return;
+                  }
+                  // //show toast: get dangerous location information
+                  // Fluttertoast.showToast(
+                  //   msg: "Getting dangerous location information",
+                  //   toastLength: Toast.LENGTH_SHORT,
+                  //   gravity: ToastGravity.CENTER,
+                  //   timeInSecForIosWeb: 1,
+                  //   backgroundColor: Colors.grey.withOpacity(0.5),
+                  //   textColor: Colors.white,
+                  //   fontSize: 16.0,
+                  // );
+
+                  isLoading = true;
+                  setState(() {});
+
+                  await context.read<DangerousCubit>().markAsDangerous();
+                  isLoading = false;
+                  setState(() {});
+
+                  Fluttertoast.showToast(
+                    msg: "Get dangerous location information successfully",
+                    toastLength: Toast.LENGTH_SHORT,
+                    gravity: ToastGravity.CENTER,
+                    timeInSecForIosWeb: 1,
+                    backgroundColor: Colors.grey.withOpacity(0.5),
+                    textColor: Colors.white,
+                    fontSize: 16.0,
+                  );
                 },
                 onLongPress: () {
                   const snackBar = SnackBar(
@@ -95,29 +127,43 @@ class _DangerousMarkLayoutState extends State<DangerousMarkLayout> {
                   height: 80,
                   child: FittedBox(
                     fit: BoxFit.fill,
-                    child: CircleAvatar(
-                      radius: 80,
-                      backgroundColor: Colors.black38,
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            Icons.location_on_outlined,
-                            color: Colors.red.shade500,
-                            size: 80,
-                          ),
-                          // const SizedBox(height: 8),
-                          Text(
-                            'Dangerous',
-                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                  color: Colors.red.shade500,
-                                  fontWeight: FontWeight.bold,
-                                  //fontSize: 11,
-                                ),
-                          ),
-                        ],
-                      ),
-                    ),
+                    child: Builder(builder: (context) {
+                      return CircleAvatar(
+                        radius: 80,
+                        backgroundColor: Theme.of(context).secondaryHeaderColor,
+                        // backgroundColor: Colors.yellow.shade500.withOpacity(0.3),
+                        child: Builder(builder: (context) {
+                          final color = Colors.red.shade400;
+
+                          if (isLoading) {
+                            return SizedBox(
+                              child: CircularProgressIndicator(
+                                color: color,
+                              ),
+                            );
+                          }
+                          return Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.location_on_outlined,
+                                color: color,
+                                size: 80,
+                              ),
+                              // const SizedBox(height: 8),
+                              Text(
+                                'Dangerous',
+                                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                      color: color,
+                                      fontWeight: FontWeight.bold,
+                                      //fontSize: 11,
+                                    ),
+                              ),
+                            ],
+                          );
+                        }),
+                      );
+                    }),
                   ),
                 ),
               ),

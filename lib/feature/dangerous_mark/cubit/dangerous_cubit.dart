@@ -45,8 +45,8 @@ class DangerousCubit extends Cubit<DangerousState> with SafeEmit {
     return super.close();
   }
 
-  void markAsDangerous() {
-    _gpsUtil.getCurrentLocation().then(
+  Future markAsDangerous() {
+    return _gpsUtil.getCurrentLocation().then(
       (gps) async {
         final DangerousEntity dangerousEntity = DangerousEntity(
           latitude: gps.latitude,

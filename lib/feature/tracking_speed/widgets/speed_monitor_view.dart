@@ -89,18 +89,19 @@ class SpeedMonitorView extends StatelessWidget {
                             ], annotations: <GaugeAnnotation>[
                               GaugeAnnotation(
                                 widget: Container(
-                                    child: Text(context.read<UnitCubit>().getSpeedSymbol(),
-                                        style: TextStyle(fontSize: 25, fontWeight: FontWeight.w200))),
-                                angle: 90,
-                                positionFactor: 0.2,
-                              ),
-                              GaugeAnnotation(
-                                widget: Container(
                                   child: Text("${speed.toStringAsFixed(0)}",
                                       style: Theme.of(context).textTheme.displayLarge),
                                 ),
                                 angle: 90,
                                 positionFactor: 0.5,
+                              ),
+                              GaugeAnnotation(
+                                widget: Container(
+                                  child: Text(context.read<UnitCubit>().getSpeedSymbol(),
+                                      style: TextStyle(fontSize: 25, fontWeight: FontWeight.w200)),
+                                ),
+                                angle: 90,
+                                positionFactor: 0.8,
                               ),
                             ])
                           ],

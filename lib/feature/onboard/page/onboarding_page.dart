@@ -54,44 +54,66 @@ class _OnboardingPageState extends BasePageState<OnboardingPage> with WidgetsBin
   @override
   Widget buildBody(BuildContext context) {
     return SingleChildScrollView(
-      child: Column(
-        children: [
-          const SizedBox(height: 140),
-          AspectRatio(
-            aspectRatio: 1,
-            child: AppImage.asset(
-              ImagePath.onboardingRequiredLocation,
-            ),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Align(
+          alignment: Alignment.center,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const SizedBox(height: 100),
+              ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 400),
+                child: Text(
+                  'Important need location permission',
+                  style: Theme.of(context).textTheme.displaySmall,
+                  textAlign: TextAlign.left,
+                ),
+              ),
+              const SizedBox(height: 20),
+              ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 400),
+                child: Text(
+                  'This app collects location data to enable GPS speed tracking even when the app is closed or not in use. This data is used for track your movements and calculate speed.',
+                  style: Theme.of(context).textTheme.bodyMedium,
+                  textAlign: TextAlign.left,
+                ),
+              ),
+              ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 400),
+                child: AspectRatio(
+                  aspectRatio: 1,
+                  child: AppImage.asset(
+                    ImagePath.onboardingRequiredLocation,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+              OutlinedButton(
+                onPressed: () {
+                  GPSUtil.instance.requestLocationPermission().then((isGranted) {
+                    if (isGranted) {
+                      _storage.set(StorageKey.firstInit, false);
+                      AppNavigator.goOff(GetHomePage());
+                    }
+                  }).onError((error, stackTrace) {
+                    if (error is DeniedForeverLocationPermissionException) {
+                      OpenSettingDialog(
+                        onConfirm: () {
+                          GPSUtil.instance.openSettingLocationPermission();
+                        },
+                      ).show(context);
+                    } else {
+                      //show message not granted location permission
+                      ShowSnackBar.show(context, message: "This permission is required");
+                    }
+                  });
+                },
+                child: const Text('Allow location permission'),
+              ),
+            ],
           ),
-          Text(
-            'This app requires location permission to track your movements and calculate speed.',
-            style: Theme.of(context).textTheme.titleLarge,
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 20),
-          OutlinedButton(
-            onPressed: () {
-              GPSUtil.instance.requestLocationPermission().then((isGranted) {
-                if (isGranted) {
-                  _storage.set(StorageKey.firstInit, false);
-                  AppNavigator.goOff(GetHomePage());
-                }
-              }).onError((error, stackTrace) {
-                if (error is DeniedForeverLocationPermissionException) {
-                  OpenSettingDialog(
-                    onConfirm: () {
-                      GPSUtil.instance.openSettingLocationPermission();
-                    },
-                  ).show(context);
-                } else {
-                  //show message not granted location permission
-                  ShowSnackBar.show(context, message: "This permission is required");
-                }
-              });
-            },
-            child: const Text('Allow location permission'),
-          ),
-        ],
+        ),
       ),
     );
   }

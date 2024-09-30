@@ -23,6 +23,8 @@ class PositionTrackingMovingCubit extends SpeedTrackingMovingCubit {
 
   final CalculateDistance _calDistance = CalculateDistanceImpl();
 
+  final GPSUtil gps = GPSUtil.instance;
+
   @override
   void reset() {
     _calDistance.reset();
@@ -80,8 +82,6 @@ class SpeedTrackingMovingCubit extends Cubit<TrackingMovingState>
   SpeedTrackingMovingCubit() : super(TrackingMovingState.ready());
 
   final TaskRunner _queueTask = TaskRunner();
-
-  final GPSUtil gps = GPSUtil.instance;
 
   final SpeedListener speedListener = SpeedListener();
 

@@ -76,40 +76,6 @@ class _SpeedPageState extends BasePageState<SpeedPage> {
     );
   }
 
-  // @override
-  // PreferredSizeWidget? buildAppBar(BuildContext context) {
-  //   if (MediaQuery.of(context).orientation == Orientation.portrait) {
-  //     return AppBar(
-  //       centerTitle: true,
-  //       title: Builder(builder: (context) {
-  //         return Row(
-  //           mainAxisAlignment: MainAxisAlignment.center,
-  //           children: [
-  //             BlocBuilder<PositionTrackingMovingCubGPS_SPEED__1_-removebg-preview.pngit, TrackingMovingState>(
-  //                 buildWhen: _buildWhen,
-  //                 builder: (c, s) {
-  //                   if (s is ReadyTrackingMovingState) {
-  //                     return const SizedBox();
-  //                   }
-  //                   return StreamBuilder(
-  //                       stream: context.read<PositionTrackingMovingCubit>().timerStream,
-  //                       builder: (c, d) {
-  //                         if (d.hasData) {
-  //                           final duration = d.data!;
-  //
-  //                           return Text(duration.getMinuteFormat());
-  //                         }
-  //                         return const SizedBox();
-  //                       });
-  //                 }),
-  //           ],
-  //         );
-  //       }),
-  //     );
-  //   }
-  //   return null;
-  // }
-
   bool _buildWhen(TrackingMovingState p, TrackingMovingState c) {
     return (p is ReadyTrackingMovingState && c is! ReadyTrackingMovingState) ||
         (c is ReadyTrackingMovingState && p is! ReadyTrackingMovingState);
@@ -120,15 +86,93 @@ class _SpeedPageState extends BasePageState<SpeedPage> {
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: BlocBuilder<PositionTrackingMovingCubit, TrackingMovingState>(
-          buildWhen: _buildWhen,
-          builder: (context, state) {
-            if (state is ReadyTrackingMovingState) {
-              return buildGoButton(context);
-            }
+        child: MultiBlocListener(
+          listeners: [
+            BlocListener<PositionTrackingMovingCubit, TrackingMovingState>(
+              listenWhen: (previous, current) {
+                return previous is ReadyTrackingMovingState && current is InProgressTrackingMovingState;
+              },
+              listener: (context, state) {
+                Fluttertoast.showToast(
+                  msg: "Start",
+                  toastLength: Toast.LENGTH_SHORT,
+                  gravity: ToastGravity.CENTER,
+                  timeInSecForIosWeb: 1,
+                  backgroundColor: Colors.grey.withOpacity(0.5),
+                  textColor: Colors.white,
+                  fontSize: 16.0,
+                );
+              },
+            ),
+            BlocListener<PositionTrackingMovingCubit, TrackingMovingState>(
+              listenWhen: (previous, current) {
+                return previous is PauseTrackingMovingState && current is InProgressTrackingMovingState;
+              },
+              listener: (context, state) {
+                Fluttertoast.showToast(
+                  msg: "Resume",
+                  toastLength: Toast.LENGTH_SHORT,
+                  gravity: ToastGravity.CENTER,
+                  timeInSecForIosWeb: 1,
+                  backgroundColor: Colors.grey.withOpacity(0.5),
+                  textColor: Colors.white,
+                  fontSize: 16.0,
+                );
+              },
+            ),
+            BlocListener<PositionTrackingMovingCubit, TrackingMovingState>(
+              listenWhen: (previous, current) {
+                return previous is InProgressTrackingMovingState && current is PauseTrackingMovingState;
+              },
+              listener: (context, state) {
+                Fluttertoast.showToast(
+                  msg: "Pause",
+                  toastLength: Toast.LENGTH_SHORT,
+                  gravity: ToastGravity.CENTER,
+                  timeInSecForIosWeb: 1,
+                  backgroundColor: Colors.grey.withOpacity(0.5),
+                  textColor: Colors.white,
+                  fontSize: 16.0,
+                );
 
-            return DangerousMarkLayout(child: buildTrackingView());
-          },
+                // Fluttertoast.showToast(
+                //   msg: "Resume",
+                //   toastLength: Toast.LENGTH_SHORT,
+                //   gravity: ToastGravity.CENTER,
+                //   timeInSecForIosWeb: 1,
+                //   backgroundColor: Colors.grey.withOpacity(0.5),
+                //   textColor: Colors.white,
+                //   fontSize: 16.0,
+                // );
+              },
+            ),
+            BlocListener<PositionTrackingMovingCubit, TrackingMovingState>(
+              listenWhen: (previous, current) {
+                return previous is! StopTrackingMovingState && current is StopTrackingMovingState;
+              },
+              listener: (context, state) {
+                Fluttertoast.showToast(
+                  msg: "Stop",
+                  toastLength: Toast.LENGTH_SHORT,
+                  gravity: ToastGravity.CENTER,
+                  timeInSecForIosWeb: 1,
+                  backgroundColor: Colors.grey.withOpacity(0.5),
+                  textColor: Colors.white,
+                  fontSize: 16.0,
+                );
+              },
+            ),
+          ],
+          child: BlocBuilder<PositionTrackingMovingCubit, TrackingMovingState>(
+            buildWhen: _buildWhen,
+            builder: (context, state) {
+              if (state is ReadyTrackingMovingState) {
+                return buildGoButton(context);
+              }
+
+              return DangerousMarkLayout(child: buildTrackingView());
+            },
+          ),
         ),
       ),
     );
@@ -375,15 +419,6 @@ class _MovingController extends StatelessWidget {
             return PlayButton(
               onTap: () async {
                 if (context.read<LocationServiceCubit>().canStart()) {
-                  Fluttertoast.showToast(
-                    msg: "Start",
-                    toastLength: Toast.LENGTH_SHORT,
-                    gravity: ToastGravity.CENTER,
-                    timeInSecForIosWeb: 1,
-                    backgroundColor: Colors.grey.withOpacity(0.5),
-                    textColor: Colors.white,
-                    fontSize: 16.0,
-                  );
                   context.read<PositionTrackingMovingCubit>().start();
                 } else {
                   context.read<LocationServiceCubit>().requestPermissions();
@@ -397,16 +432,6 @@ class _MovingController extends StatelessWidget {
               children: [
                 PauseButton(
                   onTap: () {
-                    Fluttertoast.showToast(
-                      msg: "Pause",
-                      toastLength: Toast.LENGTH_SHORT,
-                      gravity: ToastGravity.CENTER,
-                      timeInSecForIosWeb: 1,
-                      backgroundColor: Colors.grey.withOpacity(0.5),
-                      textColor: Colors.white,
-                      fontSize: 16.0,
-                    );
-
                     context.read<PositionTrackingMovingCubit>().pause();
                   },
                 ),
@@ -428,15 +453,6 @@ class _MovingController extends StatelessWidget {
                 PlayButton(
                   onTap: () async {
                     if (context.read<LocationServiceCubit>().canStart()) {
-                      Fluttertoast.showToast(
-                        msg: "Resume",
-                        toastLength: Toast.LENGTH_SHORT,
-                        gravity: ToastGravity.CENTER,
-                        timeInSecForIosWeb: 1,
-                        backgroundColor: Colors.grey.withOpacity(0.5),
-                        textColor: Colors.white,
-                        fontSize: 16.0,
-                      );
                       context.read<PositionTrackingMovingCubit>().resume();
                     } else {
                       context.read<LocationServiceCubit>().requestPermissions();
@@ -474,12 +490,6 @@ class _MovingController extends StatelessWidget {
                       ),
                 ),
               ),
-            );
-            return ElevatedButton(
-              onPressed: () {
-                context.read<PositionTrackingMovingCubit>().reset();
-              },
-              child: Text("Reset"),
             );
         }
       },
