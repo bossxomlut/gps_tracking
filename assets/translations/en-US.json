@@ -54,5 +54,6 @@
     "max_speed": "Max speed",
     "dangerous_marker": "Dangerous marker",
     "enable_dangerous_marker": "Enable dangerous marker",
-    "dangerous_marker_list": "Dangerous marker list"
+    "dangerous_marker_list": "Dangerous marker list",
+    "monitor": "Monitor"
 }

@@ -17,6 +17,8 @@ class SettingLocalization {
 
   static String get maxSpeed => "${prefix}max_speed";
 
+  static String get monitor => "${prefix}monitor";
+
   static String get dangerousMarker => "${prefix}dangerous_marker";
 
   static String get enableDangerousMarker => "${prefix}enable_dangerous_marker";

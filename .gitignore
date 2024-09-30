@@ -47,3 +47,4 @@ Podfile.lock
 devtools_options.yaml
 google-services.json
 GoogleService-Info.plist
+*.g.dart

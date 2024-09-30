@@ -10,6 +10,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gps_speed/base_presentation/theme/theme.dart';
 import 'package:gps_speed/data/gps/dangerous_entity.dart';
 import 'package:gps_speed/feature/dangerous_mark/cubit/dangerous_cubit.dart';
+import 'package:gps_speed/feature/setting/cubit/monitor_cubit.dart';
 import 'package:gps_speed/feature/setting/setting.dart';
 import 'package:gps_speed/feature/tracking_speed/cubit/location_service_cubit.dart';
 import 'package:gps_speed/firebase/firebase_options.dart';
@@ -95,6 +96,9 @@ class _MyAppState extends State<MyApp> {
         ),
         BlocProvider<DangerousCubit>(
           create: (BuildContext context) => DangerousCubit(getGPSUtilInstance()),
+        ),
+        BlocProvider<MonitorCubit>(
+          create: (BuildContext context) => MonitorCubit(),
         ),
       ],
       child: ListenableBuilder(

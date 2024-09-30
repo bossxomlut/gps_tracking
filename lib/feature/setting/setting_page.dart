@@ -5,6 +5,7 @@ import 'package:gps_speed/base_presentation/page/base_page.dart';
 import 'package:gps_speed/base_presentation/view/view.dart';
 import 'package:gps_speed/feature/dangerous_mark/dangerous_mark_setting.dart';
 import 'package:gps_speed/feature/setting/cubit/cubit.dart';
+import 'package:gps_speed/feature/setting/cubit/monitor_cubit.dart';
 import 'package:gps_speed/resource/string.dart';
 import 'package:gps_speed/util/navigator/app_navigator.dart';
 import 'package:gps_speed/util/navigator/app_page.dart';
@@ -30,6 +31,7 @@ class _SettingPageState extends BasePageState<SettingPage> {
       child: Column(
         children: [
           Loca(),
+          MonitorSetting(),
           MaxSpeedSetting(),
           DangerousMarkSetting(),
           HelpAndFeedback(),
@@ -103,6 +105,51 @@ class MaxSpeedSetting extends StatelessWidget {
                     ),
                   ),
                   title: LText("${sp.toStringAsFixed(0)} km"),
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+      contentPadding: EdgeInsets.zero,
+    );
+  }
+}
+
+class MonitorSetting extends StatelessWidget {
+  const MonitorSetting({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      title: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: LText(
+          SettingLocalization.monitor,
+          style: Theme.of(context).textTheme.titleLarge,
+        ),
+      ),
+      subtitle: BlocBuilder<MonitorCubit, MonitorState>(
+        builder: (context, state) {
+          final cubit = context.read<MonitorCubit>();
+
+          final maxSpeedList = cubit.viewTypeList;
+          final maxSpeed = state.viewType;
+          return Column(
+            children: [
+              ...?maxSpeedList?.map(
+                (sp) => ListTile(
+                  onTap: () {
+                    cubit.setViewType(sp);
+                  },
+                  leading: IgnorePointer(
+                    child: Radio(
+                      value: maxSpeed == sp,
+                      groupValue: true,
+                      onChanged: (_) {},
+                    ),
+                  ),
+                  title: LText("${sp.name}"),
                 ),
               ),
             ],

@@ -13,6 +13,7 @@ import 'package:gps_speed/feature/tracking_speed/cubit/warning_speed_bloc.dart';
 import 'package:gps_speed/feature/tracking_speed/page/max_speed_layout_widget.dart';
 import 'package:gps_speed/feature/tracking_speed/widgets/button.dart';
 import 'package:gps_speed/feature/tracking_speed/widgets/cycling_background.dart';
+import 'package:gps_speed/feature/tracking_speed/widgets/speed_monitor_view.dart';
 import 'package:gps_speed/util/gps/gps.dart';
 import 'package:gps_speed/widget/button/go_button.dart';
 import 'package:gps_speed/widget/gps_icon_widget.dart';
@@ -162,46 +163,7 @@ class _SpeedPageState extends BasePageState<SpeedPage> {
             return Column(
               children: [
                 Expanded(
-                  child: CyclingBackground(
-                    child: Center(
-                      child: BlocSelector<PositionTrackingMovingCubit, TrackingMovingState, double>(
-                        selector: (state) => state.currentSpeed,
-                        builder: (context, speed) {
-                          return Stack(
-                            alignment: Alignment.center,
-                            children: [
-                              Align(
-                                child: Text(
-                                  "${context.read<UnitCubit>().getSpeedSymbol()}",
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .headlineLarge
-                                      ?.copyWith(fontSize: 40, color: Colors.grey.withOpacity(0.3)),
-                                ),
-                                alignment: FractionalOffset(0.5, 0.8),
-                              ),
-                              RichText(
-                                text: TextSpan(
-                                  style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                                        fontSize: 180,
-                                      ),
-                                  text: "${speed.toStringAsFixed(0)}",
-                                  children: [
-                                    // TextSpan(
-                                    //   text: "${context.read<UnitCubit>().getSpeedSymbol()}",
-                                    //   style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                                    //         fontSize: 20,
-                                    //       ),
-                                    // ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          );
-                        },
-                      ),
-                    ),
-                  ),
+                  child: SpeedMonitorView(),
                 ),
                 _MovingInfo(),
                 _MovingController(),
@@ -212,46 +174,7 @@ class _SpeedPageState extends BasePageState<SpeedPage> {
               children: [
                 Expanded(
                   flex: 3,
-                  child: CyclingBackground(
-                    child: Center(
-                      child: BlocSelector<PositionTrackingMovingCubit, TrackingMovingState, double>(
-                        selector: (state) => state.currentSpeed,
-                        builder: (context, speed) {
-                          return Stack(
-                            alignment: Alignment.center,
-                            children: [
-                              Align(
-                                child: Text(
-                                  "${context.read<UnitCubit>().getSpeedSymbol()}",
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .headlineLarge
-                                      ?.copyWith(fontSize: 40, color: Colors.grey.withOpacity(0.3)),
-                                ),
-                                alignment: FractionalOffset(0.5, 0.8),
-                              ),
-                              RichText(
-                                text: TextSpan(
-                                  style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                                        fontSize: 180,
-                                      ),
-                                  text: "${speed.toStringAsFixed(0)}",
-                                  children: [
-                                    // TextSpan(
-                                    //   text: "${context.read<UnitCubit>().getSpeedSymbol()}",
-                                    //   style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                                    //         fontSize: 20,
-                                    //       ),
-                                    // ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          );
-                        },
-                      ),
-                    ),
-                  ),
+                  child: SpeedMonitorView(),
                 ),
                 Expanded(
                     flex: 2,
