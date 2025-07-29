@@ -17,7 +17,7 @@ version: 1.2.1+1
 
 environment:
   sdk: '>=3.2.3 <4.0.0'
-  flutter: 3.22.0
+  flutter: 3.24.5
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -91,10 +91,9 @@ dependencies:
   another_flushbar: 1.12.30
 
   #gps
-  geolocator: 11.0.0
-
-  #geocoding
-  geocoding:
+  geocoding: ^3.0.0  # Converts addresses into geographical coordinates (geocode) and vice versa (reverse geocode).
+  geolocator: ^13.0.1  # A GPS location library providing location data for Flutter apps.
+  geolocator_android: 4.6.1  # A GPS location library providing location data for Flutter apps.
 
   #google map
   google_maps_flutter: ^2.9.0
